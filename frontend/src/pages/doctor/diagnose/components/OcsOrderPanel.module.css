@@ -1,0 +1,270 @@
+.ocsOrderPanel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* ===== 담긴 오더 그룹 ===== */
+.orderGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.orderGroupTitleMedicine {
+    font-size: 12px;
+    font-weight: 800;
+    color: #1259bd;
+    margin: 0;
+}
+
+.orderGroupTitleInjection {
+    font-size: 12px;
+    font-weight: 800;
+    color: #c53093;
+    margin: 0;
+}
+
+.orderGroupTitleTherapy {
+    font-size: 12px;
+    font-weight: 800;
+    color: #29800e;
+    margin: 0;
+}
+
+.orderCard {
+    background: #f8fafc;
+    border: 1px dotted #e2e8f0;
+    border-radius: 10px;
+    padding: 12px 12px;
+}
+
+.orderCardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.orderCardName {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.removeButton {
+    background: none;
+    border: none;
+    font-size: 13px;
+    line-height: 1;
+    color: #b6bfcc;
+    cursor: pointer;
+}
+
+.removeButton:hover {
+    color: #ef4444;
+}
+
+.orderCardInputs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #475569;
+}
+
+.orderInput {
+    width: 48px;
+    padding: 5px 6px;
+    border: 1px solid #d1d5db;
+    border-radius: 5px;
+    font-size: 13px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.orderInput:focus {
+    outline: none;
+    border-color: #16367c;
+}
+
+/* ===== 처방/오더 추가 버튼 + 드롭다운 ===== */
+.addSection {
+    position: relative;
+}
+
+.addOrderButton {
+    width: 100%;
+    padding: 10px;
+    background: #ffffff;
+    color: #16367c;
+    border: 1px dashed hsl(212, 47%, 71%);
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.addOrderButton:hover {
+    background: #eff6ff;
+}
+
+.categoryMenu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+    padding: 6px;
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.categoryMenuItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #334155;
+    cursor: pointer;
+    text-align: left;
+}
+
+.categoryMenuItem:hover {
+    background: #f1f5f9;
+}
+
+.categoryIcon {
+    font-size: 15px;
+}
+
+/* ===== 검색 패널 ===== */
+.searchPanel {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+    padding: 14px;
+    z-index: 40;
+}
+
+.searchPanelHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.searchCloseButton {
+    background: none;
+    border: none;
+    font-size: 12.5px;
+    color: #94a3b8;
+    cursor: pointer;
+}
+
+.searchCloseButton:hover {
+    color: #475569;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 13px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+}
+
+.searchInput:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.searchResultList {
+    max-height: 220px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.searchResultItem {
+    padding: 9px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.searchResultItem:hover {
+    background: #f1f5f9;
+}
+
+.searchResultName {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 2px 0;
+}
+
+.searchResultMeta {
+    font-size: 12px;
+    color: #64748b;
+    margin: 0;
+}
+
+/* ===== 고급 옵션 ===== */
+.advancedSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding-top: 8px;
+}
+
+.advancedToggle {
+    background: none;
+    border: none;
+    font-size: 12.5px;
+    color: #94a3b8;
+    cursor: pointer;
+}
+
+.advancedToggle:hover {
+    color: #64748b;
+}
+
+.clearButton {
+    width: 100%;
+    padding: 9px;
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.clearButton:hover {
+    background: #fee2e2;
+}

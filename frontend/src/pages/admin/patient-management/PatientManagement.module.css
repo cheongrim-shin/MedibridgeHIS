@@ -1,0 +1,230 @@
+/* PatientManagement.module.css */
+
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: 100%;
+}
+
+/* 검색창 + 버튼 */
+.headerRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.searchWrapper {
+    flex: 1;
+}
+
+/* 테이블 */
+.tableWrapper {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.tableWrapper > div {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+}
+.badgeY{
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11.5px;
+    font-weight: 600;
+    background: #e4f0e5;
+    color:  #15803d;
+}
+
+.badgeN {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11.5px;
+    font-weight: 600;
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+/* 배지 - 계정상태 */
+.badgeNormal {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11.5px;
+    font-weight: 600;
+    background:  #dcfce7;
+    color: #166534;
+}
+
+.badgeSuspend {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11.5px;
+    font-weight: 600;
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.badgeWithdraw {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11.5px;
+    font-weight: 600;
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* 모달 */
+.modalSubTitle {
+    font-size: 13px;
+    font-weight: 400;
+    color: #64748b;
+    margin-left: 8px;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+
+.formLabel {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #475569;
+}
+
+/* 본문 2단 레이아웃 (좌 목록 / 우 상세) */
+.bodyRow {
+    display: flex;
+    gap: 16px;
+    flex: 1;
+    min-height: 0;
+}
+
+.listPane {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+.listPane > div {   /* Table 이 남은 높이를 채우도록 */
+    flex: 1;
+    min-height: 0;
+}
+
+/* 우측 상세 패널 */
+.detailPane {
+    width: 480px;
+    flex-shrink: 0;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.detailEmpty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    font-size: 14px;
+    color: #94a3b8;
+}
+
+/* 헤더 영역 */
+.detailHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+.detailHeaderTitle {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+}
+
+/* 섹션 분리 */
+.detailSection {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.sectionTitle {
+    font-size: 12px;
+    font-weight: 700;
+    color: #031a3b;
+    letter-spacing: 0.5px;
+}
+
+/* 그리드 레이아웃 */
+.gridTwo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+/* 읽기 전용 필드 박스 */
+.detailField {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.detailLabel {
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.detailValueBox {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 2px 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1e293b;
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    word-break: break-all;
+}
+
+/* 상태 배지 */
+.statusBadgeY {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    background-color: #dcfce7;
+    color: #15803d;
+}
+
+.statusBadgeN {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    background-color: #fee2e2;
+    color: #991b1b;
+}

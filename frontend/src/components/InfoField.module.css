@@ -1,0 +1,22 @@
+.infoCol {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.infoLabel {
+    font-size: 13px;
+    font-weight: 500;
+    color: #64748b;
+    letter-spacing: -0.2px;
+}
+
+.infoValue {
+    font-size: 16.5px;
+    color: #1e293b;
+    font-weight: 600;
+    width: 100%;
+}

@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ddit.patient.mapper.PatientQnaMapper">
+
+	<!--
+		Q&A 문의분류 공용코드 조회
+
+		COMMONCODE = 'Q':
+		Q01~Q09 문의분류 그룹
+
+		USED = 'Y':
+		현재 사용하는 코드만 조회한다.
+	-->
+	<select id="selectQnaCategoryList"
+			resultType="map">
+
+		SELECT
+			COMMONCODE_NUMBER AS "commonCodeNumber",
+			CODENAME_1        AS "codeName"
+
+		FROM COMMONCODE
+
+		WHERE COMMONCODE = 'Q'
+		  AND USED = 'Y'
+
+		ORDER BY COMMONCODE_NUMBER
+
+	</select>
+
+
+	<!--
+		QNA 목록 조회
+
+		DATE_WRITTEN, DATE_OF_RESPONSE 컬럼은 DATE 타입이므로
+		화면 출력용 문자열로 변환한다.
+	-->
+	<select id="selectQnaList"
+			resultType="ddit.patient.vo.PatientQnaVO">
+
+		SELECT
+			QANDA_NUMBER     AS qandaNumber,
+			SUBJECT          AS subject,
+			CATEGORY_CODE    AS categoryCode,
+			INQUIRY_DETAILS  AS inquiryDetails,
+			INQUIRER         AS inquirer,
+			RESPONDENT       AS respondent,
+			RESPONSE_DETAILS AS responseDetails,
+
+			TO_CHAR(
+				DATE_WRITTEN,
+				'YYYY-MM-DD'
+			) AS dateWritten,
+
+			TO_CHAR(
+				DATE_OF_RESPONSE,
+				'YYYY-MM-DD'
+			) AS dateOfResponse,
+
+			STATUS AS status
+
+		FROM QNA
+
+		ORDER BY
+			DATE_WRITTEN DESC NULLS LAST,
+			QANDA_NUMBER DESC
+
+	</select>
+
+
+	<!--
+		로그인 사용자 본인 QNA 목록 조회
+
+		INQUIRER = 로그인한 사용자의 MEMBER_NUMBER
+		예: M02-01
+	-->
+	<select id="selectQnaListByInquirer"
+			resultType="ddit.patient.vo.PatientQnaVO">
+
+		SELECT
+			QANDA_NUMBER     AS qandaNumber,
+			SUBJECT          AS subject,
+			CATEGORY_CODE    AS categoryCode,
+			INQUIRY_DETAILS  AS inquiryDetails,
+			INQUIRER         AS inquirer,
+			RESPONDENT       AS respondent,
+			RESPONSE_DETAILS AS responseDetails,
+
+			TO_CHAR(
+				DATE_WRITTEN,
+				'YYYY-MM-DD'
+			) AS dateWritten,
+
+			TO_CHAR(
+				DATE_OF_RESPONSE,
+				'YYYY-MM-DD'
+			) AS dateOfResponse,
+
+			STATUS AS status
+
+		FROM QNA
+
+		WHERE INQUIRER = #{inquirer}
+
+		ORDER BY
+			DATE_WRITTEN DESC NULLS LAST,
+			QANDA_NUMBER DESC
+
+	</select>
+
+
+	<!--
+		QNA 상세 조회
+
+		문의번호를 기준으로 문의 1건을 조회한다.
+		기존 기능 호환용으로 유지한다.
+	-->
+	<select id="selectQnaDetail"
+			resultType="ddit.patient.vo.PatientQnaVO">
+
+		SELECT
+			QANDA_NUMBER     AS qandaNumber,
+			SUBJECT          AS subject,
+			CATEGORY_CODE    AS categoryCode,
+			INQUIRY_DETAILS  AS inquiryDetails,
+			INQUIRER         AS inquirer,
+			RESPONDENT       AS respondent,
+			RESPONSE_DETAILS AS responseDetails,
+
+			TO_CHAR(
+				DATE_WRITTEN,
+				'YYYY-MM-DD'
+			) AS dateWritten,
+
+			TO_CHAR(
+				DATE_OF_RESPONSE,
+				'YYYY-MM-DD'
+			) AS dateOfResponse,
+
+			STATUS AS status
+
+		FROM QNA
+
+		WHERE QANDA_NUMBER = #{qandaNumber}
+
+	</select>
+
+
+	<!--
+		QNA 다음 문의번호 생성
+
+		현재 DB에 QNA 시퀀스가 없으므로
+		Q0001, Q0002 형식의 기존 최대 번호를 조회해서
+		다음 번호를 생성한다.
+
+		예:
+		Q0003 → Q0004
+	-->
+	<select id="selectNextQnaNumber"
+			resultType="String">
+
+		SELECT
+			'Q'
+			||
+			LPAD(
+				NVL(
+					MAX(
+						TO_NUMBER(
+							SUBSTR(QANDA_NUMBER, 2)
+						)
+					),
+					0
+				) + 1,
+				4,
+				'0'
+			) AS qandaNumber
+
+		FROM QNA
+
+		WHERE REGEXP_LIKE(
+			QANDA_NUMBER,
+			'^Q[0-9]{4}$'
+		)
+
+	</select>
+
+
+	<!--
+		QNA 문의 등록
+
+		등록 시 서버에서 상태를 WAIT로 고정한다.
+
+		WAIT:
+		담당자가 아직 답변하지 않은 상태
+	-->
+	<insert id="insertQna"
+			parameterType="ddit.patient.vo.PatientQnaVO">
+
+		INSERT INTO QNA (
+			QANDA_NUMBER,
+			SUBJECT,
+			CATEGORY_CODE,
+			INQUIRY_DETAILS,
+			INQUIRER,
+			RESPONDENT,
+			RESPONSE_DETAILS,
+			DATE_WRITTEN,
+			DATE_OF_RESPONSE,
+			STATUS
+		)
+		VALUES (
+			#{qandaNumber},
+			#{subject},
+			#{categoryCode},
+			#{inquiryDetails},
+			#{inquirer},
+			NULL,
+			NULL,
+			SYSDATE,
+			NULL,
+			'WAIT'
+		)
+
+	</insert>
+
+
+	<!--
+		로그인 사용자 본인 Q&A 검색 결과 개수
+
+		검색 조건:
+		- INQUIRER = 로그인 사용자 MEMBER_NUMBER
+		- SUBJECT 제목 검색
+		- CATEGORY_CODE 문의유형 검색
+		- STATUS 답변상태 검색
+
+		현재 DB 상태값:
+		- WAIT
+		- 답변대기
+		- 답변완료
+	-->
+	<select id="selectMyQnaSearchCount"
+			parameterType="ddit.patient.vo.PatientQnaSearchVO"
+			resultType="int">
+
+		SELECT
+			COUNT(*)
+
+		FROM QNA
+
+		WHERE INQUIRER = #{inquirer}
+
+		<if test="keyword != null and keyword != ''">
+			AND SUBJECT LIKE '%' || #{keyword} || '%'
+		</if>
+
+		<if test="categoryCode != null and categoryCode != ''">
+			AND CATEGORY_CODE = #{categoryCode}
+		</if>
+
+		<choose>
+			<when test="status != null and status != '' and status == '답변대기'">
+				AND STATUS IN ('WAIT', '답변대기')
+			</when>
+
+			<when test="status != null and status != '' and status == 'WAIT'">
+				AND STATUS IN ('WAIT', '답변대기')
+			</when>
+
+			<when test="status != null and status != '' and status == '답변완료'">
+				AND STATUS IN ('답변완료', 'COMPLETE')
+			</when>
+
+			<when test="status != null and status != '' and status == 'COMPLETE'">
+				AND STATUS IN ('답변완료', 'COMPLETE')
+			</when>
+
+			<when test="status != null and status != ''">
+				AND STATUS = #{status}
+			</when>
+		</choose>
+
+	</select>
+
+
+	<!--
+		로그인 사용자 본인 Q&A 검색/페이징 목록 조회
+
+		Oracle ROW_NUMBER()를 이용해 페이징 처리한다.
+		DATE_WRITTEN이 NULL인 기존 데이터가 있을 수 있으므로
+		NULLS LAST를 적용한다.
+	-->
+	<select id="selectMyQnaSearchList"
+			parameterType="ddit.patient.vo.PatientQnaSearchVO"
+			resultType="ddit.patient.vo.PatientQnaVO">
+
+		SELECT
+			QANDA_NUMBER      AS qandaNumber,
+			SUBJECT           AS subject,
+			CATEGORY_CODE     AS categoryCode,
+			INQUIRY_DETAILS   AS inquiryDetails,
+			INQUIRER          AS inquirer,
+			RESPONDENT        AS respondent,
+			RESPONSE_DETAILS  AS responseDetails,
+			DATE_WRITTEN      AS dateWritten,
+			DATE_OF_RESPONSE  AS dateOfResponse,
+			STATUS            AS status
+
+		FROM (
+			SELECT
+				ROW_NUMBER() OVER (
+					ORDER BY
+						DATE_WRITTEN DESC NULLS LAST,
+						QANDA_NUMBER DESC
+				) AS rn,
+
+				QANDA_NUMBER,
+				SUBJECT,
+				CATEGORY_CODE,
+				INQUIRY_DETAILS,
+				INQUIRER,
+				RESPONDENT,
+				RESPONSE_DETAILS,
+
+				TO_CHAR(
+					DATE_WRITTEN,
+					'YYYY-MM-DD'
+				) AS DATE_WRITTEN,
+
+				TO_CHAR(
+					DATE_OF_RESPONSE,
+					'YYYY-MM-DD'
+				) AS DATE_OF_RESPONSE,
+
+				STATUS
+
+			FROM QNA
+
+			WHERE INQUIRER = #{inquirer}
+
+			<if test="keyword != null and keyword != ''">
+				AND SUBJECT LIKE '%' || #{keyword} || '%'
+			</if>
+
+			<if test="categoryCode != null and categoryCode != ''">
+				AND CATEGORY_CODE = #{categoryCode}
+			</if>
+
+			<choose>
+				<when test="status != null and status != '' and status == '답변대기'">
+					AND STATUS IN ('WAIT', '답변대기')
+				</when>
+
+				<when test="status != null and status != '' and status == 'WAIT'">
+					AND STATUS IN ('WAIT', '답변대기')
+				</when>
+
+				<when test="status != null and status != '' and status == '답변완료'">
+					AND STATUS IN ('답변완료', 'COMPLETE')
+				</when>
+
+				<when test="status != null and status != '' and status == 'COMPLETE'">
+					AND STATUS IN ('답변완료', 'COMPLETE')
+				</when>
+
+				<when test="status != null and status != ''">
+					AND STATUS = #{status}
+				</when>
+			</choose>
+		)
+
+		WHERE rn BETWEEN #{startRow} AND #{endRow}
+
+		ORDER BY rn
+
+	</select>
+
+
+	<!--
+		로그인 사용자 본인 Q&A 상세 조회
+
+		QANDA_NUMBER만으로 조회하지 않고,
+		INQUIRER까지 조건으로 걸어 다른 환자의 문의가 조회되지 않도록 한다.
+	-->
+	<select id="selectQnaDetailByInquirer"
+			resultType="ddit.patient.vo.PatientQnaVO">
+
+		SELECT
+			QANDA_NUMBER     AS qandaNumber,
+			SUBJECT          AS subject,
+			CATEGORY_CODE    AS categoryCode,
+			INQUIRY_DETAILS  AS inquiryDetails,
+			INQUIRER         AS inquirer,
+			RESPONDENT       AS respondent,
+			RESPONSE_DETAILS AS responseDetails,
+
+			TO_CHAR(
+				DATE_WRITTEN,
+				'YYYY-MM-DD'
+			) AS dateWritten,
+
+			TO_CHAR(
+				DATE_OF_RESPONSE,
+				'YYYY-MM-DD'
+			) AS dateOfResponse,
+
+			STATUS AS status
+
+		FROM QNA
+
+		WHERE QANDA_NUMBER = #{qandaNumber}
+		  AND INQUIRER = #{inquirer}
+
+	</select>
+
+</mapper>

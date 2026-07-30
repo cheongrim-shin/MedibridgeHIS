@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ddit.doctor.mapper.MedicalRecordMapper">
+
+    <!--진료기록번호 채번용 시퀀스 다음값 조회 (MR0001 형식으로 Java에서 포맷팅)-->
+    <select id="selectNextMedicalRecordSeq" resultType="Long">
+        SELECT MEDICAL_RECORD_SEQ.NEXTVAL FROM DUAL
+    </select>
+
+    <!--신규 진료기록 생성 (진료완료 시점에 아직 선택된 진료기록이 없으면 자동 생성)-->
+    <insert id="insertMedicalRecord" parameterType="ddit.doctor.vo.MedicalRecordVO">
+        INSERT INTO MEDICAL_RECORD (
+            MEDICAL_RECORD_NUMBER, MEMBER_NUMBER, DIAGNOSIS_NAME,
+            START_DATE, RECORD_STATUS
+        ) VALUES (
+        #{medicalRecordNumber}, #{memberNumber}, #{diagnosisName}, SYSDATE, #{recordStatus}
+        )
+    </insert>
+
+    <!--전자의무기록 화면: 완료된 과거 진료 이력 목록 (기간/환자명/생년월일 검색 지원)-->
+    <select id="selectMedicalHistoryList" parameterType="ddit.doctor.vo.MedicalHistorySearchVO"
+            resultType="ddit.doctor.vo.MedicalHistoryListVO">
+        SELECT
+            r.MEDICAL_NUMBER
+        , r.MEDICAL_RECORD_NUMBER
+        , m.MEMBER_NAME
+        , SUBSTR(m.RESIDENT_REGISTRATION_NUMBER,1,6) AS BIRTH_DATE
+
+        ,CASE
+            WHEN SUBSTR(m.RESIDENT_REGISTRATION_NUMBER,7,1) IN ('1','2')
+            THEN EXTRACT(YEAR FROM SYSDATE) - (1900 + TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER,1,2)))
+            WHEN SUBSTR(m.RESIDENT_REGISTRATION_NUMBER,7,1) IN ('3','4')
+            THEN EXTRACT(YEAR FROM SYSDATE) - (2000 + TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER,1,2)))
+        ELSE 0
+        END AS AGE
+
+        ,CASE
+            WHEN MOD(TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER,7,1)),2) =1 THEN '남'
+            ELSE '여'
+        END AS GENDER
+
+        , TO_CHAR(r.TREATMENT_DATE, 'YYYY-MM-DD HH24:MI') AS TREATMENT_DATE
+        , mr.DIAGNOSIS_NAME
+        , TO_CHAR(mr.START_DATE,'YYYY-MM-DD') AS RECORD_START_DATE
+        FROM RECEPTIONIST_REGISTER r
+        JOIN MEMBER m ON r.MEMBER_NUMBER = m.MEMBER_NUMBER
+        JOIN MEDICAL_RECORD mr ON r.MEDICAL_RECORD_NUMBER = mr.MEDICAL_RECORD_NUMBER
+        WHERE r.TREATMENT_DATE IS NOT NULL
+        <if test="startDate != null and startDate != ''">
+            AND r.TREATMENT_DATE <![CDATA[>=]]> TO_DATE(#{startDate}, 'YYYY-MM-DD')
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND r.TREATMENT_DATE <![CDATA[<]]> TO_DATE(#{endDate}, 'YYYY-MM-DD') +1
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (m.MEMBER_NAME LIKE '%' || #{keyword} || '%'
+                OR SUBSTR(m.RESIDENT_REGISTRATION_NUMBER,1,6) LIKE '%' || #{keyword} || '%')
+        </if>
+        ORDER BY r.TREATMENT_DATE DESC
+    </select>
+
+    <!--접수번호(medicalNumber)로 해당 환자의 회원번호 조회 (여러 화면에서 공용으로 재사용)-->
+    <select id="selectMemberNumberByMedicalNumber" resultType="String">
+        SELECT MEMBER_NUMBER
+        FROM RECEPTIONIST_REGISTER
+        WHERE MEDICAL_NUMBER = #{medicalNumber}
+    </select>
+
+    <!--진료완료 처리: SOAP 저장 + 진료기록 연결 + 접수상태를 완료로 변경-->
+    <update id="updateSoapNoteAndComplete">
+        UPDATE RECEPTIONIST_REGISTER
+        SET MEDICAL_RECORD_NUMBER = #{medicalRecordNumber},
+            REGISTER_S = #{registerS},
+            REGISTER_O = #{registerO},
+            REGISTER_A = #{registerA},
+            REGISTER_P = #{registerP},
+            RECEIPT_STATUS = '진료완료',
+            TREATMENT_DATE = SYSDATE
+        WHERE MEDICAL_NUMBER = #{medicalNumber}
+    </update>
+
+    <!--진료하기 버튼: 간호사가 배정 끝낸(호출중) 환자를 의사가 호출 -> 진료중으로 전환-->
+    <update id="callPatientForTreatment">
+        UPDATE RECEPTIONIST_REGISTER
+        SET RECEIPT_STATUS = '진료중'
+        WHERE MEDICAL_NUMBER = #{medicalNumber}
+            AND RECEIPT_STATUS = '호출중'
+    </update>
+
+    <!--진료 대기 화면: 오늘 호출중 상태인 환자 리스트 (진료이력 칸엔 최근 진료기록 진단명 참고용 표시)-->
+    <select id="selectWaitingList" resultType="ddit.doctor.vo.WaitingListVO">
+        SELECT
+        r.MEDICAL_NUMBER
+        , m.MEMBER_NAME
+        , SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 6) AS BIRTH_DATE
+        , CASE
+        WHEN SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1) IN ('1', '2')
+        THEN EXTRACT(YEAR FROM SYSDATE) - (1900 + TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 2)))
+        WHEN SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1) IN ('3', '4')
+        THEN EXTRACT(YEAR FROM SYSDATE) - (2000 + TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 2)))
+        ELSE 0
+        END AS AGE
+
+        , CASE
+        WHEN MOD(TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1)), 2) = 1 THEN '남'
+        ELSE '여'
+        END AS GENDER
+
+        , TO_CHAR(r.RECEIPT_DATE, 'YYYY-MM-DD HH24:MI') AS RECEIPT_DATE
+
+        , r.RECEIPT_STATUS AS RECEIPT_STATUS
+
+        , latest.DIAGNOSIS_NAME
+
+        FROM RECEPTIONIST_REGISTER r
+        JOIN MEMBER m ON r.MEMBER_NUMBER = m.MEMBER_NUMBER
+        <!--환자별 가장 최근 진료기록 1건만 뽑는 서브쿼리 (아직 이번 방문엔 진단명이 없으므로 참고용)-->
+        LEFT JOIN (
+            SELECT mr1.MEMBER_NUMBER, mr1.DIAGNOSIS_NAME
+            FROM MEDICAL_RECORD mr1
+            WHERE mr1.START_DATE = (
+                SELECT MAX(mr2.START_DATE)
+                FROM MEDICAL_RECORD mr2
+                WHERE mr2.MEMBER_NUMBER = mr1.MEMBER_NUMBER
+        )
+        ) latest ON latest.MEMBER_NUMBER = m.MEMBER_NUMBER
+        WHERE r.RECEIPT_STATUS IN ('호출중', '진료중')
+        <if test="doctorNumber != null and doctorNumber != ''">
+            AND r.DOCTOR_NUMBER = #{doctorNumber}
+        </if>
+        ORDER BY
+            CASE r.RECEIPT_STATUS WHEN '진료중' THEN 0 ELSE 1 END,
+            r.RECEIPT_DATE ASC
+    </select>
+
+    <!--환자 진료기록 목록(드롭다운)-->
+    <select id="selectMedicalRecordOptions" resultType="ddit.doctor.vo.MedicalRecordOptionVO">
+        SELECT
+        MEDICAL_RECORD_NUMBER
+        , DIAGNOSIS_NAME
+        , TO_CHAR(MEDICAL_RECORD.START_DATE, 'YYYY-MM-DD HH24:MI') AS START_DATE
+        , RECORD_STATUS
+        FROM MEDICAL_RECORD
+        WHERE MEMBER_NUMBER = #{memberNumber}
+        ORDER BY MEDICAL_RECORD.START_DATE DESC
+    </select>
+
+    <!--특정 진료기록에 속한 날짜별 SOAP 히스토리-->
+    <select id="selectMedicalRecordDetail" resultType="ddit.doctor.vo.MedicalRecordDetailVO">
+        SELECT
+        MEDICAL_NUMBER
+        , TO_CHAR(TREATMENT_DATE, 'YYYY-MM-DD HH24:MI') AS TREATMENT_DATE
+        , REGISTER_S
+        , REGISTER_O
+        , REGISTER_A
+        , REGISTER_P
+        FROM RECEPTIONIST_REGISTER
+        WHERE MEDICAL_RECORD_NUMBER = #{medicalRecordNumber}
+        ORDER BY TREATMENT_DATE  DESC
+    </select>
+
+    <select id="selectPatientInfo" resultType="ddit.doctor.vo.PatientInfoVO">
+        SELECT
+        r.MEDICAL_NUMBER
+        , r.MEMBER_NUMBER
+        , m.MEMBER_NAME
+        ,CASE
+        WHEN SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1) IN ('1', '2')
+        THEN EXTRACT(YEAR FROM SYSDATE) - (1900 + TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 2)))
+        WHEN SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1) IN ('3', '4')
+        THEN EXTRACT(YEAR FROM SYSDATE) - (2000 + TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 2)))
+        ELSE 0
+        END AS AGE
+
+        , CASE
+        WHEN MOD(TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1)), 2) = 1 THEN '남'
+        ELSE '여'
+        END AS GENDER
+
+        FROM RECEPTIONIST_REGISTER r
+        JOIN MEMBER m ON r.MEMBER_NUMBER = m.MEMBER_NUMBER
+        WHERE r.MEDICAL_NUMBER = #{medicalNumber}
+    </select>
+
+    <select id="selectMedicineList" resultType="ddit.doctor.vo.MedicineSearchVO">
+        SELECT * FROM (
+        SELECT
+        me.MEDICINE_CODE
+        , nameCode.CODENAME_1 AS MEDICINE_NAME
+        , me.SPECIFICATION
+        , me.UNIT                          <!-- 저장용 코드값 그대로 (예: U02) -->
+        , unitCode.CODENAME_1 AS UNIT_LABEL  <!-- 화면 표시 전용 번역값 (예: amp) -->
+        , me.UNIT_COST
+        FROM MEDICINE me
+        JOIN COMMONCODE nameCode
+        ON nameCode.COMMONCODE_NUMBER = me.MEDICINE_NAME
+        AND nameCode.COMMONCODE = 'M'
+        JOIN COMMONCODE unitCode
+        ON unitCode.COMMONCODE_NUMBER = me.UNIT
+        AND unitCode.COMMONCODE = 'U'
+        LEFT JOIN COMMONCODE routeCode          <!-- 약효분류(C그룹)의 CODENAME_2 = 투여경로(경구/외용/흡입/주사) -->
+        ON routeCode.COMMONCODE_NUMBER = me.MEDICINE_CATEGORY
+        AND routeCode.COMMONCODE = 'C'
+        WHERE nameCode.CODENAME_1 LIKE '%' || #{keyword} || '%'
+        <if test="category == 'injection'">
+            AND routeCode.CODENAME_2 = '주사'
+        </if>
+        <if test="category == 'medicine'">
+            AND NVL(routeCode.CODENAME_2, '경구') != '주사'  <!-- 투여경로 미분류(null)는 안전하게 약처치 쪽으로 기본 분류 -->
+        </if>
+        ORDER BY nameCode.CODENAME_1 ASC
+        ) WHERE ROWNUM <![CDATA[<=]]> 20
+    </select>
+
+    <select id="selectPhysicalTherapyItemList" resultType="ddit.doctor.vo.PhysicalTherapyItemVO">
+        SELECT * FROM (
+        SELECT
+        COMMONCODE_NUMBER AS COMMON_CODE_NUMBER
+        , CODENAME_1
+        , CODENAME_2
+        , UNIT_PRICE
+        FROM COMMONCODE
+        WHERE COMMONCODE = 'P'
+        AND USED = 'Y'
+        AND CODENAME_1 LIKE '%' || #{keyword} || '%'
+        ORDER BY CODENAME_1 ASC
+        )WHERE ROWNUM <![CDATA[<=]]> 20
+    </select>
+
+    <!--경구약 처방 저장-->
+    <insert id="insertDoctorPrescription">
+        INSERT INTO
+        DOCTOR_PRESCRIPTION (
+        MEDICAL_NUMBER, MEDICINE_CODE, TOTAL_QTY, FREQUENCY, PRESCRIPTION_DATE,
+        NUMBER_OF_DAYS_ADMINISTERED, PRESCRIPTION_STATUS
+        ) VALUES (
+        #{medicalNumber}, #{medicineCode}, #{dosage}, #{frequency}, SYSDATE,
+        #{days}, 'N'
+        )
+    </insert>
+
+    <insert id="insertOutpatientInjection">
+        INSERT INTO
+        OUTPATIENTNURSE_INJECTION (
+            MEDICAL_NUMBER, MEDICINE_CODE, DOSAGE, UNIT, FREQUENCY, INJECTED_YN, INJECTION_ORDER_TIME
+        ) VALUES (
+        #{medicalNumber}, #{medicineCode}, #{dosage}, #{unit}, #{frequency}, 'N', SYSDATE
+        )
+    </insert>
+
+    <!--물리치료 오더 저장-->
+    <insert id="insertPhysicalTherapyOrder">
+        INSERT INTO
+        PHYSICALTHERAPIST_RECORDS (
+            TREATMENT_NUMBER, MEDICAL_NUMBER, TREATMENT_ITEM_NAME, THERAPY_TYPE, TREATMENT_STATUS, DATE_OF_TREATMENT
+        ) VALUES (
+            PHYSICALTHERAPIST_RECORDS_SEQ.NEXTVAL, #{medicalNumber}, #{treatmentItemName}, #{therapyType}, '대기', SYSDATE
+        )
+    </insert>
+
+    <!--진료 이력 화면: SOAP 단독 수정 (완료 상태/진료일시는 안 건드림)-->
+    <update id="updateMedicalRecordDetail">
+        UPDATE RECEPTIONIST_REGISTER
+        SET
+        REGISTER_S = #{registerS},
+        REGISTER_O = #{registerO},
+        REGISTER_A = #{registerA},
+        REGISTER_P = #{registerP}
+        WHERE MEDICAL_NUMBER = #{medicalNumber}
+    </update>
+
+    <select id="selectMedicalRecordNumberByMedicalNumber" resultType="String">
+        SELECT MEDICAL_RECORD_NUMBER
+        FROM RECEPTIONIST_REGISTER
+        WHERE MEDICAL_NUMBER = #{medicalNumber}
+    </select>
+
+    <select id="selectDiagnosisNameByRecordNumber" resultType="String">
+        SELECT DIAGNOSIS_NAME
+        FROM MEDICAL_RECORD
+        WHERE MEDICAL_RECORD_NUMBER = #{medicalRecordNumber}
+    </select>
+
+    <update id="updateDiagnosisName">
+        UPDATE MEDICAL_RECORD
+        SET DIAGNOSIS_NAME = #{diagnosisName}
+        WHERE MEDICAL_RECORD_NUMBER = #{medicalRecordNumber}
+    </update>
+
+    <select id="selectPrescriptionHistory" resultType="ddit.doctor.vo.PrescriptionHistoryVO">
+        SELECT * FROM (
+        SELECT '의약품' AS PRESCRIPTION_TYPE
+        , COALESCE(nameCode.CODENAME_1, mc.MEDICINE_NAME) AS ITEM_NAME
+        , d.TOTAL_QTY || '정 x 일' || d.FREQUENCY || '회 x ' || d.NUMBER_OF_DAYS_ADMINISTERED || '일' AS DETAIL
+        , TO_CHAR(d.PRESCRIPTION_DATE, 'YYYY-MM-DD HH24:MI') AS PRESCRIPTION_DATE
+        , CASE WHEN d.PRESCRIPTION_STATUS = 'Y' THEN '조제완료' ELSE '조제대기' END AS STATUS
+        , d.MEDICAL_NUMBER AS MEDICAL_NUMBER
+        , d.MEDICINE_CODE AS MEDICINE_CODE
+        , TO_CHAR(NULL) AS TREATMENT_NUMBER
+        , TO_CHAR(d.TOTAL_QTY) AS QTY
+        , '정' AS UNIT
+        , TO_CHAR(d.FREQUENCY) AS FREQUENCY
+        , TO_CHAR(d.NUMBER_OF_DAYS_ADMINISTERED) AS DAYS
+        , CASE WHEN d.PRESCRIPTION_STATUS = 'N' THEN 'Y' ELSE 'N' END AS EDITABLE
+        FROM DOCTOR_PRESCRIPTION d
+        <!-- 접수(RECEPTIONIST_REGISTER)를 한 단계 거쳐서, "같은 진료기록번호"에 속한 모든 방문의 처방을 다 가져옴 -->
+        JOIN RECEPTIONIST_REGISTER r ON d.MEDICAL_NUMBER = r.MEDICAL_NUMBER
+        JOIN MEDICINE mc ON d.MEDICINE_CODE = mc.MEDICINE_CODE
+        LEFT JOIN COMMONCODE nameCode
+        ON nameCode.COMMONCODE_NUMBER = mc.MEDICINE_NAME
+        AND nameCode.COMMONCODE = 'M'
+        WHERE r.MEDICAL_RECORD_NUMBER = #{medicalRecordNumber}
+
+        UNION ALL
+
+        SELECT '주사' AS PRESCRIPTION_TYPE
+        , COALESCE(nameCode2.CODENAME_1, mc.MEDICINE_NAME) AS ITEM_NAME
+        , j.DOSAGE || COALESCE(unitCode2.CODENAME_1, j.UNIT) || ' x 일' || j.FREQUENCY || '회' AS DETAIL
+        , TO_CHAR(j.INJECTION_ORDER_TIME, 'YYYY-MM-DD HH24:MI') AS PRESCRIPTION_DATE
+        , CASE WHEN j.INJECTED_YN = 'Y' THEN '투여완료' ELSE '투여대기' END AS STATUS
+        , j.MEDICAL_NUMBER AS MEDICAL_NUMBER
+        , j.MEDICINE_CODE AS MEDICINE_CODE
+        , TO_CHAR(NULL) AS TREATMENT_NUMBER
+        , j.DOSAGE AS QTY
+        , COALESCE(unitCode2.CODENAME_1, j.UNIT) AS UNIT
+        , j.FREQUENCY AS FREQUENCY
+        , TO_CHAR(NULL) AS DAYS
+        , CASE WHEN j.INJECTED_YN = 'N' THEN 'Y' ELSE 'N' END AS EDITABLE
+        FROM OUTPATIENTNURSE_INJECTION j
+        JOIN RECEPTIONIST_REGISTER r ON j.MEDICAL_NUMBER = r.MEDICAL_NUMBER
+        JOIN MEDICINE mc ON j.MEDICINE_CODE = mc.MEDICINE_CODE
+        LEFT JOIN COMMONCODE nameCode2
+        ON nameCode2.COMMONCODE_NUMBER = mc.MEDICINE_NAME
+        AND nameCode2.COMMONCODE = 'M'
+        LEFT JOIN COMMONCODE unitCode2
+        ON unitCode2.COMMONCODE_NUMBER = j.UNIT
+        AND unitCode2.COMMONCODE = 'U'
+        WHERE r.MEDICAL_RECORD_NUMBER = #{medicalRecordNumber}
+
+        UNION ALL
+
+        SELECT '물리치료' AS PRESCRIPTION_TYPE
+        , TREATMENT_ITEM_NAME AS ITEM_NAME
+        , THERAPY_TYPE AS DETAIL
+        , TO_CHAR(DATE_OF_TREATMENT, 'YYYY-MM-DD HH24:MI') AS PRESCRIPTION_DATE
+        , CASE
+        WHEN TREATMENT_STATUS = '대기' THEN '치료대기'
+        WHEN TREATMENT_STATUS = '치료중' THEN '치료중'
+        WHEN TREATMENT_STATUS = '치료완료' THEN '치료완료'
+        ELSE TREATMENT_STATUS
+        END AS STATUS
+        , pr.MEDICAL_NUMBER AS MEDICAL_NUMBER
+        , TO_CHAR(NULL) AS MEDICINE_CODE
+        , TO_CHAR(pr.TREATMENT_NUMBER) AS TREATMENT_NUMBER
+        , TO_CHAR(NULL) AS QTY
+        , TO_CHAR(NULL) AS UNIT
+        , TO_CHAR(NULL) AS FREQUENCY
+        , TO_CHAR(NULL) AS DAYS
+        , CASE WHEN TREATMENT_STATUS = '대기' THEN 'Y' ELSE 'N' END AS EDITABLE
+        FROM PHYSICALTHERAPIST_RECORDS pr
+        JOIN RECEPTIONIST_REGISTER r ON pr.MEDICAL_NUMBER = r.MEDICAL_NUMBER
+        WHERE r.MEDICAL_RECORD_NUMBER = #{medicalRecordNumber}
+        )
+        ORDER BY PRESCRIPTION_DATE ASC
+    </select>
+
+    <!--서류 발급 신청 접수 (서류 종류 하나당 1건씩 호출됨: 진단서 체크 시 1번, 소견서 체크 시 1번 이런 식)-->
+    <insert id="insertDocumentRequest" parameterType="ddit.doctor.vo.DocumentRequestVO">
+        INSERT INTO RECEPTIONIST_DOCUMENTS (
+        RECEIVE_NUMBER, MEDICAL_NUMBER, RECEIVE_USE, RECEIVE_DATE,
+        RECEIVE_STATE, DOCUMENT_CONTENTS, DOCUMENT_TYPE
+        ) VALUES (
+        RECEPTIONIST_DOCUMENTS_SEQ.NEXTVAL, #{medicalNumber}, #{receiveUse}, SYSDATE,
+        '접수', #{documentContents}, #{documentType}
+        )
+    </insert>
+
+    <!--이 환자에게 아직 처리 안 된 주사/물리치료 오더가 몇 개 남았는지-->
+    <select id="selectPendingOrderCount" resultType="int">
+        SELECT
+        (SELECT COUNT(*) FROM DOCTOR_PRESCRIPTION
+        WHERE MEDICAL_NUMBER = #{medicalNumber} AND PRESCRIPTION_STATUS = 'N')
+        + (SELECT COUNT(*) FROM OUTPATIENTNURSE_INJECTION
+        WHERE MEDICAL_NUMBER = #{medicalNumber} AND INJECTED_YN = 'N')
+        + (SELECT COUNT(*) FROM PHYSICALTHERAPIST_RECORDS
+        WHERE MEDICAL_NUMBER = #{medicalNumber} AND TREATMENT_STATUS <![CDATA[<>]]> '치료완료')
+        FROM DUAL
+    </select>
+
+    <!--남은 오더가 없을 때만 수납대기로 전환 (진료완료 상태만)-->
+    <update id="updateReceiptStatusToPaymentPending">
+        UPDATE RECEPTIONIST_REGISTER
+        SET RECEIPT_STATUS = '수납대기'
+        WHERE MEDICAL_NUMBER = #{medicalNumber}
+        AND RECEIPT_STATUS = '진료완료'
+    </update>
+
+    <!--체크박스 시 진료기록 자체의 상태도 종료로 변경-->
+    <update id="updateMedicalRecordStatusToDone">
+        UPDATE MEDICAL_RECORD
+        SET RECORD_STATUS = '종료'
+        WHERE MEDICAL_RECORD_NUMBER = #{medicalRecordNumber}
+    </update>
+
+    <!--경구약 처방 수정 (아직 조제 안 된 것만 - WHERE에 PRESCRIPTION_STATUS='N' 조건으로 이중 안전장치)-->
+    <update id="updateDoctorPrescription">
+        UPDATE DOCTOR_PRESCRIPTION
+        SET TOTAL_QTY = #{qty},
+        FREQUENCY = #{frequency},
+        NUMBER_OF_DAYS_ADMINISTERED = #{days}
+        WHERE MEDICAL_NUMBER = #{medicalNumber}
+        AND MEDICINE_CODE = #{medicineCode}
+        AND PRESCRIPTION_STATUS = 'N'
+    </update>
+
+    <!--경구약 처방 삭제 (아직 조제 안 된 것만)-->
+    <delete id="deleteDoctorPrescription">
+        DELETE FROM DOCTOR_PRESCRIPTION
+        WHERE MEDICAL_NUMBER = #{medicalNumber}
+        AND MEDICINE_CODE = #{medicineCode}
+        AND PRESCRIPTION_STATUS = 'N'
+    </delete>
+
+    <!--주사 처방 수정 (아직 투여 안 된 것만)-->
+    <update id="updateOutpatientInjection">
+        UPDATE OUTPATIENTNURSE_INJECTION
+        SET DOSAGE = #{qty},
+        FREQUENCY = #{frequency}
+        WHERE MEDICAL_NUMBER = #{medicalNumber}
+        AND MEDICINE_CODE = #{medicineCode}
+        AND INJECTED_YN = 'N'
+    </update>
+
+    <!--주사 처방 삭제 (아직 투여 안 된 것만)-->
+    <delete id="deleteOutpatientInjection">
+        DELETE FROM OUTPATIENTNURSE_INJECTION
+        WHERE MEDICAL_NUMBER = #{medicalNumber}
+        AND MEDICINE_CODE = #{medicineCode}
+        AND INJECTED_YN = 'N'
+    </delete>
+
+    <!--물리치료 오더 삭제 (아직 대기 상태인 것만) - 수정은 미지원, 취소 후 재등록 방식-->
+    <delete id="deletePhysicalTherapyOrder">
+        DELETE FROM PHYSICALTHERAPIST_RECORDS
+        WHERE TREATMENT_NUMBER = #{treatmentNumber}
+        AND TREATMENT_STATUS = '대기'
+    </delete>
+
+
+</mapper>

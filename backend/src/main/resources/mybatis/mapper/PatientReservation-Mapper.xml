@@ -1,0 +1,536 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ddit.patient.mapper.PatientReservationMapper">
+
+	<select id="selectReservationList"
+			resultType="ddit.patient.vo.PatientReservationVO">
+
+		SELECT
+			A.APPOINTMENT_NUMBER
+				AS appointmentNumber,
+
+			A.APPOINTMENT_NUMBER
+				AS reservationsNumber,
+
+			A.MEMBER_NUMBER
+				AS memberNumber,
+
+			A.MEMBER_NUMBER
+				AS patientNumber,
+
+			M.MEMBER_NAME
+				AS patientName,
+
+			M.MEMBER_PHONE_NUMBER
+				AS phone,
+
+			A.ATTENDING_PHYSICIAN
+				AS attendingPhysician,
+
+			A.ATTENDING_PHYSICIAN
+				AS employeeCode,
+
+			NVL(
+				DM.MEMBER_NAME,
+				A.ATTENDING_PHYSICIAN
+			)
+				AS employeeName,
+
+			E.DEPARTMENT_CODE
+				AS deptCode,
+
+			NVL(
+				DP.DEPARTMENT_NAME,
+				'진료과 미지정'
+			)
+				AS deptName,
+
+			
+			A.RESERVATION_START_DATE
+				AS reservationStartDate,
+
+			A.RESERVATION_START_DATE
+				AS reservedAt,
+
+			A.RESERVATION_END_DATE
+				AS reservationEndDate,
+
+			
+			TO_CHAR(
+				A.RESERVATION_START_DATE,
+				'YYYY-MM-DD HH24:MI'
+			)
+				AS reservationStartDateText,
+
+			TO_CHAR(
+				A.RESERVATION_START_DATE,
+				'YYYY-MM-DD HH24:MI'
+			)
+				AS reservedAtText,
+
+			TO_CHAR(
+				A.RESERVATION_END_DATE,
+				'YYYY-MM-DD HH24:MI'
+			)
+				AS reservationEndDateText,
+
+			A.RESERVATION_STATUS
+				AS reservationStatus,
+
+			A.RESERVATION_STATUS
+				AS reservationsStatus,
+
+			CAST(NULL AS DATE)
+				AS reservationsCreatedAt,
+
+			CAST(NULL AS VARCHAR2(16))
+				AS reservationsCreatedAtText,
+
+			'PATIENT'
+				AS reservationSource,
+
+			A.SYMPTOMS
+				AS symptoms,
+
+			A.COLOR
+				AS color
+
+		FROM APPOINTMENT A
+
+		LEFT JOIN MEMBER M
+		       ON A.MEMBER_NUMBER =
+		          M.MEMBER_NUMBER
+
+		LEFT JOIN MEMBER DM
+		       ON A.ATTENDING_PHYSICIAN =
+		          DM.MEMBER_NUMBER
+
+		LEFT JOIN EMPLOYEE E
+		       ON A.ATTENDING_PHYSICIAN =
+		          E.MEMBER_NUMBER
+
+		LEFT JOIN DEPARTMENT DP
+		       ON E.DEPARTMENT_CODE =
+		          DP.DEPARTMENT_CODE
+
+		WHERE A.MEMBER_NUMBER =
+		      #{memberNumber}
+
+		ORDER BY
+			A.RESERVATION_START_DATE
+				DESC NULLS LAST,
+
+			A.APPOINTMENT_NUMBER
+				DESC
+
+	</select>
+
+
+	<select id="selectReservationDetail"
+			resultType="ddit.patient.vo.PatientReservationVO">
+
+		SELECT
+			A.APPOINTMENT_NUMBER
+				AS appointmentNumber,
+
+			A.APPOINTMENT_NUMBER
+				AS reservationsNumber,
+
+			A.MEMBER_NUMBER
+				AS memberNumber,
+
+			A.MEMBER_NUMBER
+				AS patientNumber,
+
+			M.MEMBER_NAME
+				AS patientName,
+
+			M.MEMBER_PHONE_NUMBER
+				AS phone,
+
+			A.ATTENDING_PHYSICIAN
+				AS attendingPhysician,
+
+			A.ATTENDING_PHYSICIAN
+				AS employeeCode,
+
+			NVL(
+				DM.MEMBER_NAME,
+				A.ATTENDING_PHYSICIAN
+			)
+				AS employeeName,
+
+			E.DEPARTMENT_CODE
+				AS deptCode,
+
+			NVL(
+				DP.DEPARTMENT_NAME,
+				'진료과 미지정'
+			)
+				AS deptName,
+
+			A.RESERVATION_START_DATE
+				AS reservationStartDate,
+
+			A.RESERVATION_START_DATE
+				AS reservedAt,
+
+			A.RESERVATION_END_DATE
+				AS reservationEndDate,
+
+			TO_CHAR(
+				A.RESERVATION_START_DATE,
+				'YYYY-MM-DD HH24:MI'
+			)
+				AS reservationStartDateText,
+
+			TO_CHAR(
+				A.RESERVATION_START_DATE,
+				'YYYY-MM-DD HH24:MI'
+			)
+				AS reservedAtText,
+
+			TO_CHAR(
+				A.RESERVATION_END_DATE,
+				'YYYY-MM-DD HH24:MI'
+			)
+				AS reservationEndDateText,
+
+			A.RESERVATION_STATUS
+				AS reservationStatus,
+
+			A.RESERVATION_STATUS
+				AS reservationsStatus,
+
+			CAST(NULL AS DATE)
+				AS reservationsCreatedAt,
+
+			CAST(NULL AS VARCHAR2(16))
+				AS reservationsCreatedAtText,
+
+			'PATIENT'
+				AS reservationSource,
+
+			A.SYMPTOMS
+				AS symptoms,
+
+			A.COLOR
+				AS color
+
+		FROM APPOINTMENT A
+
+		LEFT JOIN MEMBER M
+		       ON A.MEMBER_NUMBER =
+		          M.MEMBER_NUMBER
+
+		LEFT JOIN MEMBER DM
+		       ON A.ATTENDING_PHYSICIAN =
+		          DM.MEMBER_NUMBER
+
+		LEFT JOIN EMPLOYEE E
+		       ON A.ATTENDING_PHYSICIAN =
+		          E.MEMBER_NUMBER
+
+		LEFT JOIN DEPARTMENT DP
+		       ON E.DEPARTMENT_CODE =
+		          DP.DEPARTMENT_CODE
+
+		WHERE A.APPOINTMENT_NUMBER =
+		      #{appointmentNumber}
+
+		  AND A.MEMBER_NUMBER =
+		      #{memberNumber}
+
+	</select>
+
+
+	<select id="selectDepartmentList"
+			resultType="ddit.patient.vo.PatientReservationVO">
+
+		SELECT DISTINCT
+			D.DEPARTMENT_CODE
+				AS deptCode,
+
+			D.DEPARTMENT_NAME
+				AS deptName
+
+		FROM DEPARTMENT D
+
+		INNER JOIN EMPLOYEE E
+		        ON D.DEPARTMENT_CODE =
+		           E.DEPARTMENT_CODE
+
+		INNER JOIN AUTHORITY A
+		        ON E.MEMBER_NUMBER =
+		           A.MEMBER_NUMBER
+
+		WHERE E.POSITION_CODE = 'N01'
+
+		  AND A.PERMISSION_NAME =
+		      'ROLE_DOCTOR'
+
+		ORDER BY D.DEPARTMENT_CODE
+
+	</select>
+
+
+	<select id="selectDoctorList"
+			resultType="ddit.patient.vo.PatientReservationVO">
+
+		SELECT DISTINCT
+			E.MEMBER_NUMBER
+				AS employeeCode,
+
+			M.MEMBER_NAME
+				AS employeeName,
+
+			E.DEPARTMENT_CODE
+				AS deptCode,
+
+			D.DEPARTMENT_NAME
+				AS deptName
+
+		FROM EMPLOYEE E
+
+		INNER JOIN MEMBER M
+		        ON E.MEMBER_NUMBER =
+		           M.MEMBER_NUMBER
+
+		INNER JOIN DEPARTMENT D
+		        ON E.DEPARTMENT_CODE =
+		           D.DEPARTMENT_CODE
+
+		INNER JOIN AUTHORITY A
+		        ON E.MEMBER_NUMBER =
+		           A.MEMBER_NUMBER
+
+		WHERE E.POSITION_CODE = 'N01'
+
+		  AND A.PERMISSION_NAME =
+		      'ROLE_DOCTOR'
+
+		ORDER BY
+			E.DEPARTMENT_CODE,
+			M.MEMBER_NAME
+
+	</select>
+
+
+	<select id="selectDoctorListByDepartment"
+			resultType="ddit.patient.vo.PatientDoctorOptionVO">
+
+		SELECT DISTINCT
+			E.MEMBER_NUMBER
+				AS employeeCode,
+
+			M.MEMBER_NAME
+				AS employeeName,
+
+			E.DEPARTMENT_CODE
+				AS deptCode,
+
+			D.DEPARTMENT_NAME
+				AS deptName
+
+		FROM EMPLOYEE E
+
+		INNER JOIN MEMBER M
+		        ON E.MEMBER_NUMBER =
+		           M.MEMBER_NUMBER
+
+		INNER JOIN DEPARTMENT D
+		        ON E.DEPARTMENT_CODE =
+		           D.DEPARTMENT_CODE
+
+		INNER JOIN AUTHORITY A
+		        ON E.MEMBER_NUMBER =
+		           A.MEMBER_NUMBER
+
+		WHERE E.DEPARTMENT_CODE =
+		      #{deptCode}
+
+		  AND E.POSITION_CODE = 'N01'
+
+		  AND A.PERMISSION_NAME =
+		      'ROLE_DOCTOR'
+
+		ORDER BY M.MEMBER_NAME
+
+	</select>
+
+
+	<select id="countValidDoctor"
+			parameterType="ddit.patient.vo.PatientReservationVO"
+			resultType="int">
+
+		SELECT COUNT(
+			DISTINCT E.MEMBER_NUMBER
+		)
+
+		FROM EMPLOYEE E
+
+		INNER JOIN AUTHORITY A
+		        ON E.MEMBER_NUMBER =
+		           A.MEMBER_NUMBER
+
+		WHERE E.MEMBER_NUMBER =
+		      #{employeeCode}
+
+		  AND E.DEPARTMENT_CODE =
+		      #{deptCode}
+
+		  AND E.POSITION_CODE = 'N01'
+
+		  AND A.PERMISSION_NAME =
+		      'ROLE_DOCTOR'
+
+	</select>
+
+
+	<insert id="insertReservation"
+			parameterType="ddit.patient.vo.PatientReservationVO">
+
+		INSERT INTO APPOINTMENT (
+			APPOINTMENT_NUMBER,
+			MEMBER_NUMBER,
+			RESERVATION_START_DATE,
+			RESERVATION_END_DATE,
+			RESERVATION_STATUS,
+			ATTENDING_PHYSICIAN,
+			SYMPTOMS,
+			COLOR
+		)
+		VALUES (
+			'A'
+			||
+			LPAD(
+				SEQ_APPOINTMENT.NEXTVAL,
+				4,
+				'0'
+			),
+
+			#{memberNumber},
+
+			CAST(
+				#{reservedAt,
+				  jdbcType=TIMESTAMP}
+				AS DATE
+			),
+
+			CAST(
+				#{reservedAt,
+				  jdbcType=TIMESTAMP}
+				AS DATE
+			) + (30 / 1440),
+
+			'예약확정',
+
+			#{employeeCode},
+
+			#{symptoms},
+
+			'#3788d8'
+		)
+
+	</insert>
+
+
+	<select id="countDuplicateReservationTime"
+			parameterType="ddit.patient.vo.PatientReservationVO"
+			resultType="int">
+
+		SELECT COUNT(*)
+
+		FROM APPOINTMENT A
+
+		WHERE A.ATTENDING_PHYSICIAN =
+		      #{employeeCode}
+
+		  AND A.RESERVATION_STATUS =
+		      '예약확정'
+
+		<if test="appointmentNumber != null
+				  and appointmentNumber != ''">
+
+			AND A.APPOINTMENT_NUMBER
+			    != #{appointmentNumber}
+
+		</if>
+
+		  AND A.RESERVATION_START_DATE
+		      &lt;
+		      CAST(
+		      	#{reservedAt,
+		      	  jdbcType=TIMESTAMP}
+		      	AS DATE
+		      ) + (30 / 1440)
+
+		  AND NVL(
+		      	A.RESERVATION_END_DATE,
+		      	A.RESERVATION_START_DATE
+		      		+ (30 / 1440)
+		      )
+		      &gt;
+		      CAST(
+		      	#{reservedAt,
+		      	  jdbcType=TIMESTAMP}
+		      	AS DATE
+		      )
+
+	</select>
+
+
+	<update id="updateReservationTime"
+			parameterType="ddit.patient.vo.PatientReservationVO">
+
+		UPDATE APPOINTMENT
+
+		   SET RESERVATION_START_DATE =
+		       CAST(
+		       	#{reservedAt,
+		       	  jdbcType=TIMESTAMP}
+		       	AS DATE
+		       ),
+
+		       RESERVATION_END_DATE =
+		       CAST(
+		       	#{reservedAt,
+		       	  jdbcType=TIMESTAMP}
+		       	AS DATE
+		       ) + (30 / 1440)
+
+		 WHERE APPOINTMENT_NUMBER =
+		       #{appointmentNumber}
+
+		   AND MEMBER_NUMBER =
+		       #{memberNumber}
+
+		   AND RESERVATION_STATUS =
+		       '예약확정'
+
+	</update>
+
+
+	<update id="cancelReservation">
+
+		UPDATE APPOINTMENT
+
+		   SET RESERVATION_STATUS =
+		       '예약취소'
+
+		 WHERE APPOINTMENT_NUMBER =
+		       #{appointmentNumber}
+
+		   AND MEMBER_NUMBER =
+		       #{memberNumber}
+
+		   AND RESERVATION_STATUS =
+		       '예약확정'
+
+	</update>
+
+</mapper>

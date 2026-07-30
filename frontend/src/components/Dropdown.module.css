@@ -1,0 +1,146 @@
+.dropdownContainer {
+    position: relative;
+    display: inline-flex;
+    z-index: 10;
+}
+
+.triggerWrapper {
+    display: inline-flex;
+    align-items: center;
+}
+
+.dropdownPopover {
+    position: absolute;
+    top: calc(100% + 6px);
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+    z-index: 100;
+    padding: 4px 6px;
+    width: max-content;
+    box-sizing: border-box;
+    animation: slideDown 0.15s ease-out;
+}
+
+/* Alignments */
+.align_left {
+    left: 0;
+}
+
+.align_right {
+    right: 0;
+}
+
+.align_center {
+    left: 50%;
+    transform: translateX(-50%);
+    animation: slideDownCenter 0.15s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideDownCenter {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -4px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+/* Color variations for Dropdown active item */
+.color_green {
+    --dropdown-active-bg: #ecfdf5;
+    --dropdown-active-color: #059669;
+}
+.color_indigo {
+    --dropdown-active-bg: #f5f3ff;
+    --dropdown-active-color: #7c3aed;
+}
+.color_red {
+    --dropdown-active-bg: #fef2f2;
+    --dropdown-active-color: #dc2626;
+}
+.color_gray {
+    --dropdown-active-bg: #f1f5f9;
+    --dropdown-active-color: #475569;
+}
+.color_slate {
+    --dropdown-active-bg: #f1f5f9;
+    --dropdown-active-color: #334155;
+}
+.color_teal {
+    --dropdown-active-bg: #f0fdfa;
+    --dropdown-active-color: #0d9488;
+}
+
+/* Dropdown Option Items Style Encapsulation */
+.dropdownPopover > div,
+.dropdownPopover > button,
+.dropdownPopover > a {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #334155;
+    text-align: left;
+    background: none;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.dropdownPopover > div:hover,
+.dropdownPopover > button:hover,
+.dropdownPopover > a:hover {
+    background-color: #f1f5f9;
+    color: #0f172a;
+}
+
+.dropdownPopover > div:global(.active),
+.dropdownPopover > button:global(.active),
+.dropdownPopover > a:global(.active) {
+    background-color: var(--dropdown-active-bg, #ecfdf5);
+    color: var(--dropdown-active-color, #059669);
+    font-weight: 700;
+}
+
+/* fullWidth 대응 */
+.dropdownContainer.fullWidth {
+    display: flex;
+    width: 100%;
+}
+
+.dropdownContainer.fullWidth .triggerWrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.dropdownContainer.fullWidth .triggerWrapper > * {
+    width: 100%;
+}
+
+.dropdownPopover.fullWidth {
+    width: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    box-sizing: border-box;
+}

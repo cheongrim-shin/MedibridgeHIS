@@ -1,0 +1,139 @@
+.holdStatusContainer {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    box-sizing: border-box;
+    height: 100%;
+}
+
+.holdContainer {
+    --table-scrollbar-size: 6px;
+    width: 100%;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-sizing: border-box;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    flex: 0 1 auto;
+    min-height: 0;
+    height: auto;
+    max-height: 100%;
+}
+
+.sectionTitle {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 16px 0;
+    white-space: nowrap;
+}
+
+.holdTable {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.holdTable td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 0px 12px;
+    white-space: nowrap;
+}
+
+.holdTable th {
+    font-size: 13px;
+    color: #475569;
+    font-weight: 600;
+    border-bottom: 1px solid #e2e8f0;
+    height: 40px;
+    line-height: 40px;
+    padding-top: 0;
+    padding-bottom: 0;
+    text-align: center;
+    vertical-align: middle;
+    padding: 0px 12px;
+    white-space: nowrap;
+    background: #f8fafc;
+}
+
+.holdTable td {
+    font-size: 13px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #3f4f68;
+    letter-spacing: 0.5px;
+}
+
+.holdTable th:first-child,
+.holdTable td:first-child {
+    text-align: left;
+}
+
+.holdStatePatientName {
+    font-size: 13px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+}
+
+.holdStatePatientInfo {
+    font-size: 13px;
+    font-weight: 400;
+    color: #64748b;
+    margin-left: 4px;
+    margin-right: 4px;
+}
+
+.holdReasonCell {
+    overflow: hidden;        /* 넘치는 내용 숨김 */
+    text-overflow: ellipsis; /* 넘친 부분을 "..."으로 표시 */
+    white-space: nowrap;     /* 줄바꿈 없이 한 줄 유지 (이건 그대로 둬도 됨) */
+}
+
+.holdTable td.emptyRow {
+    font-size: 13px;
+    color: #94a3b8;
+    margin: 0;
+    white-space: nowrap;
+    padding: 12px;
+}
+
+.returnBtn {
+    background: #ffffff;
+    border: 1px solid #2563eb;
+    color: #2563eb;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    margin-left: 5px;
+}
+
+.returnBtn:hover {
+    background: #eff6ff;
+}
+
+.detailBtn {
+    background: none;
+    border: none;
+    padding: 2px;
+    cursor: pointer;
+    color: #93a0b3;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.detailBtn:hover {
+    color: #d8284e;
+    filter: drop-shadow(0 0 4px rgba(216, 40, 78, 0.6));
+}
+
+.detailBtn svg {
+    width: 14px;
+    height: 14px;
+}

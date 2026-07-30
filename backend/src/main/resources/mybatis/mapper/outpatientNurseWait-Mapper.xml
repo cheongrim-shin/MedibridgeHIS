@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ddit.outpatientNurse.mapper.WaitMapper">
+
+    <!--진료대기열화면 시작-->
+
+    <!--대기중/진료중/대기보류 카운트 숫자
+    대기중 : 접수완료
+    호출중 : 호출중 (진료중에 카운트)
+    대기보류 : 보류
+    -->
+    <select id="selectWaitCountByState" resultType="map">
+        SELECT RECEIPT_STATUS, COUNT(*) AS CNT
+        FROM RECEPTIONIST_REGISTER
+        WHERE RECEIPT_STATUS IN ('접수완료', '호출중', '진료중', '보류')
+        GROUP BY RECEIPT_STATUS
+    </select>
+
+    <!--진료실 구분해서 대기 환자 리스트 불러오기-->
+    <select id="selectWaitListBySpace" resultType="ddit.outpatientNurse.vo.WaitListVO">
+        <![CDATA[
+        SELECT
+          r.MEDICAL_NUMBER
+        , r.SPACE_NUMBER
+
+        , (
+            SELECT COUNT(*)
+            FROM RECEPTIONIST_REGISTER r2
+            WHERE r2.SPACE_NUMBER = r.SPACE_NUMBER
+                AND r2.RECEIPT_STATUS = '접수완료'
+               AND (
+                    r2.RECEIPT_DATE < r.RECEIPT_DATE
+                    OR (r2.RECEIPT_DATE = r.RECEIPT_DATE AND r2.MEDICAL_NUMBER < r.MEDICAL_NUMBER)
+                )
+           ) +1 AS WAITING_TURN_NUMBER
+
+        , r.RECEIPT_STATUS AS STANDBY_STATE
+
+        , (
+             (
+             SELECT COUNT(*)
+             FROM RECEPTIONIST_REGISTER r2
+             WHERE r2.SPACE_NUMBER = r.SPACE_NUMBER
+                AND r2.RECEIPT_STATUS = '접수완료'
+               AND (
+                    r2.RECEIPT_DATE < r.RECEIPT_DATE
+                    OR (r2.RECEIPT_DATE = r.RECEIPT_DATE AND r2.MEDICAL_NUMBER < r.MEDICAL_NUMBER)
+                )
+             ) * 10
+            ) + (
+                CASE WHEN EXISTS (
+                    SELECT 1
+                    FROM RECEPTIONIST_REGISTER r3
+                    WHERE r3.SPACE_NUMBER = r.SPACE_NUMBER
+                        AND r3.RECEIPT_STATUS = '호출중'
+                    ) THEN 10
+                    ELSE 0
+                END
+            ) AS EXPECTED_WAITING_TIME
+
+        , m.MEMBER_NAME AS MEMBER_NAME
+
+        , SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 6) AS BIRTH_DATE
+
+        , CASE
+            WHEN SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1) IN ('1', '2')
+            THEN EXTRACT(YEAR FROM SYSDATE) - (1900 + TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 2)))
+            WHEN SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1) IN ('3', '4')
+            THEN EXTRACT(YEAR FROM SYSDATE) - (2000 + TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 2)))
+            ELSE 0
+            END AS AGE
+
+        , CASE
+            WHEN MOD(TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1)), 2) = 1 THEN '남'
+            ELSE '여'
+          END AS GENDER
+
+        , CASE
+            WHEN EXISTS (
+                SELECT 1
+                FROM APPOINTMENT a
+                WHERE a.MEMBER_NUMBER = r.MEMBER_NUMBER
+                    AND a.RESERVATION_STATUS = '예약확정'
+                    AND TRUNC(a.RESERVATION_START_DATE) = TRUNC(r.RECEIPT_DATE)
+            ) THEN '예약'
+            ELSE '당일'
+        END AS RECEIPT_TYPE
+
+        , r.RECEIPT_DATE
+
+        FROM RECEPTIONIST_REGISTER r
+    JOIN MEMBER m ON r.MEMBER_NUMBER = m.MEMBER_NUMBER
+    WHERE r.RECEIPT_STATUS = '접수완료'
+    ]]>
+        <!--
+          spaceNumber가 있을 때만 이 조건을 SQL에 끼워 넣음 (MyBatis 동적 SQL)
+          → "전체" 탭(spaceNumber 없음)일 땐 이 줄 자체가 SQL에서 통째로 빠져서
+            모든 진료실의 대기 목록이 다 조회됨
+        -->
+        <if test="spaceNumber != null and spaceNumber != ''">
+            AND r.SPACE_NUMBER = #{spaceNumber}
+        </if>
+        ORDER BY r.RECEIPT_DATE ASC, r.MEDICAL_NUMBER ASC
+    </select>
+
+    <!--진료실 호출 현황으로 리스트 불러오기-->
+    <select id="selectRoomStatus" resultType="ddit.outpatientNurse.vo.RoomStatusVO">
+        SELECT
+        r.MEDICAL_NUMBER
+        , r.SPACE_NUMBER
+        , r.RECEIPT_STATUS AS STANDBY_STATE
+        , m.MEMBER_NAME
+
+        , CASE
+        WHEN SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1) IN ('1', '2')
+        THEN EXTRACT(YEAR FROM SYSDATE) - (1900 + TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 2)))
+        WHEN SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1) IN ('3', '4')
+        THEN EXTRACT(YEAR FROM SYSDATE) - (2000 + TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 2)))
+        ELSE 0
+        END AS AGE
+
+        , CASE
+        WHEN MOD(TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1)), 2) = 1 THEN '남'
+        ELSE '여'
+        END AS GENDER
+
+        FROM RECEPTIONIST_REGISTER r
+        JOIN MEMBER m ON r.MEMBER_NUMBER = m.MEMBER_NUMBER
+        WHERE r.RECEIPT_STATUS IN ('호출중', '진료중')   <!-- ← '호출중' 뿐 아니라 '진료중'도 같이 조회하게 변경 -->
+        <if test="spaceNumber != null and spaceNumber != ''">
+            AND r.SPACE_NUMBER = #{spaceNumber}
+        </if>
+    </select>
+
+    <!--보류 처리했을 때 DB 업데이트 (보류사유/대기상태:보류)-->
+    <update id="updateWaitToHold">
+        UPDATE RECEPTIONIST_REGISTER
+        SET RECEIPT_STATUS = '보류',
+        HOLD_REASON = #{holdReason}
+        WHERE MEDICAL_NUMBER = #{medicalNumber}
+    </update>
+
+    <!--보류 상태인 환자들 대기보류 현황(리스트)에 불러오기-->
+    <select id="selectHoldList" resultType="ddit.outpatientNurse.vo.HoldListVO">
+        SELECT
+        r.MEDICAL_NUMBER
+        , r.SPACE_NUMBER
+        , r.HOLD_REASON
+        , m.MEMBER_NAME
+
+        , CASE
+        WHEN SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1) IN ('1', '2')
+        THEN EXTRACT(YEAR FROM SYSDATE) - (1900 + TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 2)))
+        WHEN SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1) IN ('3', '4')
+        THEN EXTRACT(YEAR FROM SYSDATE) - (2000 + TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 2)))
+        ELSE 0
+        END AS AGE
+
+        , CASE
+        WHEN MOD(TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1)), 2) = 1 THEN '남'
+        ELSE '여'
+        END AS GENDER
+
+        FROM RECEPTIONIST_REGISTER r
+        JOIN MEMBER m ON r.MEMBER_NUMBER = m.MEMBER_NUMBER
+        WHERE r.RECEIPT_STATUS = '보류'
+    </select>
+
+    <!-- 다음 순번으로 버튼 클릭시 같은 진료실(SPACE_NUMBER)에서, 대기 중인 사람 중 순번이 가장 빠른 사람을 찾아서 입장 처리-->
+    <update id="callNextWaitingPatient">
+        UPDATE RECEPTIONIST_REGISTER
+        SET RECEIPT_STATUS = '호출중'
+        WHERE MEDICAL_NUMBER = (
+        <!--대기자 중 1순위가 누구인지 찾기-->
+        SELECT MEDICAL_NUMBER
+        FROM (
+        SELECT MEDICAL_NUMBER
+        FROM RECEPTIONIST_REGISTER
+        WHERE SPACE_NUMBER = #{spaceNumber} <!--같은 진료실-->
+        AND RECEIPT_STATUS = '접수완료'
+        ORDER BY RECEIPT_DATE ASC, MEDICAL_NUMBER ASC
+        ) WHERE ROWNUM = 1
+        )
+        <!--해당 진료실에 호출된 사람이 있는지 확인-->
+        AND NOT EXISTS (
+        SELECT 1
+        FROM RECEPTIONIST_REGISTER
+        WHERE SPACE_NUMBER = #{spaceNumber}
+        AND RECEIPT_STATUS IN ('호출중', '진료중')
+        )
+    </update>
+
+    <!--대기복귀 버튼 누르면 '대기' 상태로 넘어가기-->
+    <update id="returnFromHold">
+        UPDATE RECEPTIONIST_REGISTER
+        SET RECEIPT_STATUS = '접수완료'
+        WHERE MEDICAL_NUMBER = #{medicalNumber}
+    </update>
+
+    <!--다음순번으로 버튼을 누르면 본인은 대기상태로 돌아가고 본인을 제외한 다음사람 호출
+    (만약 본인 혼자 있을경우는 다시 그냥 입장 처리되도록 서비스에서 처리)-->
+    <update id="callNextWaitingPatientExcludingOne">
+        UPDATE RECEPTIONIST_REGISTER
+        SET RECEIPT_STATUS = '호출중'
+        WHERE MEDICAL_NUMBER = (
+        SELECT MEDICAL_NUMBER FROM (
+        SELECT MEDICAL_NUMBER
+        FROM RECEPTIONIST_REGISTER
+        WHERE SPACE_NUMBER = #{spaceNumber}
+        AND RECEIPT_STATUS = '접수완료'
+        AND MEDICAL_NUMBER != #{excludeMedicalNumber}
+        ORDER BY RECEIPT_DATE ASC, MEDICAL_NUMBER ASC
+        ) WHERE ROWNUM = 1
+        )
+        AND NOT EXISTS (
+        SELECT 1 FROM RECEPTIONIST_REGISTER
+        WHERE SPACE_NUMBER = #{spaceNumber}
+        AND RECEIPT_STATUS IN ('호출중', '진료중')
+        )
+    </update>
+</mapper>

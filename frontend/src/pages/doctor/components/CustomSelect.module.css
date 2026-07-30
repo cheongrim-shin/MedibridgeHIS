@@ -1,0 +1,88 @@
+.customSelectWrapper {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.customSelectTrigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8.5px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: #ffffff;
+    font-size: 13px;
+    font-weight: 500;
+    color: #64748b;
+    cursor: pointer;
+    box-sizing: border-box;
+    text-align: left;
+    transition: border-color 0.15s ease;
+}
+
+.customSelectTrigger span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.customSelectTrigger:hover {
+    border-color: #cbd5e1;
+}
+
+.customSelectArrow {
+    width: 14px;
+    height: 14px;
+    color: #94a3b8;
+    flex-shrink: 0;
+    transition: transform 0.15s ease;
+}
+
+.customSelectArrowOpen {
+    transform: rotate(180deg);
+}
+
+.customOptionList {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 30;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    list-style: none;
+    margin: 0;
+    padding: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.customOptionItem {
+    padding: 8px 10px;
+    font-size: 13px;
+    color: #334155;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background-color 0.1s ease;
+}
+
+.customOptionItem:hover {
+    background: #f1f5f9;
+}
+
+.customOptionItemActive {
+    background: #eff6ff;
+    color: #2563eb;
+    font-weight: 600;
+}
+
+.customOptionItemActive:hover {
+    background: #eff6ff;
+}

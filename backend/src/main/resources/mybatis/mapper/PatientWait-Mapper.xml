@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ddit.patient.mapper.PatientWaitMapper">
+
+	<!--
+		대기현황 목록 조회
+		
+		WAIT.MEDICAL_NUMBER
+		=
+		RECEPTIONIST_REGISTER.MEDICAL_NUMBER
+		
+		현재 단계:
+		SELECT만 수행한다.
+	-->
+	<select id="selectWaitList" resultType="ddit.patient.vo.PatientWaitVO">
+		SELECT
+			W.WAIT_NUMBER              AS waitNumber,
+			W.SPACE_NUMBER             AS spaceNumber,
+			W.MEDICAL_NUMBER           AS medicalNumber,
+			W.STANDBY_STATE            AS standbyState,
+			W.WAITING_TURN_NUMBER      AS waitingTurnNumber,
+			W.HOLD_REASON              AS holdReason,
+			W.EXPECTED_WAITING_TIME    AS expectedWaitingTime,
+			W.ESTIMATED_TIME_REQUIRED  AS estimatedTimeRequired,
+			R.PATIENT_NUMBER           AS patientNo,
+			P.NAME                     AS patientName,
+			R.EMPLOYEE_CODE            AS employeeCode,
+			E.EMPLOYEE_NAME            AS employeeName,
+			R.DEPT_CODE                AS deptCode,
+			R.RECEIPT_STATUS           AS receiptStatus,
+			R.RECEIPT_DATE             AS receiptDate
+		FROM WAIT W
+		LEFT JOIN RECEPTIONIST_REGISTER R
+		       ON W.MEDICAL_NUMBER = R.MEDICAL_NUMBER
+		LEFT JOIN PATIENT P
+		       ON R.PATIENT_NUMBER = P.PATIENT_NUMBER
+		LEFT JOIN EMPLOYEE E
+		       ON R.EMPLOYEE_CODE = E.EMPLOYEE_CODE
+		ORDER BY W.WAITING_TURN_NUMBER ASC
+	</select>
+
+</mapper>

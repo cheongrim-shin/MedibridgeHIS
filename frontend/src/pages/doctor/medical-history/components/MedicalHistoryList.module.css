@@ -1,0 +1,50 @@
+.tableSection {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.historyTable {
+    width: 100%;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-sizing: border-box;
+    background: #ffffff;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+    overflow: hidden;
+}
+
+.historyTable th,
+.historyTable td {
+    padding: 12px 10px 12px 20px;
+    text-align: left;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.historyTable th:nth-child(1), .historyTable td:nth-child(1) { width: 34%; }
+.historyTable th:nth-child(2), .historyTable td:nth-child(2) { width: 33%; }
+.historyTable th:nth-child(3), .historyTable td:nth-child(3) { width: 33%; }
+
+.historyTable th {
+    font-weight: 700;
+    color: #475569;
+    background: #f8fafc;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.historyRow td {
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.historyRow:hover { background: #eff6ff; }
+.historyRowActive td { background: #eff6ff !important; }
+.nameCell { font-weight: 700; color: #1e293b; }
+.emptyRow { text-align: center; color: #94a3b8; padding: 40px 0; }

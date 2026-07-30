@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ddit.common.mapper.CommonCodeMapper">
+
+    <select id="selectCommonCodeListByGroup" parameterType="String" resultType="ddit.common.vo.CommonCodeVO">
+        SELECT * FROM COMMONCODE WHERE COMMONCODE = #{commonCode} AND USED = 'Y' ORDER BY COMMONCODE_NUMBER
+    </select>
+
+    <!-- 약품명(M그룹) 신규 코드 등록 -->
+    <insert id="insertCommonCode" parameterType="ddit.common.vo.CommonCodeVO">
+        INSERT INTO COMMONCODE (COMMONCODE_NUMBER, COMMONCODE, JOINT_CODE_GROUP_NAME, CODENAME_1, USED)
+        VALUES (#{commonCodeNumber}, #{commonCode}, #{jointCodeGroupName}, #{codeName1}, #{used})
+    </insert>
+
+    <!-- 약품명(M그룹) 텍스트만 수정 -->
+    <update id="updateCodeName1">
+        UPDATE COMMONCODE
+        SET CODENAME_1 = #{codeName1}
+        WHERE COMMONCODE_NUMBER = #{commonCodeNumber} AND COMMONCODE = #{commonCode}
+    </update>
+
+</mapper>

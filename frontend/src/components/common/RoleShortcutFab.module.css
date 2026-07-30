@@ -1,0 +1,110 @@
+/* components/common/RoleShortcutFab.module.css (신규) */
+.wrapper {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.fab {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: none;
+    background: #0d9488;
+    color: #ffffff;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
+    transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.fab:hover {
+    background: #0f766e;
+    transform: scale(1.05);
+}
+
+.panel {
+    width: 220px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+    padding: 12px;
+}
+
+.panelTitle {
+    margin: 0 0 8px 4px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.listItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px 10px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    font-size: 13px;
+    color: #334155;
+    cursor: pointer;
+    text-align: left;
+}
+
+.listItem:hover:not(:disabled) {
+    background: #f0fdfa;
+}
+
+.listItem:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
+.icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    color: #0d9488;
+    flex-shrink: 0;
+}
+
+.icon svg {
+    width: 18px;
+    height: 18px;
+}
+
+.adminHomeLink {
+    width: 100%;
+    margin-top: 8px;
+    padding-top: 8px;
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    background: transparent;
+    font-size: 12px;
+    color: #0d9488;
+    cursor: pointer;
+    text-align: center;
+}
+
+.adminHomeLink:hover {
+    text-decoration: underline;
+}

@@ -1,0 +1,197 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: 100%;
+}
+
+/* 검색창 + 버튼 */
+.headerRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.searchWrapper {
+    flex: 1;
+}
+
+/* 본문 2단 레이아웃 (좌 목록 / 우 상세) */
+.bodyRow {
+    display: flex;
+    gap: 16px;
+    flex: 1;
+    min-height: 0;
+}
+
+.listPane {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+.listPane > div {
+    flex: 1;
+    min-height: 0;
+}
+
+/* 목록 셀 강조 스타일 */
+.employeeSabun {
+    font-family: monospace;
+    font-weight: 600;
+    color: #475569;
+}
+
+.employeeName {
+    font-weight: 700;
+    color: #1e293b;
+}
+
+/* 상태 뱃지 */
+.badgeActive {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12.5px;
+    font-weight: 600;
+    background: #dcfce7;
+    color: #166534;
+}
+
+.badgeInactive {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11.5px;
+    font-weight: 600;
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+/* 우측 상세 패널 (목업 스타일 카드) */
+.detailPane {
+    width: 420px;
+    flex-shrink: 0;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+    padding: 24px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.detailHeader {
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+}
+
+/* 상세 패널 헤더 전용 상태 뱃지 (리스트보다 크게) */
+.badgeActiveLg {
+    display: inline-block;
+    padding: 5px 14px;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    background: #dcfce7;
+    color: #166534;
+}
+
+.badgeInactiveLg {
+    display: inline-block;
+    padding: 5px 14px;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.detailTitle {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+}
+
+.detailEmpty {
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+.detailBody {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    flex: 1;
+}
+
+.detailRow2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.buttonRow {
+    display: flex;
+    gap: 8px;
+    margin-top: 24px;
+    justify-content: flex-end;
+    flex-shrink: 0;
+}
+
+.errorText {
+    color: #ef4444;
+    font-size: 13px;
+    margin: 4px 0 0;
+}
+
+/* 헤더: 타이틀 + 상태 뱃지 한 줄 배치 */
+.detailHeader {
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* 섹션 그룹 */
+.detailBody {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    flex: 1;
+}
+
+.detailSection {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.sectionTitle {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+/* 필드 값 박스 (참고 이미지 스타일) */
+.valueBox {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14.5px;
+    font-weight: 500;
+    color: #1e293b;
+    box-sizing: border-box;
+}

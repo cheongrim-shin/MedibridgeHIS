@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ddit.physicalTherapist.mapper.PhysicalMapper">
+
+	<!--  치료항목 목록 조회 활성상태인것만 Y-->
+	<select id="selectTherapyItems" resultType="therapyItemVO">
+		SELECT COMMONCODE_NUMBER AS code
+		     , CODENAME_1        AS name
+		     , CODENAME_2        AS type
+		     , UNIT_PRICE        AS price
+		     , CONTRIBUTION
+		     , CASE WHEN NVL(CONTRIBUTION, 0) &lt; NVL(UNIT_PRICE, 0)
+		            THEN 'Y' ELSE 'N' END   AS coverageYn
+		     , USED
+		  FROM COMMONCODE
+		 WHERE COMMONCODE = 'P'
+		   AND USED = 'Y'
+		 ORDER BY COMMONCODE_NUMBER
+	</select>
+	
+	<!-- USED 상태조회 (중복 검사) -->
+	<select id="selectUsedByCode" resultType="string">
+		SELECT USED
+          FROM COMMONCODE
+         WHERE COMMONCODE_NUMBER = #{code}
+           AND COMMONCODE = 'P' 
+	</select>
+	
+	<!-- 치료항목등록 -->
+	<insert id="insertTherapyItem" parameterType="therapyItemVO">
+		INSERT INTO commoncode (
+    		commoncode_number,
+		    commoncode,
+		    joint_code_group_name,
+		    codename_1,
+		    codename_2,
+		    unit_price,
+		    used,
+		    contribution
+		) VALUES (
+		    #{code},
+		    'P',
+		    '물리치료',
+		    #{name},
+		    #{type},
+		    #{price},
+		    'Y',
+		    #{contribution}
+		)
+	</insert>
+	
+	<!-- 항목 수정 -->
+	<update id="updateTherapyItem" parameterType="therapyItemVO">
+		UPDATE COMMONCODE
+		   SET CODENAME_1 = #{name}
+		     , CODENAME_2 = #{type}
+		     , UNIT_PRICE = #{price}
+		     , CONTRIBUTION = #{contribution}
+		 WHERE COMMONCODE_NUMBER = #{code}
+		   AND COMMONCODE = 'P'
+		   AND USED = 'Y'
+	</update>
+	
+	<!-- 치료항목 삭제 (소프트 삭제) Y -> N -->
+	<update id="deleteTherapyItem">
+		UPDATE COMMONCODE
+		   SET USED = 'N'
+		 WHERE COMMONCODE_NUMBER = #{code}
+		   AND COMMONCODE = 'P'
+		   AND USED = 'Y'
+	</update>
+
+	<!-- 삭제 내역 목록 -->
+	<select id="selectDeletedTherapyItems" resultType="therapyItemVO">
+	   SELECT commoncode_number	as code
+		    , codename_1        as name
+		    , codename_2		as type
+		    , unit_price		as price
+		    , contribution
+		    , CASE WHEN nvl(contribution, 0) &lt; nvl(unit_price, 0)
+		    	   THEN 'Y' ELSE 'N' END  as coverageYn
+		    , used
+ 		 FROM commoncode
+        WHERE commoncode = 'P'
+          AND used = 'N'
+        ORDER BY commoncode_number
+	</select>
+	
+	<!-- 삭제내역 복원 N -> Y -->
+	<update id="restoreTherapyItem">
+		UPDATE COMMONCODE
+		   SET USED = 'Y'
+		 WHERE COMMONCODE_NUMBER = #{code}
+		   AND COMMONCODE = 'P'
+		   AND USED = 'N'
+	</update>
+	
+	
+	<!-- ==============물리치료 대기열 ==================== -->
+	
+	<!-- 베드 현황 조회 -->
+	<select id="selectBeds" resultType="bedVO">
+		SELECT b.BED_CODE
+	     , b.THERAPY_TYPE
+	     , b.BED_STATUS
+	     , r.treatment_number
+	     , to_char(r.TREATMENT_END_TIME, 'YYYY-MM-DD"T"HH24:MI:SS')  as endTime
+	     , m.member_name                            as patientName
+	     , r.treatment_item_name
+	  FROM PHYSICALTHERAPIST_BED b
+	  LEFT JOIN physicaltherapist_records r
+	    ON b.bed_code = r.bed_code AND r.treatment_status = '치료중'
+	  LEFT JOIN receptionist_register rr ON r.medical_number = rr.medical_number
+	  LEFT JOIN member m                 ON rr.member_number = m.member_number
+	 ORDER BY b.BED_CODE
+	</select>
+	
+	
+	
+	<!-- 대기열 쿼리 연구 및 수정 해야됨... -->
+	<select id="selectQueueList" resultType="queueRecordVO">
+		SELECT r.TREATMENT_NUMBER                          
+	         , r.MEDICAL_NUMBER                            
+	         , r.THERAPY_TYPE                              AS therapyCategory   
+	         , r.TREATMENT_STATUS                          AS status            
+	         , r.TREATMENT_ITEM_NAME                       AS therapyItems
+	         , TO_CHAR(rr.RECEIPT_DATE, 'YYYY-MM-DD"T"HH24:MI:SS') AS receiptTime
+	         , m.MEMBER_NAME                               AS name
+	         , SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 6) AS birthDate       
+	         , CASE WHEN SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1) IN ('2','4','6','8')
+	                THEN '여' ELSE '남' END                 AS gender          
+	         , doc.MEMBER_NAME                             AS doctorName
+	         , dept.DEPARTMENT_NAME                        AS specialization     
+			 , CAST(NULL AS NUMBER) 					   AS durationMin
+	         , CASE WHEN r.TREATMENT_STATUS = '대기'
+	                THEN ROW_NUMBER() OVER (
+	                       PARTITION BY r.THERAPY_TYPE, r.TREATMENT_STATUS
+	                       ORDER BY rr.RECEIPT_DATE, r.TREATMENT_NUMBER)
+	                ELSE NULL END                          AS sequence
+	      FROM PHYSICALTHERAPIST_RECORDS r
+	      JOIN RECEPTIONIST_REGISTER rr ON rr.MEDICAL_NUMBER = r.MEDICAL_NUMBER
+	      JOIN MEMBER m                 ON m.MEMBER_NUMBER   = rr.MEMBER_NUMBER
+	      JOIN MEMBER doc          		ON doc.MEMBER_NUMBER = rr.DOCTOR_NUMBER
+	      LEFT JOIN EMPLOYEE e          ON e.MEMBER_NUMBER   = rr.DOCTOR_NUMBER
+	      LEFT JOIN DEPARTMENT dept     ON dept.DEPARTMENT_CODE = e.DEPARTMENT_CODE
+	     WHERE r.TREATMENT_STATUS IN ('대기', '치료중')   
+	       AND rr.RECEIPT_DATE >= TRUNC(SYSDATE)
+  		   AND rr.RECEIPT_DATE &lt;  TRUNC(SYSDATE) + 1
+	     ORDER BY r.THERAPY_TYPE, sequence NULLS LAST, r.TREATMENT_NUMBER
+	</select>
+	
+	<!--시작 전 기록의 상태 확인용 -->
+	<select id="selectRecordBrief" resultType="therapyRecordBriefVO">
+		SELECT THERAPY_TYPE
+		     , TREATMENT_STATUS
+		     , MEDICAL_NUMBER 
+		  FROM PHYSICALTHERAPIST_RECORDS
+		 WHERE TREATMENT_NUMBER =#{treatmentNumber}
+	</select>
+	
+	<!-- 베드 배정 -->
+	<update id="occupyBed">
+		UPDATE PHYSICALTHERAPIST_BED
+		   SET BED_STATUS = '사용중'
+		 WHERE BED_CODE = #{bedCode}
+		   AND BED_STATUS= '사용가능'
+		   AND THERAPY_TYPE = #{therapyType}
+	</update>
+	
+	<!--  기록 시작 처리: 치료대기 -> 치료중 -->
+	<update id="startTreatment">
+		UPDATE PHYSICALTHERAPIST_RECORDS
+		   SET TREATMENT_STATUS 	= '치료중'
+		     , BED_CODE 			= #{bedCode}
+		     , TREATMENT_START_TIME = SYSDATE
+		     , TREATMENT_END_TIME   = SYSDATE + NUMTODSINTERVAL(#{durationMin}, 'MINUTE')
+		 WHERE TREATMENT_NUMBER = #{treatmentNumber}
+		   AND TREATMENT_STATUS = '대기'
+	</update>
+	
+	<!-- 기록 완료 치료중 → 치료완료 + 실제 종료시각/치료일 기록 -->
+	<update id="completeTreatment">
+	    UPDATE PHYSICALTHERAPIST_RECORDS
+	       SET TREATMENT_STATUS   = '치료완료'
+	         , TREATMENT_END_TIME = SYSDATE         
+	         , DATE_OF_TREATMENT  = SYSDATE          
+	     WHERE TREATMENT_NUMBER = #{treatmentNumber}
+	       AND TREATMENT_STATUS = '치료중'
+	</update>
+	
+	<update id="releaseBedByTreatment">
+		UPDATE PHYSICALTHERAPIST_BED
+	       SET BED_STATUS = '사용가능'
+	     WHERE BED_CODE = (SELECT BED_CODE
+	     					 FROM PHYSICALTHERAPIST_RECORDS
+	     					WHERE TREATMENT_NUMBER = #{treatmentNumber})
+	       AND BED_STATUS = '사용중'
+	</update>
+	
+	<!-- 이 접수의 미완료 오더 합계 (0 = 수납대기 전환 가능) -->
+	<select id="selectPendingOrderCount" resultType="int">
+	    SELECT
+	        (SELECT COUNT(*) FROM DOCTOR_PRESCRIPTION
+	          WHERE MEDICAL_NUMBER = #{medicalNumber} AND PRESCRIPTION_STATUS = 'N')
+	      + (SELECT COUNT(*) FROM OUTPATIENTNURSE_INJECTION
+	          WHERE MEDICAL_NUMBER = #{medicalNumber} AND INJECTED_YN = 'N')
+	      + (SELECT COUNT(*) FROM PHYSICALTHERAPIST_RECORDS
+	          WHERE MEDICAL_NUMBER = #{medicalNumber} AND TREATMENT_STATUS != '치료완료')
+	    FROM DUAL
+	</select>
+	
+	<!-- 접수 상태 전환: 진료완료('완료') 상태에서만 수납대기로-->
+	<update id="updateReceiptStatusToPaymentPending">
+	    UPDATE RECEPTIONIST_REGISTER
+	       SET RECEIPT_STATUS = '수납대기'
+	     WHERE MEDICAL_NUMBER = #{medicalNumber}
+	       AND RECEIPT_STATUS = '진료완료'
+	</update>
+	
+	<!-- 환자 상세(코스 단위): 받은횟수 / 회차 / 최근치료일 / 담당의 / 진료과 -->
+	<select id="selectPatientDetail" resultType="therapyPatientDetailVO">
+	    SELECT
+	        ( SELECT COUNT(*)
+	            FROM PHYSICALTHERAPIST_RECORDS d
+	           WHERE d.MEDICAL_NUMBER = #{medicalNumber}
+	             AND d.TREATMENT_STATUS = '치료완료' )                    AS receivedCount
+	      , ( SELECT COUNT(*)
+	            FROM PHYSICALTHERAPIST_RECORDS d
+	           WHERE d.MEDICAL_NUMBER = #{medicalNumber}
+	             AND d.TREATMENT_NUMBER &lt;= NVL(#{treatmentNumber}, d.TREATMENT_NUMBER) ) AS courseSeq
+	      , ( SELECT TO_CHAR(MAX(d.DATE_OF_TREATMENT), 'YYYY-MM-DD')
+	            FROM PHYSICALTHERAPIST_RECORDS d
+	           WHERE d.MEDICAL_NUMBER = #{medicalNumber}
+	             AND d.TREATMENT_STATUS = '치료완료' )                    AS lastTreatmentDate
+	      , pm.MEMBER_PHONE_NUMBER 
+	      , doc.MEMBER_NAME       AS doctorName      
+	      , dept.DEPARTMENT_NAME  AS specialization  
+	    FROM RECEPTIONIST_REGISTER rr                
+	    LEFT JOIN MEMBER doc      ON doc.MEMBER_NUMBER    = rr.DOCTOR_NUMBER
+	    LEFT JOIN EMPLOYEE e      ON e.MEMBER_NUMBER      = rr.DOCTOR_NUMBER
+	    LEFT JOIN DEPARTMENT dept ON dept.DEPARTMENT_CODE = e.DEPARTMENT_CODE
+	    LEFT JOIN MEMBER pm       ON pm.MEMBER_NUMBER 	  = rr.MEMBER_NUMBER
+	    WHERE rr.MEDICAL_NUMBER = #{medicalNumber}
+	</select>
+	
+	<!--  -->
+	<select id="selectPatientHistory" resultType="therapyHistoryVO">
+		SELECT TO_CHAR( NVL(r.DATE_OF_TREATMENT, r.TREATMENT_START_TIME), 'YYYY-MM-DD') AS treatmentDate
+	         , r.TREATMENT_ITEM_NAME        
+	         , r.THERAPY_TYPE               
+	         , r.TREATMENT_STATUS           
+	      FROM PHYSICALTHERAPIST_RECORDS r
+	      JOIN RECEPTIONIST_REGISTER rr
+	        ON rr.MEDICAL_NUMBER = r.MEDICAL_NUMBER
+	     WHERE rr.MEMBER_NUMBER = ( SELECT MEMBER_NUMBER
+	                                  FROM RECEPTIONIST_REGISTER
+	                                 WHERE MEDICAL_NUMBER = #{medicalNumber} )
+	       AND r.TREATMENT_STATUS = '치료완료'
+	     ORDER BY r.TREATMENT_NUMBER DESC
+	     FETCH FIRST 5 ROWS ONLY    
+	</select>
+	
+	<!--  -->
+	<select id="selectAvgDurationByType" resultType="therapyDurationVO">
+		SELECT THERAPY_TYPE
+		     , ROUND(AVG( (TREATMENT_END_TIME - TREATMENT_START_TIME) * 24 * 60 )) AS avgMin
+		  FROM PHYSICALTHERAPIST_RECORDS
+		 WHERE TREATMENT_STATUS = '치료완료'
+		   AND TREATMENT_START_TIME IS NOT NULL
+		   AND TREATMENT_END_TIME   IS NOT NULL
+		   AND (TREATMENT_END_TIME - TREATMENT_START_TIME) * 1440 BETWEEN 1 AND 60
+		 GROUP BY THERAPY_TYPE
+	</select>
+	
+	<!-- 진행중인 물리치료 건수조회 -->
+	<select id="selectActiveTreatmentCountByMedical" resultType="int">
+	    SELECT COUNT(*)
+	      FROM PHYSICALTHERAPIST_RECORDS
+	     WHERE MEDICAL_NUMBER = #{medicalNumber}
+	       AND TREATMENT_STATUS = '치료중'
+	</select>
+	
+</mapper>

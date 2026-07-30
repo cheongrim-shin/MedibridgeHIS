@@ -1,0 +1,12 @@
+.container { display: flex; flex-direction: column; gap: 16px; }
+.headerRow { display: flex; align-items: center; gap: 8px; }
+.searchWrapper { flex: 1; }
+.categoryBadge {
+    display: inline-block; padding: 2px 8px; border-radius: 12px;
+    font-size: 12px; background: #eef2ff; color: #4338ca;
+}
+.titleLink { cursor: pointer; color: #1e293b; }
+.titleLink:hover { text-decoration: underline; color: #4338ca; }
+
+/* NoticeManagement.module.css */
+.categoryFilterWrapper { flex-shrink: 0; width: 160px; }

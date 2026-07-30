@@ -1,0 +1,128 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.mainCard {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+}
+
+/* 필터 영역 */
+.filterSection {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-bottom: 12px;
+    box-sizing: border-box;
+}
+
+.filterRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+}
+
+.inputWrapper {
+    flex: 1;
+}
+
+/* 탭 스타일 조정 */
+.tabContainer {
+    margin-bottom: 0;
+}
+
+.tableSection {
+    width: 100%;
+    flex: 1;
+    overflow: auto;
+}
+
+/* 테이블 내부 셀 텍스트 디자인 */
+.itemCode {
+    font-family: monospace;
+    font-weight: 700;
+    color: #475569;
+}
+
+.itemName {
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.priceCell {
+    text-align: right;
+    font-weight: normal;
+    color: #1e293b;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+
+
+/* 모달 및 폼 스타일 */
+.formContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.modalActionRow {
+    display: flex;
+    margin-top: 12px;
+    width: 100%;
+}
+
+.advancedToggleContainer {
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
+    margin-bottom: 2px;
+}
+
+.advancedToggleBtn {
+    font-size: 11.5px;
+    color: #94a3b8; /* slate-400 */
+    text-decoration: underline;
+    cursor: pointer;
+    transition: color 0.15s ease;
+    user-select: none;
+}
+
+.advancedToggleBtn:hover {
+    color: #64748b; /* slate-500 */
+}
+
+.deleteWarningArea {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-sizing: border-box;
+    margin-top: 12px;
+    margin-bottom: 5px;
+}
+
+.pageDesc {
+    margin: 0 0 16px;
+    padding: 10px 14px;
+    background: #f0f9ff;
+    border-left: 3px solid #38bdf8;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #475569;
+    line-height: 1.5;
+}

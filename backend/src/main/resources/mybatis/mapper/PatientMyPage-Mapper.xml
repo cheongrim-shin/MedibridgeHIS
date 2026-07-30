@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ddit.patient.mapper.PatientMyPageMapper">
+
+	<!--
+		진료이력 목록 조회
+
+		수정 사항:
+		- 담당 의사의 EMPLOYEE / DEPARTMENT 정보를 연결한다.
+		- 화면에는 RS 코드가 아니라 한글 상태명을 반환한다.
+		- 원본 상태 코드는 receiptStatusCode에 별도로 보존한다.
+	-->
+	<select id="selectHistoryList"
+			resultType="ddit.patient.vo.PatientMyPageVO">
+
+		SELECT
+			R.MEDICAL_NUMBER  AS medicalNumber,
+			R.MEMBER_NUMBER   AS memberNumber,
+			M.MEMBER_NAME     AS patientName,
+
+			R.DOCTOR_NUMBER   AS doctorNumber,
+			R.DOCTOR_NUMBER   AS employeeCode,
+			D.MEMBER_NAME     AS employeeName,
+
+			E.DEPARTMENT_CODE AS deptCode,
+			NVL(
+				DP.DEPARTMENT_NAME,
+				'진료과 미정'
+			)                 AS deptName,
+
+			R.RECEIPT_DATE    AS receiptDate,
+			R.TREATMENT_DATE  AS treatmentDate,
+
+			R.RECEIPT_STATUS  AS receiptStatusCode,
+
+			CASE R.RECEIPT_STATUS
+				WHEN 'RS102' THEN '접수 처리중'
+				WHEN 'RS103' THEN '진료 대기'
+				WHEN 'RS104' THEN '진료 진행중'
+				WHEN 'RS105' THEN '진료 완료'
+				ELSE NVL(
+					R.RECEIPT_STATUS,
+					'상태 미정'
+				)
+			END               AS receiptStatus,
+
+			CAST(NULL AS VARCHAR2(255)) AS orderCode,
+
+			R.REGISTER_S      AS registerS,
+			R.REGISTER_O      AS registerO,
+			R.REGISTER_A      AS registerA,
+			R.REGISTER_P      AS registerP,
+
+			R.SPACE_NUMBER    AS spaceNumber,
+			R.HOLD_REASON     AS holdReason,
+
+			'진료'            AS visitType
+
+		FROM RECEPTIONIST_REGISTER R
+
+		LEFT JOIN MEMBER M
+		       ON R.MEMBER_NUMBER = M.MEMBER_NUMBER
+
+		LEFT JOIN MEMBER D
+		       ON R.DOCTOR_NUMBER = D.MEMBER_NUMBER
+
+		LEFT JOIN EMPLOYEE E
+		       ON R.DOCTOR_NUMBER = E.MEMBER_NUMBER
+
+		LEFT JOIN DEPARTMENT DP
+		       ON E.DEPARTMENT_CODE = DP.DEPARTMENT_CODE
+
+		WHERE R.MEMBER_NUMBER = #{memberNumber}
+
+		ORDER BY NVL(
+			R.TREATMENT_DATE,
+			R.RECEIPT_DATE
+		) DESC
+
+	</select>
+
+
+	<!--
+		진료이력 상세 조회
+
+		진료번호와 로그인 회원번호를 함께 조건으로 사용한다.
+		다른 환자의 진료번호만 입력해서는 조회할 수 없다.
+	-->
+	<select id="selectHistoryDetail"
+			resultType="ddit.patient.vo.PatientMyPageVO">
+
+		SELECT
+			R.MEDICAL_NUMBER  AS medicalNumber,
+			R.MEMBER_NUMBER   AS memberNumber,
+			M.MEMBER_NAME     AS patientName,
+
+			R.DOCTOR_NUMBER   AS doctorNumber,
+			R.DOCTOR_NUMBER   AS employeeCode,
+			D.MEMBER_NAME     AS employeeName,
+
+			E.DEPARTMENT_CODE AS deptCode,
+			NVL(
+				DP.DEPARTMENT_NAME,
+				'진료과 미정'
+			)                 AS deptName,
+
+			R.RECEIPT_DATE    AS receiptDate,
+			R.TREATMENT_DATE  AS treatmentDate,
+
+			R.RECEIPT_STATUS  AS receiptStatusCode,
+
+			CASE R.RECEIPT_STATUS
+				WHEN 'RS102' THEN '접수 처리중'
+				WHEN 'RS103' THEN '진료 대기'
+				WHEN 'RS104' THEN '진료 진행중'
+				WHEN 'RS105' THEN '진료 완료'
+				ELSE NVL(
+					R.RECEIPT_STATUS,
+					'상태 미정'
+				)
+			END               AS receiptStatus,
+
+			CAST(NULL AS VARCHAR2(255)) AS orderCode,
+
+			R.REGISTER_S      AS registerS,
+			R.REGISTER_O      AS registerO,
+			R.REGISTER_A      AS registerA,
+			R.REGISTER_P      AS registerP,
+
+			R.SPACE_NUMBER    AS spaceNumber,
+			R.HOLD_REASON     AS holdReason,
+
+			'진료'            AS visitType
+
+		FROM RECEPTIONIST_REGISTER R
+
+		LEFT JOIN MEMBER M
+		       ON R.MEMBER_NUMBER = M.MEMBER_NUMBER
+
+		LEFT JOIN MEMBER D
+		       ON R.DOCTOR_NUMBER = D.MEMBER_NUMBER
+
+		LEFT JOIN EMPLOYEE E
+		       ON R.DOCTOR_NUMBER = E.MEMBER_NUMBER
+
+		LEFT JOIN DEPARTMENT DP
+		       ON E.DEPARTMENT_CODE = DP.DEPARTMENT_CODE
+
+		WHERE R.MEDICAL_NUMBER = #{medicalNumber}
+		  AND R.MEMBER_NUMBER = #{memberNumber}
+
+	</select>
+
+
+	<!--
+		마이페이지 회원정보 조회
+
+		수정 사항:
+		- 주민등록번호에서 생년월일과 성별 표시값을 계산한다.
+		- ACCOUNT_STATUS를 사용자용 계정 상태 문구로 변환한다.
+		- 주민등록번호 원문은 화면에 출력하지 않는다.
+	-->
+	<select id="selectPatientProfile"
+			resultType="ddit.patient.vo.PatientProfileVO">
+
+		SELECT
+			M.MEMBER_NUMBER                AS memberNumber,
+			M.MEMBER_ID                    AS memberId,
+			M.MEMBER_NAME                  AS patientName,
+			M.MEMBER_PHONE_NUMBER          AS phone,
+			M.RESIDENT_REGISTRATION_NUMBER AS residentNumber,
+
+			M.PRIMARY_ADDRESS              AS primaryAddress,
+			M.DETAILED_ADDRESS             AS detailedAddress,
+			M.POSTAL_CODE                  AS zipcode,
+
+			M.ACCOUNT_STATUS               AS accountStatus,
+			M.MEMBER_STATUS                AS memberStatus,
+
+			TRIM(
+				NVL(M.PRIMARY_ADDRESS, '')
+				|| ' '
+				|| NVL(M.DETAILED_ADDRESS, '')
+			)                              AS address,
+
+			CASE
+				WHEN LENGTH(
+					REPLACE(
+						M.RESIDENT_REGISTRATION_NUMBER,
+						'-',
+						''
+					)
+				) >= 7
+				AND SUBSTR(
+					REPLACE(
+						M.RESIDENT_REGISTRATION_NUMBER,
+						'-',
+						''
+					),
+					7,
+					1
+				) IN ('1', '2', '3', '4', '5', '6', '7', '8')
+				THEN
+					CASE
+						WHEN SUBSTR(
+							REPLACE(
+								M.RESIDENT_REGISTRATION_NUMBER,
+								'-',
+								''
+							),
+							7,
+							1
+						) IN ('1', '2', '5', '6')
+							THEN '19'
+						ELSE '20'
+					END
+					||
+					SUBSTR(
+						REPLACE(
+							M.RESIDENT_REGISTRATION_NUMBER,
+							'-',
+							''
+						),
+						1,
+						2
+					)
+					|| '.'
+					||
+					SUBSTR(
+						REPLACE(
+							M.RESIDENT_REGISTRATION_NUMBER,
+							'-',
+							''
+						),
+						3,
+						2
+					)
+					|| '.'
+					||
+					SUBSTR(
+						REPLACE(
+							M.RESIDENT_REGISTRATION_NUMBER,
+							'-',
+							''
+						),
+						5,
+						2
+					)
+				ELSE NULL
+			END                              AS birthDate,
+
+			CASE
+				WHEN SUBSTR(
+					REPLACE(
+						M.RESIDENT_REGISTRATION_NUMBER,
+						'-',
+						''
+					),
+					7,
+					1
+				) IN ('1', '3', '5', '7')
+					THEN '남성'
+				WHEN SUBSTR(
+					REPLACE(
+						M.RESIDENT_REGISTRATION_NUMBER,
+						'-',
+						''
+					),
+					7,
+					1
+				) IN ('2', '4', '6', '8')
+					THEN '여성'
+				ELSE NULL
+			END                              AS gender,
+
+			CASE
+				WHEN TO_CHAR(M.ACCOUNT_STATUS) = '1'
+					THEN '정상'
+				WHEN TO_CHAR(M.ACCOUNT_STATUS) = '0'
+					THEN '이용 제한'
+				WHEN M.ACCOUNT_STATUS IS NOT NULL
+					THEN TO_CHAR(M.ACCOUNT_STATUS)
+				ELSE '상태 미정'
+			END                              AS whetherToUse
+
+		FROM MEMBER M
+
+		WHERE M.MEMBER_NUMBER = #{memberNumber}
+
+	</select>
+
+
+	<!--
+		마이페이지 홈 - 다가오는 예약 1건 조회
+
+		수정 사항:
+		- 현재 시각 이후의 활성 예약만 조회한다.
+		- 예약번호와 진료과 정보를 함께 반환한다.
+		- 가장 가까운 미래 예약 1건을 반환한다.
+	-->
+	<select id="selectUpcomingReservation"
+			resultType="ddit.patient.vo.PatientReservationVO">
+
+		SELECT *
+
+		FROM (
+			SELECT
+				A.APPOINTMENT_NUMBER       AS appointmentNumber,
+				A.APPOINTMENT_NUMBER       AS reservationsNumber,
+
+				A.MEMBER_NUMBER            AS memberNumber,
+				A.MEMBER_NUMBER            AS patientNumber,
+
+				M.MEMBER_NAME              AS patientName,
+				M.MEMBER_PHONE_NUMBER      AS phone,
+
+				A.ATTENDING_PHYSICIAN      AS attendingPhysician,
+				A.ATTENDING_PHYSICIAN      AS employeeCode,
+				D.MEMBER_NAME              AS employeeName,
+
+				E.DEPARTMENT_CODE          AS deptCode,
+
+				NVL(
+					DP.DEPARTMENT_NAME,
+					'진료과 미정'
+				)                          AS deptName,
+
+				A.RESERVATION_START_DATE   AS reservationStartDate,
+				A.RESERVATION_START_DATE   AS reservedAt,
+				A.RESERVATION_END_DATE     AS reservationEndDate,
+
+				A.RESERVATION_STATUS       AS reservationStatus,
+				A.RESERVATION_STATUS       AS reservationsStatus,
+
+				'APPOINTMENT'              AS reservationSource
+
+			FROM APPOINTMENT A
+
+			LEFT JOIN MEMBER M
+			       ON A.MEMBER_NUMBER = M.MEMBER_NUMBER
+
+			LEFT JOIN MEMBER D
+			       ON A.ATTENDING_PHYSICIAN = D.MEMBER_NUMBER
+
+			LEFT JOIN EMPLOYEE E
+			       ON A.ATTENDING_PHYSICIAN = E.MEMBER_NUMBER
+
+			LEFT JOIN DEPARTMENT DP
+			       ON E.DEPARTMENT_CODE = DP.DEPARTMENT_CODE
+
+			WHERE A.MEMBER_NUMBER = #{memberNumber}
+
+			  AND A.RESERVATION_START_DATE >= SYSDATE
+
+			  AND A.RESERVATION_STATUS
+			      IN ('예약확정', '예약', '예약신청')
+
+			ORDER BY
+				A.RESERVATION_START_DATE ASC,
+				A.APPOINTMENT_NUMBER ASC
+		)
+
+		WHERE ROWNUM = 1
+
+	</select>
+
+
+	<!--
+		접수·수납 이력 목록 조회
+
+		RECEPTIONIST_REGISTER에 ORDER_CODE 컬럼이 없으므로 NULL 별칭을 반환한다.
+		orederCode는 기존 VO 오타 필드 호환용 별칭이다.
+	-->
+	<select id="selectRegisterList"
+			resultType="ddit.patient.vo.PatientRegisterVO">
+
+		SELECT
+			R.MEDICAL_NUMBER  AS medicalNumber,
+			R.MEMBER_NUMBER   AS memberNumber,
+
+			R.DOCTOR_NUMBER   AS doctorNumber,
+			R.DOCTOR_NUMBER   AS employeeCode,
+
+			R.RECEIPT_DATE    AS receiptDate,
+			R.TREATMENT_DATE  AS treatmentDate,
+			R.RECEIPT_STATUS  AS receiptStatus,
+
+			CAST(NULL AS VARCHAR2(255)) AS orderCode,
+			CAST(NULL AS VARCHAR2(255)) AS orederCode,
+
+			R.REGISTER_S      AS registerS,
+			R.REGISTER_O      AS registerO,
+			R.REGISTER_A      AS registerA,
+			R.REGISTER_P      AS registerP,
+
+			R.SPACE_NUMBER    AS spaceNumber,
+			R.HOLD_REASON     AS holdReason
+
+		FROM RECEPTIONIST_REGISTER R
+
+		WHERE R.MEMBER_NUMBER = #{memberNumber}
+
+		ORDER BY NVL(
+			R.TREATMENT_DATE,
+			R.RECEIPT_DATE
+		) DESC
+
+	</select>
+
+</mapper>

@@ -1,0 +1,78 @@
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 420px;
+    overflow-y: auto;
+}
+
+.orderCard {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px;
+}
+
+.orderCardTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.name {
+    font-weight: 600;
+    color: #0f172a;
+    font-size: 13.5px;
+}
+
+.meta {
+    font-size: 12px;
+    color: #92400e;
+    white-space: nowrap;
+}
+
+.orderCardSub {
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 10px;
+}
+
+.orderCardActions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.expectedCostRow {
+    font-size: 12px;
+    color: #64748b;
+    white-space: nowrap;
+}
+
+.expectedCostRow strong {
+    color: #0f172a;
+    font-weight: 700;
+}
+
+.inputRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.inputRow input {
+    width: 100px;
+    flex-shrink: 0;
+}
+
+.inputRow button {
+    flex: 1;
+}
+
+.emptyText {
+    text-align: center;
+    color: #64748b;
+    font-size: 13.5px;
+    padding: 24px 0;
+}

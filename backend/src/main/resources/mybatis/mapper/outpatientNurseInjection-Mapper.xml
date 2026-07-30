@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ddit.outpatientNurse.mapper.InjectionOrderMapper">
+
+    <!--오더 받은 환자 리스트-->
+    <select id="selectInjectionList" parameterType="String" resultType="ddit.outpatientNurse.vo.InjectionListVO">
+        SELECT *
+        FROM (
+        SELECT
+        j.MEDICAL_NUMBER
+        , m.MEMBER_NAME
+        , SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 6) AS BIRTH_DATE
+        , CASE
+        WHEN SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1) IN ('1', '2')
+        THEN EXTRACT(YEAR FROM SYSDATE) - (1900 + TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 2)))
+        WHEN SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1) IN ('3', '4')
+        THEN EXTRACT(YEAR FROM SYSDATE) - (2000 + TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 2)))
+        ELSE 0
+        END AS AGE
+        , CASE
+        WHEN MOD(TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1)), 2) = 1 THEN '남'
+        ELSE '여'
+        END AS GENDER
+        , TO_CHAR(j.INJECTION_ORDER_TIME, 'YYYY-MM-DD HH24:MI') AS PRESCRIPTION_DATE
+        , nameCode.CODENAME_1 AS MEDICINE_NAME
+        , COUNT(*) OVER (PARTITION BY j.MEDICAL_NUMBER) AS MED_CNT
+        , ROW_NUMBER() OVER (PARTITION BY j.MEDICAL_NUMBER ORDER BY j.INJECTION_ORDER_TIME) AS RN
+        FROM OUTPATIENTNURSE_INJECTION j
+        JOIN MEDICINE mc ON j.MEDICINE_CODE = mc.MEDICINE_CODE
+        JOIN COMMONCODE nameCode
+        ON nameCode.COMMONCODE_NUMBER = mc.MEDICINE_NAME
+        AND nameCode.COMMONCODE = 'M'
+        JOIN RECEPTIONIST_REGISTER r ON j.MEDICAL_NUMBER = r.MEDICAL_NUMBER
+        JOIN MEMBER m ON r.MEMBER_NUMBER = m.MEMBER_NUMBER
+        WHERE j.INJECTED_YN = 'N'
+        )
+        WHERE RN = 1
+        ORDER BY PRESCRIPTION_DATE ASC
+    </select>
+
+    <!--리스트 상세-->
+    <select id="selectInjectionDetail" parameterType="String" resultType="ddit.outpatientNurse.vo.InjectionDetailVO">
+        SELECT
+        j.MEDICAL_NUMBER
+        , m.MEMBER_NAME
+        , SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 6) AS BIRTH_DATE
+        , CASE
+        WHEN SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1) IN ('1', '2')
+        THEN EXTRACT(YEAR FROM SYSDATE) - (1900 + TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 2)))
+        WHEN SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1) IN ('3', '4')
+        THEN EXTRACT(YEAR FROM SYSDATE) - (2000 + TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 2)))
+        ELSE 0
+        END AS AGE
+        , CASE
+        WHEN MOD(TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1)), 2) = 1 THEN '남'
+        ELSE '여'
+        END AS GENDER
+        , TO_CHAR(j.INJECTION_ORDER_TIME, 'YYYY-MM-DD HH24:MI') AS PRESCRIPTION_DATE
+        , nameCode.CODENAME_1 AS MEDICINE_NAME
+        , j.DOSAGE
+        , unitCode.CODENAME_1 AS UNIT
+        , J.FREQUENCY
+        , doc.MEMBER_NAME AS DOCTOR_NAME
+        , mr.DIAGNOSIS_NAME
+        FROM OUTPATIENTNURSE_INJECTION j
+        JOIN MEDICINE mc ON j.MEDICINE_CODE = mc.MEDICINE_CODE
+        JOIN COMMONCODE nameCode
+        ON nameCode.COMMONCODE_NUMBER = mc.MEDICINE_NAME
+        AND nameCode.COMMONCODE = 'M'
+        JOIN COMMONCODE unitCode
+        ON unitCode.COMMONCODE_NUMBER = j.UNIT
+        AND unitCode.COMMONCODE = 'U'
+        JOIN RECEPTIONIST_REGISTER r ON j.MEDICAL_NUMBER = r.MEDICAL_NUMBER
+        JOIN MEMBER m ON r.MEMBER_NUMBER = m.MEMBER_NUMBER
+        LEFT JOIN MEMBER doc ON r.DOCTOR_NUMBER = doc.MEMBER_NUMBER
+        LEFT JOIN MEDICAL_RECORD mr ON r.MEDICAL_RECORD_NUMBER = mr.MEDICAL_RECORD_NUMBER
+        WHERE j.MEDICAL_NUMBER = #{medicalNumber}
+    </select>
+
+    <!--주사처치완료처리-->
+    <update id="completeInjection" parameterType="String">
+        UPDATE OUTPATIENTNURSE_INJECTION
+        SET INJECTED_YN = 'Y',
+        INJECTED_AT = SYSDATE
+        WHERE MEDICAL_NUMBER = #{medicalNumber}
+        AND INJECTED_YN = 'N'
+    </update>
+
+    <!--주사이력리스트-->
+    <select id="selectInjectionHistoryList" parameterType="ddit.outpatientNurse.vo.InjectionHistorySearchVO"
+            resultType="ddit.outpatientNurse.vo.InjectionHistoryListVO">
+        SELECT *
+        FROM (
+        SELECT
+        j.MEDICAL_NUMBER
+        , m.MEMBER_NAME
+        , SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 6) AS BIRTH_DATE
+        , CASE
+        WHEN SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1) IN ('1', '2')
+        THEN EXTRACT(YEAR FROM SYSDATE) - (1900 + TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 2)))
+        WHEN SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1) IN ('3', '4')
+        THEN EXTRACT(YEAR FROM SYSDATE) - (2000 + TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 2)))
+        ELSE 0
+        END AS AGE
+        , CASE
+        WHEN MOD(TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1)), 2) = 1 THEN '남'
+        ELSE '여'
+        END AS GENDER
+        , TO_CHAR(j.INJECTED_AT, 'YYYY-MM-DD HH24:MI') AS INJECTION_DATE
+        , nameCode.CODENAME_1 AS MEDICINE_NAME
+        , COUNT(*) OVER (PARTITION BY j.MEDICAL_NUMBER) AS MED_CNT
+        , ROW_NUMBER() OVER (PARTITION BY j.MEDICAL_NUMBER ORDER BY j.INJECTION_ORDER_TIME) AS RN
+        FROM OUTPATIENTNURSE_INJECTION j
+        JOIN MEDICINE mc ON j.MEDICINE_CODE = mc.MEDICINE_CODE
+        JOIN COMMONCODE nameCode
+        ON nameCode.COMMONCODE_NUMBER = mc.MEDICINE_NAME
+        AND nameCode.COMMONCODE = 'M'
+        JOIN RECEPTIONIST_REGISTER r ON j.MEDICAL_NUMBER = r.MEDICAL_NUMBER
+        JOIN MEMBER m ON r.MEMBER_NUMBER = m.MEMBER_NUMBER
+        WHERE j.INJECTED_YN = 'Y'
+        <if test="startDate != null and startDate != ''">
+            AND j.INJECTION_ORDER_TIME <![CDATA[>=]]> TO_DATE(#{startDate}, 'YYYY-MM-DD HH24:MI')
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND j.INJECTION_ORDER_TIME <![CDATA[<]]> TO_DATE(#{endDate}, 'YYYY-MM-DD HH24:MI') + 1
+        </if>
+        <if test="period == 'morning'">
+            AND TO_NUMBER(TO_CHAR(j.INJECTION_ORDER_TIME, 'HH24')) <![CDATA[>=]]> 9
+            AND TO_NUMBER(TO_CHAR(j.INJECTION_ORDER_TIME, 'HH24')) <![CDATA[<]]>  13
+        </if>
+        <if test="period == 'afternoon'">
+            AND TO_NUMBER(TO_CHAR(j.INJECTION_ORDER_TIME, 'HH24')) <![CDATA[>=]]> 13
+            AND TO_NUMBER(TO_CHAR(j.INJECTION_ORDER_TIME, 'HH24')) <![CDATA[<]]> 18
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (m.MEMBER_NAME LIKE '%' || #{keyword} || '%'
+            OR SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 6) LIKE '%' || #{keyword} || '%')
+        </if>
+        )
+        WHERE RN = 1
+        ORDER BY INJECTION_DATE DESC
+    </select>
+
+    <!--주사 이력 상세-->
+    <select id="selectInjectionHistoryDetail" parameterType="String"
+            resultType="ddit.outpatientNurse.vo.InjectionHistoryDetailVO">
+        SELECT
+        j.MEDICAL_NUMBER
+        , m.MEMBER_NAME
+        , SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 6) AS BIRTH_DATE
+        , CASE
+        WHEN SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1) IN ('1', '2')
+        THEN EXTRACT(YEAR FROM SYSDATE) - (1900 + TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 2)))
+        WHEN SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1) IN ('3', '4')
+        THEN EXTRACT(YEAR FROM SYSDATE) - (2000 + TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 2)))
+        ELSE 0
+        END AS AGE
+        , CASE
+        WHEN MOD(TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1)),2) =1 THEN '남'
+        ELSE '여'
+        END AS GENDER
+        , TO_CHAR(j.INJECTED_AT, 'YYYY-MM-DD HH24:MI') AS INJECTION_DATE
+        , nameCode.CODENAME_1 AS MEDICINE_NAME
+        , j.DOSAGE
+        , unitCode.CODENAME_1 AS UNIT
+        , j.FREQUENCY
+        , doc.MEMBER_NAME AS DOCTOR_NAME
+        , mr.DIAGNOSIS_NAME
+        FROM OUTPATIENTNURSE_INJECTION j
+        JOIN MEDICINE mc ON j.MEDICINE_CODE = mc.MEDICINE_CODE
+        JOIN COMMONCODE nameCode
+        ON nameCode.COMMONCODE_NUMBER = mc.MEDICINE_NAME
+        AND nameCode.COMMONCODE = 'M'
+        JOIN COMMONCODE unitCode
+        ON unitCode.COMMONCODE_NUMBER = j.UNIT
+        AND unitCode.COMMONCODE = 'U'
+        JOIN RECEPTIONIST_REGISTER r ON j.MEDICAL_NUMBER = r.MEDICAL_NUMBER
+        JOIN MEMBER m ON r.MEMBER_NUMBER = m.MEMBER_NUMBER
+        LEFT JOIN MEMBER doc ON r.DOCTOR_NUMBER = doc.MEMBER_NUMBER
+        LEFT JOIN MEDICAL_RECORD mr ON r.MEDICAL_RECORD_NUMBER = mr.MEDICAL_RECORD_NUMBER
+        WHERE j.MEDICAL_NUMBER = #{medicalNumber}
+        AND j.INJECTED_YN = 'Y'
+    </select>
+
+    <select id="selectOtherPrescriptionList" parameterType="String"
+            resultType="ddit.outpatientNurse.vo.OtherPrescriptionVO">
+        SELECT
+        nameCode.CODENAME_1 AS MEDICINE_NAME
+        , d.TOTAL_QTY
+        , d.FREQUENCY
+        , TO_CHAR(d.PRESCRIPTION_DATE, 'YYYY-MM-DD HH24:MI') AS PRESCRIPTION_DATE
+        , d.NUMBER_OF_DAYS_ADMINISTERED
+        , CASE
+        WHEN d.PRESCRIPTION_STATUS = 'Y' THEN '조제완료'
+        WHEN d.PRESCRIPTION_STATUS = 'N' THEN '조제대기'
+        ELSE d.PRESCRIPTION_STATUS
+        END AS PRESCRIPTION_STATUS
+        FROM DOCTOR_PRESCRIPTION d
+        JOIN MEDICINE mc ON d.MEDICINE_CODE = mc.MEDICINE_CODE
+        JOIN COMMONCODE nameCode
+        ON nameCode.COMMONCODE_NUMBER = mc.MEDICINE_NAME
+        AND nameCode.COMMONCODE = 'M'
+        WHERE d.MEDICAL_NUMBER = #{medicalNumber}
+        ORDER BY d.PRESCRIPTION_DATE ASC
+    </select>
+
+    <select id="selectPhysicalTherapyList" parameterType="String"
+            resultType="ddit.outpatientNurse.vo.PhysicalTherapyOrderVO">
+        SELECT
+        TREATMENT_ITEM_NAME
+        , THERAPY_TYPE
+        , CASE
+        WHEN TREATMENT_STATUS = '대기' THEN '치료대기'
+        WHEN TREATMENT_STATUS = '치료중' THEN '치료중'
+        WHEN TREATMENT_STATUS = '치료완료' THEN '치료완료'
+        ELSE TREATMENT_STATUS
+        END AS TREATMENT_STATUS
+        , TO_CHAR(DATE_OF_TREATMENT, 'YYYY-MM-DD HH24:MI') AS DATE_OF_TREATMENT
+        , TO_CHAR(TREATMENT_START_TIME, 'HH24:MI') AS TREATMENT_START_TIME
+        , TO_CHAR(TREATMENT_END_TIME, 'HH24:MI') AS TREATMENT_END_TIME
+        FROM PHYSICALTHERAPIST_RECORDS
+        WHERE MEDICAL_NUMBER = #{medicalNumber}
+        ORDER BY DATE_OF_TREATMENT ASC
+    </select>
+
+    <select id="selectPendingOrderCount" resultType="int">
+        SELECT
+        (SELECT COUNT(*) FROM DOCTOR_PRESCRIPTION
+        WHERE MEDICAL_NUMBER = #{medicalNumber} AND PRESCRIPTION_STATUS = 'N')
+        + (SELECT COUNT(*) FROM OUTPATIENTNURSE_INJECTION
+        WHERE MEDICAL_NUMBER = #{medicalNumber} AND INJECTED_YN = 'N')
+        + (SELECT COUNT(*) FROM PHYSICALTHERAPIST_RECORDS
+        WHERE MEDICAL_NUMBER = #{medicalNumber} AND TREATMENT_STATUS <![CDATA[<>]]> '치료완료')
+        FROM DUAL
+    </select>
+
+    <update id="updateReceiptStatusToPaymentPending">
+        UPDATE RECEPTIONIST_REGISTER
+        SET RECEIPT_STATUS = '수납대기'
+        WHERE MEDICAL_NUMBER = #{medicalNumber}
+        AND RECEIPT_STATUS = '진료완료'
+    </update>
+
+</mapper>

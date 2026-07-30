@@ -1,0 +1,107 @@
+/* 전광판: 멀리서 읽히는 것이 최우선 — 큰 글씨, 진한 대비, 장식 최소 */
+.board {
+    min-height: 100vh;
+    background: #0f172a;               /* 짙은 남색 — 대기실 조명에서 눈부심 적음 */
+    color: #f1f5f9;
+    padding: 40px 56px;
+    cursor: none;                       /* 표시 전용 — 마우스 포인터 숨김 */
+    font-family: inherit;
+}
+
+.board h1 {
+    font-size: 40px;
+    letter-spacing: 2px;
+    margin: 0 0 32px;
+    color: #5eead4;                     /* 민트 포인트 — 업무화면 테마와 연결감 */
+    text-align: center;
+}
+
+/* 치료 종류 2컬럼 */
+.typeColumns {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    max-width: 1400px;
+    margin: 0 auto 48px;
+    align-items: flex-start;
+}
+.typeCol { flex: 1; max-width: 640px; }
+.typeTitle {
+    font-size: 24px; color: #5eead4; margin: 0 0 16px; text-align: center;
+}
+.typeCount { font-size: 18px; color: #94a3b8; }
+
+/* 4번부터 작은 카드 (2열 그리드) */
+.restGrid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 10px; margin-top: 12px;
+}
+.restCard {
+    display: flex; align-items: center; gap: 10px;
+    background: #1e293b; border-radius: 10px; padding: 10px 14px; font-size: 18px;
+}
+.restSeq {
+    width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+    background: #334155; color: #cbd5e1; border-radius: 50%; font-size: 15px; font-weight: 700; flex-shrink: 0;
+}
+.restName { font-weight: 600; }
+
+/* ── 대기 목록 ── */
+.waitList { display: flex; flex-direction: column; gap: 12px; }
+
+.waitRow { display: flex; align-items: center; gap: 18px; background: #1e293b;
+           border-radius: 14px; padding: 16px 22px; font-size: 24px; }
+
+/* 첫 번째 대기자 강조 — "다음 순서" */
+.waitRow:first-child {
+    background: #134e4a;
+    outline: 2px solid #2dd4bf;
+}
+
+.seq {
+    width: 56px; height: 56px;
+    display: flex; align-items: center; justify-content: center;
+    background: #2dd4bf;
+    color: #042f2e;
+    border-radius: 50%;
+    font-size: 26px;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+
+.name { font-weight: 700; flex: 1; }
+
+.eta {
+    margin-left: auto;          /* 오른쪽 끝 정렬 */
+    font-size: 24px;
+    color: #fbbf24;             /* 시간 정보는 호박색 — 상태색과 구분 */
+    font-variant-numeric: tabular-nums;
+}
+
+.waitList p {                           /* 대기 없음 문구 */
+    text-align: center;
+    font-size: 26px;
+    color: #64748b;
+    padding: 40px 0;
+}
+
+/* ── 하단 베드 현황 띠 ── */
+.bedStrip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    border-top: 1px solid #334155;
+    padding-top: 28px;
+}
+
+.bedStrip span {
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.busy { background: #78350f; color: #fde68a; }   /* 사용중 — 호박색 */
+.free { background: #1e293b; color: #64748b; }   /* 비어있음 — 흐리게 */
+

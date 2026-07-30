@@ -1,0 +1,211 @@
+.injectionTableContainer {
+    width: 100%;            /* flex: 1 1 65%; min-width: 620px; 대신 */
+    height: 100%;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 25px;
+    box-sizing: border-box;
+}
+
+.injectionListContainer {
+    --table-scrollbar-size: 6px;
+    width: 100%;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-sizing: border-box;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    flex: 0 1 auto;
+    min-height: 0;
+    height: auto;
+    max-height: 100%;
+}
+
+.injectionSearchInput {
+    width: 100%;
+    padding: 10px 14px 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 13px;
+    box-sizing: border-box;
+    margin-bottom: 16px;
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+    font-weight: 500;
+}
+
+.injectionSearchInput::placeholder {
+    color: #9ca3af;
+}
+
+.injectionSearchInput:focus {
+    outline: none;
+    border-color: #d8284e;
+    box-shadow: 0 0 0 3px rgba(216, 40, 78, 0.15);
+}
+
+.tabRow {
+    display: flex;
+    gap: 24px;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 16px;
+    padding-left: 2px;
+}
+
+.tabButton {
+    background: none;
+    border: none;
+    padding: 8px 4px 10px 4px;
+    font-size: 13.5px;
+    font-weight: 800;
+    color: #64748b;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: color 0.15s ease;
+}
+
+.tabButton:hover {
+    color: #d8284e;
+    font-weight: 800;
+}
+
+.tabButtonActive {
+    color: #d8284e;
+    font-weight: 800;
+    border-bottom: 2px solid #d8284e;
+}
+
+.injectionTable {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; 
+}
+
+.injectionTable th,
+.injectionTable td {
+    vertical-align: middle;
+    padding: 12px 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-bottom: 15px;
+    padding-top: 15px;    
+}
+
+.injectionTable th {
+    font-size: 13.5px;
+    display: table-cell;
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 600;
+    white-space: nowrap;
+    border-bottom: 1px solid #e2e8f0;
+    box-sizing: border-box;
+    min-width: 80px;
+    text-align: left;
+}
+
+.injectionTable td {
+    font-size: 13px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #3f4f68;
+    letter-spacing: 0.5px;
+}
+
+.injectionTableRow {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.injectionTableRow:hover {
+    background-color: rgba(247, 158, 177, 0.08);
+}
+
+.injectionTable th:first-child {
+    text-align: left;
+    min-width: 35px;
+    width: 35px;
+}
+.injectionTable th:nth-child(1) { 
+    width: 14%; 
+    padding-left: 16px;
+} 
+.injectionTable th:nth-child(2) { width: 6%; } 
+.injectionTable th:nth-child(3) { width: 7%; } 
+.injectionTable th:nth-child(4) { width: 30%; }
+
+.injectionTable td:first-child {
+    padding-left: 16px;
+    width: 32px;
+}
+
+.patientbirthCell {
+    font-weight: 600;
+}
+
+.injectionTable td.emptyRow {
+    font-size: 13px;
+    color: #94a3b8;
+    margin: 0;
+}
+
+.memberNameCell {
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.filterRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.filterInput {
+    padding: 8px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.filterSelect {
+    padding: 8px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 13px;
+    background: #ffffff;
+    cursor: pointer;
+}
+
+.resetButton {
+    padding: 8px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.resetButton:hover {
+    background: #f8fafc;
+}
+
+.injectionTableRow {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+.injectionTableRow:hover {
+    background: #fef7f8
+}
+.injectionTableRowActive {
+    background: #fef7f8 !important;
+}

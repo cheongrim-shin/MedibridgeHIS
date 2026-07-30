@@ -1,0 +1,93 @@
+/* ============================================
+   외래간호사 레이아웃 전체 컨테이너
+   - 사이드바 + 메인 영역을 가로로 나란히 배치 (flex)
+   - radiology.module.css의 dashboardContainer와 동일한 구조
+   ============================================ */
+.dashboardContainer {
+    display: flex;
+    height: 100vh;        /* [변경] min-height → height */
+    background: #f8fafc;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #1e293b;
+    margin: 0;
+    box-sizing: border-box;
+    min-width:1400px;
+}
+
+/* 사이드바를 제외한 우측 전체 영역 (헤더 + 본문) */
+.mainWrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #f8fafc;
+    box-sizing: border-box;
+    height: 100%;          /* [추가] */
+
+}
+
+/* 상단 헤더 바 (페이지 제목이 표시되는 영역) */
+.mainHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 32px;
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    box-sizing: border-box;
+    flex-shrink: 0;
+    min-width: max-content;   /* 추가 */
+}
+
+/* 헤더 좌측 (제목 영역) */
+.headerLeft {
+    display: flex;
+    flex-direction: column;
+}
+
+/* 페이지 제목 텍스트 (예: "진료 대기열") */
+.mainTitle {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    white-space: nowrap;   /* 추가 */
+}
+
+/* 헤더 우측 (시계, 버튼 등 부가 요소가 들어갈 영역) */
+.headerRight {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* 실제 페이지 내용(Outlet)이 렌더링되는 영역 */
+.contentViewport {
+    flex: 1;
+    padding: 32px 0px 30px 0px;
+    overflow-y: visible;
+    overflow-x: auto;
+    min-height: 0;
+    min-width: 0;
+}
+
+/* 헤더 우측 시계 텍스트 - 아이콘과 텍스트를 가로로 나란히 배치 */
+.clockText {
+    display: flex;            /* 아이콘과 텍스트를 한 줄에 정렬 */
+    align-items: center;
+    gap: 6px;                 /* 아이콘-텍스트 사이 간격 */
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-variant-numeric:tabular-nums;
+}
+
+/* 시계 아이콘 크기 */
+.clockIcon {
+    width: 15px;
+    height: 15px;
+    stroke-width: 2.2;
+}

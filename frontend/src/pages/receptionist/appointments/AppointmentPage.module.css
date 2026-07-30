@@ -1,0 +1,560 @@
+
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    min-height: 0;   /* flex 자식이 넘칠 때 스크롤이 정상 동작하도록 */
+}
+
+/* ── 상단 툴바 ─────────────────────────────────────────── */
+.toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+}
+
+.toolbarLeft,
+.toolbarRight {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filterLabel {
+    font-size: 13px;
+    font-weight: 700;
+    color: #334155;
+}
+
+.doctorSelect {
+    min-width: 200px;
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+}
+.doctorSelect:focus {
+    outline: 2px solid #0d9488;
+    outline-offset: 1px;
+}
+
+.loading {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.countBadge {
+    padding: 4px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f766e;
+    background: #f0fdfa;
+    border-radius: 999px;
+}
+
+/* ── 안내 문구 ─────────────────────────────────────────── */
+.hint {
+    margin: 0;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #475569;
+    background: #f8fafc;
+    border-left: 3px solid #0d9488;
+    border-radius: 6px;
+}
+.hint b { color: #0f766e; }
+
+.hintSmall {
+    margin: 4px 0 12px;
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+/* ── 캘린더 컨테이너 ───────────────────────────────────── */
+.calendarWrap {
+    padding: 16px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+}
+
+
+/* ════════════════════════════════════════════════════════
+   모달
+   ════════════════════════════════════════════════════════ */
+.modalBackdrop {
+    position: fixed;
+    inset: 0;                        /* top/right/bottom/left: 0 축약형 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, 0.45);
+    z-index: 1000;                   /* FullCalendar 팝오버보다 위 */
+}
+
+.modal {
+    width: 440px;
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 64px);
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
+    overflow: hidden;
+}
+
+.modalHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e2e8f0;
+}
+.modalHeader h3 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.badgeConfirmed {
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #0f766e;
+    background: #ccfbf1;
+    border-radius: 999px;
+}
+
+.iconBtn {
+    width: 28px;
+    height: 28px;
+    font-size: 20px;
+    line-height: 1;
+    color: #64748b;
+    background: none;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.iconBtn:hover { background: #f1f5f9; }
+
+.modalBody {
+    padding: 20px;
+    overflow-y: auto;   /* 내용이 길면 본문만 스크롤 */
+}
+
+.modalFooter {
+    display: flex;
+    flex-direction: column;     /* 세로 (위: 안내 / 아래: 버튼) */
+    gap: 10px;
+    padding: 14px 20px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+.footerRight {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;   /* 취소 버튼과 최대한 떨어뜨린다 (오클릭 방지) */
+}
+
+/* 안내 문구 한 줄 */
+.receiveHint {
+    margin: 0;
+    font-size: 13px;
+    color: #d97706;             /* 호박색 — 주의 안내 */
+    text-align: left;
+}
+
+/* 버튼 줄 (기존 가로 배치 그대로) */
+.footerButtons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ── 슬롯 요약 (등록 모달 상단) ────────────────────────── */
+.slotSummary {
+    padding: 12px 14px;
+    margin-bottom: 18px;
+    background: #f0fdfa;
+    border: 1px solid #99f6e4;
+    border-radius: 8px;
+}
+.slotSummaryRow {
+    display: flex;
+    gap: 12px;
+    font-size: 13px;
+    line-height: 1.9;
+}
+.slotKey {
+    flex: 0 0 52px;
+    color: #0f766e;
+    font-weight: 700;
+}
+.slotVal { color: #134e4a; }
+.slotVal em {
+    font-style: normal;
+    color: #5eead4;
+    font-size: 12px;
+}
+
+/* ── 폼 필드 ───────────────────────────────────────────── */
+.field {
+    position: relative;
+    margin-bottom: 18px;
+}
+.label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #334155;
+}
+
+/* 라벨 + 보조버튼 한 줄 배치 */
+.labelRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+.labelRow .label { margin-bottom: 0; }   /* .label의 기존 아래여백 제거 */
+
+/* AI 보조 버튼 — 주 버튼(btnPrimary)보다 눈에 덜 띄게 */
+.aiRefineBtn {
+    padding: 3px 10px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #0f766e;
+    background: #f0fdfa;
+    border: 1px solid #99f6e4;
+    border-radius: 999px;          /* 알약 모양 — 입력 필드와 구분됨 */
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+    white-space: nowrap;
+}
+.aiRefineBtn:hover:not(:disabled) {
+    background: #ccfbf1;
+    border-color: #5eead4;
+}
+.aiRefineBtn:disabled {
+    color: #94a3b8;
+    background: #f8fafc;
+    border-color: #e2e8f0;
+    cursor: default;
+}
+
+.req { color: #dc2626; }
+
+.input,
+.textarea {
+    width: 100%;
+    padding: 9px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #0f172a;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+.input:focus,
+.textarea:focus {
+    outline: 2px solid #0d9488;
+    outline-offset: -1px;
+    border-color: transparent;
+}
+.textarea { resize: vertical; }
+
+.counter {
+    position: absolute;
+    right: 4px;
+    bottom: -16px;
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+/* ── 환자 검색 결과 ────────────────────────────────────── */
+.searchHint {
+    margin: 6px 0 0;
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.hitList {
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+    max-height: 180px;
+    overflow-y: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+.hitItem {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 100%;
+    padding: 9px 12px;
+    text-align: left;
+    background: none;
+    border: none;
+    border-bottom: 1px solid #f1f5f9;
+    cursor: pointer;
+    font-size: 13px;
+}
+.hitItem:hover { background: #f0fdfa; }
+.hitList li:last-child .hitItem { border-bottom: none; }
+
+.sub {
+    display: block;
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+.pickedPatient {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+.linkBtn {
+    font-size: 12px;
+    color: #0d9488;
+    background: none;
+    border: none;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/* ── 색상 선택 ─────────────────────────────────────────── */
+.colorRow {
+    display: flex;
+    gap: 8px;
+}
+.colorDot {
+    width: 28px;
+    height: 28px;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    padding: 0;
+}
+.colorOn {
+    border-color: #0f172a;
+    box-shadow: 0 0 0 2px #fff inset;
+}
+
+/* ── 상세 정보 리스트 ──────────────────────────────────── */
+.infoList {
+    margin: 0 0 4px;
+}
+.infoRow {
+    display: flex;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 13px;
+}
+.infoRow dt {
+    flex: 0 0 76px;
+    color: #64748b;
+    font-weight: 600;
+}
+.infoRow dd {
+    margin: 0;
+    color: #0f172a;
+}
+
+/* ── 버튼 ──────────────────────────────────────────────── */
+.btnPrimary,
+.btnGhost,
+.btnDanger {
+    padding: 9px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.btnPrimary {
+    color: #fff;
+    background: #0d9488;
+}
+.btnPrimary:hover:not(:disabled) { background: #0f766e; }
+.btnPrimary:disabled {
+    background: #cbd5e1;
+    cursor: not-allowed;
+}
+
+.btnGhost {
+    color: #475569;
+    background: #fff;
+    border-color: #cbd5e1;
+}
+.btnGhost:hover { background: #f8fafc; }
+
+.btnDanger {
+    color: #dc2626;
+    background: #fff;
+    border-color: #fecaca;
+}
+.btnDanger:hover:not(:disabled) { background: #fef2f2; }
+.btnDanger:disabled {
+    color: #cbd5e1;
+    border-color: #e2e8f0;
+    cursor: not-allowed;
+}
+
+/* ════════════════════════════════════════════════════════
+   토스트
+   ════════════════════════════════════════════════════════ */
+.toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    font-size: 14px;
+    color: #fff;
+    border-radius: 999px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+    z-index: 1100;   /* 모달보다 위 */
+    animation: toastIn 0.2s ease-out;
+}
+@keyframes toastIn {
+    from { opacity: 0; transform: translate(-50%, 12px); }
+    to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.toastIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.toastSuccess { background: #0f766e; }
+.toastError   { background: #b91c1c; }
+.toastInfo    { background: #334155; }
+
+
+/* 상단 버튼 톤을 프로젝트 색상에 맞춘다 */
+.calendarWrap :global(.fc .fc-button-primary) {
+    background: #0d9488;
+    border-color: #0d9488;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: none;   /* 기본 대문자 변환 해제 */
+}
+.calendarWrap :global(.fc .fc-button-primary:hover) {
+    background: #0f766e;
+    border-color: #0f766e;
+}
+.calendarWrap :global(.fc .fc-button-primary:disabled) {
+    background: #cbd5e1;
+    border-color: #cbd5e1;
+}
+/* 현재 선택된 뷰 버튼 */
+.calendarWrap :global(.fc .fc-button-primary:not(:disabled).fc-button-active) {
+    background: #134e4a;
+    border-color: #134e4a;
+}
+
+/* 제목 크기 */
+.calendarWrap :global(.fc .fc-toolbar-title) {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+/* 영업시간 외(점심시간 등) 배경 — businessHours 설정이 이 클래스를 붙인다 */
+.calendarWrap :global(.fc .fc-non-business) {
+    background: repeating-linear-gradient(
+        45deg,
+        #f8fafc, #f8fafc 6px,
+        #f1f5f9 6px, #f1f5f9 12px
+    );
+}
+
+/* 오늘 열 강조 */
+.calendarWrap :global(.fc .fc-day-today) {
+    background: #f0fdfa !important;
+}
+
+/* 이벤트 가독성 */
+.calendarWrap :global(.fc .fc-timegrid-event) {
+    border-radius: 5px;
+    padding: 1px 3px;
+    font-size: 12px;
+    cursor: pointer;
+}
+.calendarWrap :global(.fc .fc-event-title) {
+    font-weight: 600;
+}
+
+/* 현재 시각 표시선 */
+.calendarWrap :global(.fc .fc-timegrid-now-indicator-line) {
+    border-color: #dc2626;
+    border-width: 2px;
+}
+
+/* 토요일 헤더를 파란색으로 (일요일은 hiddenDays로 숨김) */
+.calendarWrap :global(.fc .fc-day-sat .fc-col-header-cell-cushion) {
+    color: #2563eb;
+}
+
+.symptomFoot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;   /* 에러는 왼쪽, 카운터는 오른쪽 */
+    gap: 8px;
+}
+.aiError {
+    font-size: 12px;
+    color: #dc2626;
+}
+
+.aiBar { display: flex; gap: 8px; flex: 1; min-width: 480px; }
+.aiInput { flex: 1; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
+.aiInput:disabled { background: #f1f5f9; }
+.aiBtn { padding: 8px 14px; border: 1px solid #10b981; background: #10b981; color: #fff;
+         border-radius: 6px; font-size: 14px; cursor: pointer; white-space: nowrap; }
+.aiBtn:disabled { opacity: .5; cursor: default; }
+
+.pageDesc {
+    margin: 0 0 16px;
+    padding: 10px 14px;
+    background: #f0f9ff;
+    border-left: 3px solid #38bdf8;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #475569;
+    line-height: 1.5;
+}

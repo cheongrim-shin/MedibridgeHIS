@@ -1,0 +1,38 @@
+.group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Size classes containing unified padding and gap */
+.size_none {
+    padding: 0;
+    gap: 0;
+}
+
+.size_sm {
+    padding: 0;
+    gap: 16px;
+}
+
+.size_md {
+    padding: 0;
+    gap: 20px;
+}
+
+.size_lg {
+    padding: 0;
+    gap: 24px;
+}
+
+
+/* FormGroup 바로 다음에 위치한 공통 버튼(.common-btn)에 상단 마진 부여 */
+.group + :global(.common-btn) {
+    margin-top: 32px;
+}
+
+
+
+
+

@@ -1,0 +1,251 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+/* 요약카드 (조제오더 전용) */
+.summaryRow {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-shrink: 0;
+}
+
+.summaryCard {
+    flex: 1;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+}
+
+.summaryTitle {
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.summaryValue {
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.colorTeal {
+    color: var(--color-teal-primary);
+}
+
+.colorAmber {
+    color: var(--color-amber-primary, #d97706);
+}
+
+.colorGray {
+    color: #475569;
+}
+
+/* 좌측 목록 + 우측 상세 split layout */
+.splitLayout {
+    display: flex;
+    gap: 20px;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+}
+
+.leftPanel {
+    flex: 1.35;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    height: 100%;
+}
+
+.rightPanel {
+    flex: 0.75;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    height: 100%;
+}
+
+.mainCard, .detailCard {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+    padding: 24px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+}
+
+.filterSection {
+    flex-shrink: 0;
+    padding-bottom: 20px;
+}
+
+.compactFilterRow {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.filterItem {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.searchBarRow {
+    width: 100%;
+}
+
+.tabContainer {
+    flex-shrink: 0;
+    margin-bottom: 8px;
+}
+
+.tableSection {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.dateText {
+    font-weight: 600;
+    color: #334155;
+}
+
+.patientName {
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.personalNumber {
+    font-weight: 600;
+    color: #475569;
+}
+
+.orderName {
+    color: #334155;
+}
+
+.activeRow {
+    background-color: #f0fdfa !important;
+}
+
+/* 우측 상세 */
+.detailHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+}
+
+.detailTitle {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.patientInfoSection {
+    margin-bottom: 12px;
+    flex-shrink: 0;
+}
+
+.divider {
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    margin: 20px 0;
+    flex-shrink: 0;
+}
+
+.medicationListSection {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+.medicationName {
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.stockWarning {
+    background: #fffbeb;
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.stockWarningHeader {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #92400e;
+}
+
+.stockWarningItem {
+    font-size: 12.5px;
+    color: #92400e;
+    padding-left: 22px;
+}
+
+.actionRow {
+    margin-top: auto;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+.emptyDetailCard {
+    background: #ffffff;
+    border: 1px dashed #cbd5e1;
+    border-radius: 12px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    height: 100%;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.emptyIconDetail {
+    width: 48px;
+    height: 48px;
+    color: #94a3b8;
+}
+
+.emptyDetailText {
+    font-size: 14px;
+    color: #64748b;
+    font-weight: 500;
+    line-height: 1.6;
+    max-width: 260px;
+    margin: 0;
+}

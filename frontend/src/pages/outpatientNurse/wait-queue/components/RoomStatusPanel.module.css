@@ -1,0 +1,160 @@
+.roomStatusContainer {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.sectionTitle {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 16px 0;
+    white-space: nowrap;
+}
+
+.roomStatusGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: minmax(140px, 1fr);
+    gap: 12px;
+}
+
+.roomCard {
+    border: 1px solid #f1f5f9;
+    border-radius: 10px;
+    padding: 18px;
+    min-width: 0;
+    box-sizing: border-box;
+    background: #f8fafc;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.roomCardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.roomLabel {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #1e293b;
+    white-space: nowrap;
+}
+
+.roomBadge {
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.badgeCalling {
+    background: #fde8ec;
+    color: #d8284e;
+}
+
+.badgeTreating {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.roomBadgeEmpty {
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: #f1f5f9;
+    color: #94a3b8;
+    white-space: nowrap;
+}
+
+.roommemberName {
+    font-size: 14.5px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    margin: 0 0 12px 0;
+    white-space: nowrap;
+}
+
+.roomPatientInfo {
+    font-size: 13px;
+    font-weight: 400;
+    color: #64748b;
+    margin-left: 4px;
+    margin-right: 4px;
+}
+
+.roomActions {
+    display: flex;
+    gap: 8px;
+}
+
+.holdBtn,
+.nextBtn {
+    flex: 1;
+    padding: 6px 0;
+    font-size: 12.5px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.holdBtn {
+    background: #ffffff;
+    border: 1px solid #2563eb;
+    color: #2563eb;
+}
+
+.holdBtn:hover {
+    background: #eff6ff;
+}
+
+.nextBtn {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+}
+
+.nextBtn:hover {
+    background: #f8fafc;
+}
+
+.roomEmptyText {
+    font-size: 13px;
+    color: #94a3b8;
+    margin: 0;
+    white-space: nowrap;
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+}
+
+.detailBtn {
+    background: none;
+    border: none;
+    padding: 2px;
+    cursor: pointer;
+    color: #93a0b3;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.detailBtn:hover {
+    color: #d8284e;
+    filter: drop-shadow(0 0 4px rgba(216, 40, 78, 0.6));
+}
+
+.detailBtn svg {
+    width: 14px;
+    height: 14px;
+}

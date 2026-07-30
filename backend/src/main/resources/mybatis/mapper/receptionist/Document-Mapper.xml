@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ddit.receptionist.mapper.DocumentMapper">
+	
+	<!-- 서류종류 공통코드 R -->
+	<select id="selectDocumentTypes" resultType="documentTypeVO">
+		SELECT commoncode_number 	AS code
+			 , codename_1 			AS name
+			 , unit_price 			AS unitPrice
+          FROM commoncode
+         WHERE joint_code_group_name = '서류발급종류' 
+           AND used = 'Y'
+         ORDER BY commoncode_number
+	</select>
+	
+	<!-- 목록  -->
+	<select id="selectDocumentList" parameterType="documentRowVO" resultType="documentRowVO">
+		SELECT d.receive_number 
+		 	 , d.medical_number 
+		 	 , m.member_name 
+		 	 , d.document_contents
+		 	 , d.document_type
+		 	 , d.receive_use 
+		 	 , TO_CHAR(d.receive_date, 'YYYY-MM-DD') 	AS receiveDate 
+		 	 , d.receive_state 
+		 	 , cc.unit_price 
+		 	 , rr.REGISTER_A       						AS diagnosis      
+     		 , doc.MEMBER_NAME      					AS doctorName 
+     		 , SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 6)    AS birthDate       
+		     , m.MEMBER_PHONE_NUMBER                    AS phone
+		     , m.PRIMARY_ADDRESS || ' ' || NVL(m.DETAILED_ADDRESS, '') AS address
+		     , TO_CHAR(rr.TREATMENT_DATE, 'YYYY-MM-DD') AS treatmentDate  
+		     , rr.REGISTER_P                            AS treatmentPlan 
+          FROM receptionist_documents d
+         INNER JOIN receptionist_register rr ON rr.medical_number = d.medical_number
+         INNER JOIN member m                 ON m.member_number   = rr.member_number
+          LEFT JOIN member doc               ON doc.member_number = rr.doctor_number
+          LEFT JOIN commoncode cc            ON cc.joint_code_group_name = '서류발급종류'
+           AND cc.codename_1 = d.document_contents
+        <where>
+            <if test="keyword != null and keyword != ''">
+                m.member_name LIKE '%' || #{keyword} || '%'
+            </if>
+        </where>
+         ORDER BY d.receive_number DESC
+	</select>
+	
+	<!-- 상태 변경 -->
+    <update id="updateDocumentState">
+        UPDATE receptionist_documents
+           SET receive_state = #{receiveState}
+         WHERE receive_number = #{receiveNumber}
+           AND receive_state = #{fromState}
+    </update>
+    
+    <!--  -->
+    <select id="selectDocumentOne" parameterType="long" resultType="documentRowVO">
+    	SELECT d.receive_number
+         	 , d.medical_number
+         	 , d.document_type
+	         , d.document_contents
+	         , d.receive_state
+	         , cc.unit_price
+	      FROM receptionist_documents d
+	      LEFT JOIN commoncode cc ON cc.joint_code_group_name = '서류발급종류'
+	       AND cc.codename_1 = d.document_type
+	     WHERE d.receive_number = #{receiveNumber}
+    </select>
+	
+</mapper>

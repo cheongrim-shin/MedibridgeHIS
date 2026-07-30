@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ddit.admin.mapper.AdminMapper">
+	
+	<select id="selectPatientList" parameterType="string" resultType="adminPatientListVO">
+	   SELECT member_number
+		    , member_name
+		    , member_phone_number						  
+		    , SUBSTR (resident_registration_number, 1, 6) AS birthDate
+		    , CASE WHEN SUBSTR(resident_registration_number, 7, 1) IN ('2','4','6','8')
+		      	   THEN '여' ELSE '남' END				  AS gender			    			 
+		    , account_status
+		 FROM member
+		WHERE member_status = '환자'
+		<if test="keyword != null and keyword != ''">
+		  AND (
+		  	   member_name   		  LIKE '%' || #{keyword} || '%'
+		  	   OR member_phone_number LIKE '%' || #{keyword} || '%'
+		  )
+		</if>
+		ORDER BY member_number
+	</select>
+	
+	<!-- 상세조회 : 주민번호는 뒷자리 마스킹해서 내려줌 -->
+	<select id="selectPatientDetail" parameterType="string" resultType="adminPatientDetailVO">
+	    SELECT member_number       AS memberNumber
+	    	 , member_id		   AS memberId
+	         , member_name         AS memberName
+	         , member_phone_number AS memberPhoneNumber
+	         , SUBSTR(resident_registration_number,1,6) || '-' ||
+	           SUBSTR(resident_registration_number,7,1) || '******' AS rrn
+	         , primary_address     AS primaryAddress
+	         , detailed_address    AS detailedAddress
+	         , postal_code         AS postalCode
+	         , account_status      AS accountStatus
+	      FROM member
+	     WHERE member_number = #{memberNumber}
+	       AND member_status = '환자'
+	</select>
+	
+	<!-- 사용여부 수정 -->
+	<update id="updateAccountStatus">
+	    UPDATE member
+	       SET account_status = #{accountStatus}
+	     WHERE member_number = #{memberNumber}
+	       AND member_status = '환자'
+	</update>
+	
+</mapper>

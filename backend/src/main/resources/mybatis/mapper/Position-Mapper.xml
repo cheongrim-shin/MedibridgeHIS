@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ddit.member.mapper.PositionMapper">
+
+    <!--  회원가입 폼 드롭다운용(코드/이름)  -->
+    <select id="selectAllPositions" resultType="ddit.member.vo.PositionVO">
+        SELECT
+        POSITION_CODE AS positionCode,
+        POSITION_NAME AS positionName
+        FROM POSITION
+        ORDER BY POSITION_CODE
+    </select>
+
+    <!-- 관리자 전체권한 캐싱용 - 모든 권한값 목록 (중복 제거) -->
+    <select id="selectAllDefaultPermissionNames" resultType="String">
+        SELECT DISTINCT DEFAULT_PERMISSION_NAME
+        FROM POSITION
+        WHERE DEFAULT_PERMISSION_NAME IS NOT NULL
+    </select>
+
+</mapper>

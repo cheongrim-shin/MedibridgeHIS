@@ -1,0 +1,24 @@
+.textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    color: #1e293b;
+    background: #ffffff;
+    padding: 10px 12px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 96px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+.textarea:focus { border-color: var(--focus-border-color, #059669); box-shadow: 0 0 0 3px var(--focus-ring-color, rgba(5,150,105,0.08)); }
+.hasError { border-color: #dc2626; }
+
+.size_sm { font-size: 13px; }
+.size_md { font-size: 14px; }
+.size_lg { font-size: 15px; }
+
+.color_indigo { --focus-border-color: #7c3aed; --focus-ring-color: rgba(124,58,237,0.08); }
+.color_green  { --focus-border-color: #059669; --focus-ring-color: rgba(5,150,105,0.08); }
+.color_blue   { --focus-border-color: #2563eb; --focus-ring-color: rgba(37,99,235,0.08); }

@@ -1,0 +1,602 @@
+/* ===== 전자의무기록 탭 ===== */
+.recordTabContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 24px 24px 24px;
+    min-height: 0;
+    box-sizing: border-box;
+}
+
+.fieldLabel {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+    margin-bottom: 6px;
+}
+
+/* ===== 커스텀 진료기록 드롭다운 ===== */
+.customSelectWrapper {
+    position: relative;
+}
+
+.customSelectTrigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8.5px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    color: #8d98a9;
+    cursor: pointer;
+    box-sizing: border-box;
+    text-align: left;
+    transition: border-color 0.15s ease;
+}
+
+.customSelectTrigger span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.customSelectTrigger:hover {
+    border-color: #cbd5e1;
+}
+
+.customSelectArrow {
+    width: 14px;
+    height: 14px;
+    color: #94a3b8;
+    flex-shrink: 0;
+    transition: transform 0.15s ease;
+}
+
+.customSelectArrowOpen {
+    transform: rotate(180deg);
+}
+
+.customOptionList {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 30;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    list-style: none;
+    margin: 0;
+    padding: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.customOptionItem {
+    padding: 8px 10px;
+    font-size: 13px;
+    color: #334155;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background-color 0.1s ease;
+}
+
+.customOptionItem:hover {
+    background: #f1f5f9;
+}
+
+.customOptionItemActive {
+    background: #eff6ff;
+    color: #2563eb;
+    font-weight: 600;
+}
+
+.customOptionItemActive:hover {
+    background: #eff6ff;
+}
+
+.soapHistory {
+    flex: 1;
+    overflow-y: auto;
+        /* 스크롤바 숨기기 (스크롤 기능은 그대로) */
+    -ms-overflow-style: none;      /* IE, Edge */
+    scrollbar-width: none;         /* Firefox */
+}
+
+.soapHistory::-webkit-scrollbar {
+    display: none;                 /* Chrome, Safari */
+}
+
+.recordDate {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 8px 0;
+}
+
+.soapLine {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 6px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: #334155;
+    padding: 0 2px;
+}
+
+.soapLine span {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 800;
+    margin-top: 1px;
+}
+
+.soapS { background: #eff6ff; color: #2563eb; }
+.soapO { background: #fef2f2; color: #ef4444; }
+.soapA { background: #fffbeb; color: #d97706; }
+.soapP { background: #f0fdf4; color: #16a34a; }
+
+.recordDivider {
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    margin: 20px 0;
+}
+
+/* 서브탭 - 필박스(pill) 대신 밑줄(underline) 스타일로 변경 */
+.subTabRow {
+    display: flex;
+    gap: 20px;
+    border-bottom: 1px solid #e2e8f0;
+    background: none;
+    padding: 0;
+    border-radius: 0;
+    margin-bottom: 16px;
+}
+
+.subTab,
+.subTabActive {
+    padding: 10px 2px;
+    border: none;
+    background: none;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s ease;
+}
+
+.subTab {
+    color: #64748b;
+}
+
+.subTab:hover {
+    color: #16367c;
+}
+
+.subTabActive {
+    color: #16367c;
+    border-bottom: 2px solid #16367c;
+}
+
+.emptyDetail {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 40px;
+    color: #94a3b8;
+    font-size: 14px;
+    line-height: 1.6;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+/* ===== 타임라인 - 목업 스타일로 재조정 ===== */
+.timelineList {
+    display: flex;
+    flex-direction: column;
+}
+
+.timelineItem {
+    display: flex;
+    gap: 10px;
+    position: relative;
+}
+
+.timelineItem::before {
+    content: '';
+    position: absolute;
+    left: 3.5px;
+    top: 6px;
+    bottom: 6px;
+    width: 1px;
+    background: #e2e8f0;
+}
+
+.timelineDot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    border: 1.5px solid #2563eb;
+    background: #ffffff;
+    flex-shrink: 0;
+    margin-top: 6px;
+    left: -20px;
+    top: 5px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 2.5px solid #3b82f6;
+    box-sizing: border-box;
+    z-index: 1;
+}
+
+.timelineContent {
+    flex: 1;
+    padding-bottom: 18px;
+    min-width: 0;
+}
+
+.timelineDate {
+    font-size: 12px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 5px 0 10px 0;
+}
+
+/* ===== 처방 카드 - 목업 스타일로 재조정 ===== */
+.prescriptionCard {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    color: #334155;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    padding: 8px 12px;
+    border-radius: 6px;
+}
+
+.categoryBadge {
+    flex-shrink: 0;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.badgeMedicine {
+    background: #eff6ff;
+    color: #1259bd;
+}
+
+.badgeInjection {
+    background: #fdf2f8;
+    color: #c53093;
+}
+
+.badgeTherapy {
+    background: #f0fdf4;
+    color: #29800e;
+}
+.prescriptionInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.prescriptionName {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 5px 0 3px 0;
+}
+
+.prescriptionDosage {
+    font-size: 11px;
+    color: #5f6e83;
+    margin: 5px 0px;
+    font-weight: 400;
+}
+
+.statusDone,
+.statusPending {
+    flex-shrink: 0;
+    padding: 3px 9px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.statusDone {
+    background: #f0fdf4;
+    color: #2d9c56;
+}
+
+.statusPending {
+    background: #fff7ed;
+    color: #f97316;
+}
+
+.recordDateRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.editButton {
+    flex-shrink: 0;
+    padding: 4px 8px;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.editButton:hover {
+    color: #2563eb;
+    background: #eff6ff;
+}
+
+.soapEditLine {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+
+.soapEditTextarea {
+    flex: 1;
+    min-height: 44px;
+    padding: 6px 8px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 13px;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.soapEditTextarea:focus {
+    outline: none;
+    border-color: #799ae0;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.editActionRow {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.cancelButton {
+    padding: 5px 8px;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.cancelButton:hover {
+    color: #64748b;
+}
+
+.saveButton {
+    padding: 6px 12px;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+/* 드롭다운 + 수정 버튼을 한 줄에 */
+.selectRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px; 
+}
+
+.selectRow > *:first-child {
+    flex: 1;
+    min-width: 0;
+    margin-bottom: 0; 
+}
+
+/* 평소엔 존재감 거의 없다가, 마우스 올릴 때만 살짝 드러나는 버튼 */
+.renameTrigger {
+    flex-shrink: 0;
+    padding: 4px 8px;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.renameTrigger:hover {
+    color: #2563eb;
+    background: #eff6ff;
+}
+
+/* 수정 모드로 전환됐을 때 */
+.renameRow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.renameInput {
+    width: 140px;
+    padding: 5px 8px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 12.5px;
+    box-sizing: border-box;
+}
+
+.renameInput:focus {
+    outline: none;
+    border-color: #799ae0;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.renameSave {
+    padding: 5px 10px;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.renameCancel {
+    padding: 5px 8px;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.renameCancel:hover {
+    color: #64748b;
+}
+
+/* ===== 처방 이력 수정/삭제 관련 (신규 추가) ===== */
+
+/* 수정 모드일 때, detail 텍스트 대신 뜨는 입력칸들 한 줄 */
+.prescriptionEditRow {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11.5px;
+    color: #5f6e83;
+    margin: 5px 0px;
+}
+
+.prescriptionEditInput {
+    width: 42px;
+    padding: 2px 5px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    font-size: 12px;
+    box-sizing: border-box;
+}
+
+.prescriptionEditInput:focus {
+    outline: none;
+    border-color: #799ae0;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+/* 수정/삭제 버튼(또는 저장/취소 버튼)을 감싸는 영역 - prescriptionCard 맨 오른쪽에 붙음 */
+.prescriptionActions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+    min-width: 75px;        /* ← 추가: "수정+삭제" 두 버튼 기준 너비로 고정 */
+    justify-content: flex-end;  /* ← 추가: 버튼이 적어도 오른쪽 끝에 붙게 */
+}
+
+/* 삭제 버튼 - editButton이랑 톤은 맞추되, 빨간 계열로 위험한 동작임을 표시 */
+.removeButton {
+    flex-shrink: 0;
+    padding: 4px 8px;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.removeButton:hover {
+    color: #ef4444;
+    background: #fef2f2;
+}
+
+/* 같은 시각 그룹 안에서 카드 여러 개를 세로로 쌓을 때 쓰는 간격 */
+.prescriptionCardGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Diagnose.tsx 입력화면의 라벨 스타일(색깔 점 + 굵은 글씨)을 그대로 가져옴 */
+.soapDotLabel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 800;
+    margin: 6px 0 6px 0;
+    color: #555b63;   /* ← 이 줄 추가: 원하는 색으로 */
+}
+
+.soapDotLabel span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.soapDotLabel span::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.soapDotS { color: #2563eb; }
+.soapDotS::before { background: #2563eb; }
+.soapDotO { color: #dc2626; }
+.soapDotO::before { background: #dc2626; }
+.soapDotA { color: #d97706; }
+.soapDotA::before { background: #d97706; }
+.soapDotP { color: #16a34a; }
+.soapDotP::before { background: #16a34a; }
+
+.soapBlockContent {
+    font-size: 13px;
+    color: #445063;
+    line-height: 1.6;
+    margin: 5px 0 20px;
+    padding-left: 14px;   /* ← 이 줄 추가 */
+    white-space: pre-wrap;
+}

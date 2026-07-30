@@ -1,0 +1,30 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #475569;
+    text-align: left;
+    user-select: none;
+}
+
+.required {
+    color: #dc2626;
+}
+
+.content {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.errorMessage {
+    font-size: 11px;
+    color: #dc2626;
+    text-align: left;
+}

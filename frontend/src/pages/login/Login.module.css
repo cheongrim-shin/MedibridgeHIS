@@ -1,0 +1,79 @@
+/* src/pages/login/Login.module.css */
+
+.loginContainer {
+    --space-section-header: 48px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    width: 100%;
+    background: #f8fafc;
+    color: #1e293b;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.loginCard {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: stretch;
+    width: 100%;
+    max-width: 460px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    box-sizing: border-box;
+    padding: 68px 0;
+}
+
+.loginFormColumn {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.logoSection {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: var(--space-section-header);
+}
+
+.logoHeader {
+    display: flex;
+    align-items: center;
+}
+
+.logoTitle {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    margin: 0;
+    color: #1e293b;
+}
+
+.logoTitle span {
+    color: #0d9488;
+}
+
+.pageSubtitle {
+    font-size: 18px;
+    font-weight: 500;
+    color: #64748b;
+    margin: 8px 0 0;
+}
+
+.footerText {
+    text-align: left;
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 60px;
+    width: 100%;
+    box-sizing: border-box;
+}

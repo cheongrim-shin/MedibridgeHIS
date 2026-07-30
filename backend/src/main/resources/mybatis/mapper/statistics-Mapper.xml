@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ddit.admin.mapper.StatisticsMapper">
+
+    <!--연도별 계절 환자(접수) 수 통계-->
+    <select id="selectSeasonalPatientCount" resultType="ddit.admin.vo.SeasonalPatientCountVO">
+        SELECT
+            CASE
+                WHEN EXTRACT(MONTH FROM RECEIPT_DATE) IN (3, 4, 5) THEN '봄'
+                WHEN EXTRACT(MONTH FROM RECEIPT_DATE) IN (6, 7, 8) THEN '여름'
+                WHEN EXTRACT(MONTH FROM RECEIPT_DATE) IN (9, 10, 11) THEN '가을'
+                ELSE '겨울'
+        END AS SEASON
+        , COUNT(*) AS PATIENT_COUNT
+        FROM RECEPTIONIST_REGISTER
+        WHERE EXTRACT(YEAR FROM RECEIPT_DATE) = #{year}
+        GROUP BY
+            CASE
+                WHEN EXTRACT(MONTH FROM RECEIPT_DATE) IN (3,4,5) THEN '봄'
+                WHEN EXTRACT(MONTH FROM RECEIPT_DATE) IN (6,7,8) THEN '여름'
+                WHEN EXTRACT(MONTH FROM RECEIPT_DATE) IN (9,10,11) THEN '가을'
+                ELSE '겨울'
+        END
+    </select>
+
+    <!--연도별 월별 매출 통계 (수납완료 건만 집계)-->
+    <select id="selectMonthlyRevenue" resultType="ddit.admin.vo.MonthlyRevenueVO">
+        SELECT
+            TO_CHAR(PAYMENT_DATE, 'MM') AS MONTH
+            , SUM(TOTAL_AMOUNT) AS REVENUE
+        FROM PAYMENT
+        WHERE PAYMENT_STATUS = '수납완료'
+            AND EXTRACT(YEAR FROM PAYMENT_DATE) = #{year}
+        GROUP BY TO_CHAR(PAYMENT_DATE, 'MM')
+        ORDER BY MONTH
+    </select>
+
+    <!--연도별 월별 환자 수 + 재방문 환자 수 (최초 방문일이 그 달 이전인 환자를 재방문으로 판단)-->
+    <select id="selectMonthlyRevisit" resultType="ddit.admin.vo.MonthlyRevisitVO">
+        WITH patient_first_visit AS (
+        SELECT MEMBER_NUMBER, MIN(RECEIPT_DATE) AS FIRST_VISIT_DATE
+        FROM RECEPTIONIST_REGISTER
+        GROUP BY MEMBER_NUMBER
+        ),
+        monthly_visits AS (
+            SELECT DISTINCT
+                TO_CHAR(r.RECEIPT_DATE, 'MM') AS MONTH
+                , r.MEMBER_NUMBER
+                , TRUNC(r.RECEIPT_DATE, 'MM') AS VISIT_MONTH_START
+        FROM RECEPTIONIST_REGISTER r
+        WHERE EXTRACT(YEAR FROM r.RECEIPT_DATE) = #{year}
+        )
+        SELECT
+            mv.MONTH
+            , COUNT(DISTINCT mv.MEMBER_NUMBER) AS TOTAL_PATIENTS
+            , COUNT(DISTINCT CASE
+                WHEN pfv.FIRST_VISIT_DATE <![CDATA[<]]> mv.VISIT_MONTH_START THEN mv.MEMBER_NUMBER
+            END) AS REVISIT_PATIENTS
+        FROM monthly_visits mv
+        JOIN patient_first_visit pfv ON mv.MEMBER_NUMBER = pfv.MEMBER_NUMBER
+        GROUP BY mv.MONTH
+        ORDER BY mv.MONTH
+    </select>
+
+    <!--연도별 치료 종류(약물처방/주사/물리치료)별 매출 비율 (완료된 건만 집계, 물리치료는 이름 매칭으로 단가 추정)-->
+    <select id="selectTreatmentRevenue" resultType="ddit.admin.vo.TreatmentRevenueVO">
+    WITH medicine_revenue AS (
+        SELECT '약물처방' AS CATEGORY, SUM(dp.TOTAL_QTY * m.UNIT_COST) AS AMOUNT
+        FROM DOCTOR_PRESCRIPTION dp
+        JOIN MEDICINE m ON dp.MEDICINE_CODE = m.MEDICINE_CODE
+        WHERE dp.PRESCRIPTION_STATUS = 'Y'
+            AND EXTRACT(YEAR FROM dp.PRESCRIPTION_DATE) = #{year}
+        ),
+        injection_revenue AS (
+            SELECT '주사' AS CATEGORY, SUM(oi.DOSAGE * m.UNIT_COST) AS AMOUNT
+            FROM OUTPATIENTNURSE_INJECTION oi
+            JOIN MEDICINE m ON oi.MEDICINE_CODE = m.MEDICINE_CODE
+        WHERE oi.INJECTED_YN = 'Y'
+            AND EXTRACT(YEAR FROM oi.INJECTION_ORDER_TIME) = #{year}
+        ),
+        therapy_revenue AS (
+            SELECT '물리치료' AS CATEGORY, SUM(cc.UNIT_PRICE) AS AMOUNT
+            FROM PHYSICALTHERAPIST_RECORDS pr
+            JOIN COMMONCODE cc
+                ON cc.CODENAME_1 = pr.TREATMENT_ITEM_NAME
+                AND cc.CODENAME_2 = pr.THERAPY_TYPE
+                AND cc.COMMONCODE = 'P'
+        WHERE pr.TREATMENT_STATUS = '완료'
+                AND EXTRACT(YEAR FROM pr.DATE_OF_TREATMENT) = #{year}
+        )
+        SELECT CATEGORY, NVL(AMOUNT, 0) AS AMOUNT FROM medicine_revenue
+        UNION ALL
+        SELECT CATEGORY, NVL(AMOUNT, 0) AS AMOUNT FROM injection_revenue
+        UNION ALL
+        SELECT CATEGORY, NVL(AMOUNT, 0) AS AMOUNT FROM therapy_revenue
+    </select>
+
+    <!--연도별 요일별 방문 수 (Oracle 세션 언어 설정과 무관하게 항상 한글로 나오도록 NLS_DATE_LANGUAGE 명시)-->
+    <select id="selectWeekdayPatientCount" resultType="ddit.admin.vo.WeekdayPatientCountVO">
+        SELECT
+            TO_CHAR(RECEIPT_DATE, 'DY', 'NLS_DATE_LANGUAGE=KOREAN') AS DAY_OF_WEEK
+            , COUNT(*) AS PATIENT_COUNT
+        FROM RECEPTIONIST_REGISTER
+        WHERE EXTRACT(YEAR FROM RECEIPT_DATE) = #{year}
+        GROUP BY TO_CHAR(RECEIPT_DATE, 'DY', 'NLS_DATE_LANGUAGE=KOREAN')
+    </select>
+
+    <!--연도별 오전/오후 방문 수-->
+    <select id="selectTimeOfDayPatientCount" resultType="ddit.admin.vo.TimeOfDayPatientCountVO">
+        SELECT
+            CASE
+                WHEN TO_NUMBER(TO_CHAR(RECEIPT_DATE, 'HH24')) <![CDATA[<]]> 12 THEN '오전'
+                ELSE '오후'
+        END AS TIME_SLOT
+            , COUNT(*) AS PATIENT_COUNT
+        FROM RECEPTIONIST_REGISTER
+        WHERE EXTRACT(YEAR FROM RECEIPT_DATE) = #{year}
+        GROUP BY
+            CASE
+                WHEN TO_NUMBER(TO_CHAR(RECEIPT_DATE, 'HH24')) <![CDATA[<]]> 12 THEN '오전'
+                ELSE '오후'
+        END
+    </select>
+
+    <!--연도별 연령대(10살 단위)별 방문 건수 비율-->
+    <select id="selectAgeGroupPatientCount" resultType="ddit.admin.vo.AgeGroupPatientCountVO">
+        SELECT
+        (FLOOR(
+            CASE
+                WHEN SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1) IN ('1', '2')
+                    THEN EXTRACT(YEAR FROM SYSDATE) - (1900 + TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 2)))
+                WHEN SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1) IN ('3', '4')
+                    THEN EXTRACT(YEAR FROM SYSDATE) - (2000 + TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 2)))
+                ELSE 0
+            END / 10) * 10) || '대' AS AGE_GROUP
+        , COUNT(*) AS PATIENT_COUNT
+        FROM RECEPTIONIST_REGISTER r
+        JOIN MEMBER m ON r.MEMBER_NUMBER = m.MEMBER_NUMBER
+        WHERE EXTRACT(YEAR FROM r.RECEIPT_DATE) = #{year}
+        GROUP BY
+            FLOOR(
+                CASE
+                    WHEN SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1) IN ('1','2')
+                        THEN EXTRACT(YEAR FROM SYSDATE) - (1900 + TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 2)))
+                    WHEN SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 7, 1) IN ('3','4')
+                        THEN EXTRACT(YEAR FROM SYSDATE) - (2000 + TO_NUMBER(SUBSTR(m.RESIDENT_REGISTRATION_NUMBER, 1, 2)))
+                    ELSE 0
+            END / 10) * 10
+        ORDER BY AGE_GROUP
+    </select>
+
+    <!--연도별 가장 많이 처방된 약품/치료 항목 TOP 5 (의약품/주사/물리치료 통틀어서 순위 매김)-->
+    <select id="selectTopPrescriptionItems" resultType="ddit.admin.vo.TopPrescriptionItemVO">
+        SELECT * FROM (
+        SELECT ITEM_NAME, CATEGORY, COUNT(*) AS ITEM_COUNT
+        FROM (
+        <!-- 의약품: MEDICINE_NAME은 코드값이라 COMMONCODE에서 실제 이름으로 번역 (매칭 안 되면 코드값이라도 표시) -->
+        SELECT COALESCE(nc.CODENAME_1, m.MEDICINE_NAME) AS ITEM_NAME, '의약품' AS CATEGORY
+        FROM DOCTOR_PRESCRIPTION dp
+        JOIN MEDICINE m ON dp.MEDICINE_CODE = m.MEDICINE_CODE
+        LEFT JOIN COMMONCODE nc ON nc.COMMONCODE_NUMBER = m.MEDICINE_NAME AND nc.COMMONCODE = 'M'
+        WHERE EXTRACT(YEAR FROM dp.PRESCRIPTION_DATE) = #{year}
+
+        UNION ALL
+
+        SELECT COALESCE(nc2.CODENAME_1, m2.MEDICINE_NAME) AS ITEM_NAME, '주사' AS CATEGORY
+        FROM OUTPATIENTNURSE_INJECTION oi
+        JOIN MEDICINE m2 ON oi.MEDICINE_CODE = m2.MEDICINE_CODE
+        LEFT JOIN COMMONCODE nc2 ON nc2.COMMONCODE_NUMBER = m2.MEDICINE_NAME AND nc2.COMMONCODE = 'M'
+        WHERE EXTRACT(YEAR FROM oi.INJECTION_ORDER_TIME) = #{year}
+
+        UNION ALL
+
+        <!-- 물리치료 항목명은 이미 실제 텍스트로 저장되어 있어서 번역 필요 없음 -->
+        SELECT TREATMENT_ITEM_NAME AS ITEM_NAME, '물리치료' AS CATEGORY
+        FROM PHYSICALTHERAPIST_RECORDS
+        WHERE EXTRACT(YEAR FROM DATE_OF_TREATMENT) = #{year}
+        )
+        GROUP BY ITEM_NAME, CATEGORY
+        ORDER BY ITEM_COUNT DESC
+        ) WHERE ROWNUM <![CDATA[<=]]> 5
+    </select>
+
+    <!--연도별 처방 유형별(의약품/주사/물리치료) 건수 비율-->
+    <select id="selectPrescriptionTypeRatio" resultType="ddit.admin.vo.PrescriptionTypeRatioVO">
+        SELECT '의약품' AS CATEGORY, COUNT(*) AS ORDER_COUNT
+        FROM DOCTOR_PRESCRIPTION
+        WHERE EXTRACT(YEAR FROM PRESCRIPTION_DATE) = #{year}
+
+        UNION ALL
+
+        SELECT '주사' AS CATEGORY, COUNT(*) AS ORDER_COUNT
+        FROM OUTPATIENTNURSE_INJECTION
+        WHERE EXTRACT(YEAR FROM INJECTION_ORDER_TIME) = #{year}
+
+        UNION ALL
+
+        SELECT '물리치료' AS CATEGORY, COUNT(*) AS ORDER_COUNT
+        FROM PHYSICALTHERAPIST_RECORDS
+        WHERE EXTRACT(YEAR FROM DATE_OF_TREATMENT) = #{year}
+    </select>
+
+    <!--연도별 상병(진단명)별 TOP 5-->
+    <select id="selectTopDiagnosis" resultType="ddit.admin.vo.TopDiagnosisVO">
+        SELECT * FROM (
+        SELECT DIAGNOSIS_NAME, COUNT(*) AS DIAGNOSIS_COUNT
+        FROM MEDICAL_RECORD
+        WHERE EXTRACT(YEAR FROM START_DATE) = #{year}
+        AND DIAGNOSIS_NAME IS NOT NULL
+        GROUP BY DIAGNOSIS_NAME
+        ORDER BY DIAGNOSIS_COUNT DESC
+        ) WHERE ROWNUM <![CDATA[<=]]> 5
+    </select>
+
+    <!--연도별 오전/오후 매출 (수납완료 건만, 기존 시간대별 환자수 쿼리랑 같은 오전/오후 기준)-->
+    <select id="selectTimeOfDayRevenue" resultType="ddit.admin.vo.TimeOfDayRevenueVO">
+        SELECT
+        CASE
+        WHEN TO_NUMBER(TO_CHAR(PAYMENT_DATE, 'HH24')) <![CDATA[<]]> 12 THEN '오전'
+        ELSE '오후'
+        END AS TIME_SLOT
+        , SUM(TOTAL_AMOUNT) AS REVENUE
+        FROM PAYMENT
+        WHERE PAYMENT_STATUS = '수납완료'
+        AND EXTRACT(YEAR FROM PAYMENT_DATE) = #{year}
+        GROUP BY
+        CASE
+        WHEN TO_NUMBER(TO_CHAR(PAYMENT_DATE, 'HH24')) <![CDATA[<]]> 12 THEN '오전'
+        ELSE '오후'
+        END
+    </select>
+
+    <!--오늘 하루 매출 합계 (수납완료 건만) - 연도 파라미터 없이 그냥 "오늘" 기준-->
+    <select id="selectTodayRevenue" resultType="double">
+        SELECT NVL(SUM(TOTAL_AMOUNT), 0)
+        FROM PAYMENT
+        WHERE PAYMENT_STATUS = '수납완료'
+        AND TRUNC(PAYMENT_DATE) = TRUNC(SYSDATE)
+    </select>
+
+
+</mapper>

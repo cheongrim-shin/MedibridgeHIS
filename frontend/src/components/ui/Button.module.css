@@ -1,0 +1,331 @@
+/* ==========================================================================
+   Button Module Styles (공용 버튼 컴포넌트 스타일)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Base Button Style: 버튼 기본 레이아웃 및 트랜지션
+   -------------------------------------------------------------------------- */
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid transparent;
+    outline: none;
+    box-sizing: border-box;
+    white-space: nowrap;
+    width: 100%;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+/* --------------------------------------------------------------------------
+   Disabled State: 버튼 비활성화 상태 스타일
+   -------------------------------------------------------------------------- */
+.btn:disabled {
+    background: #cbd5e1 !important;
+    color: #94a3b8 !important;
+    cursor: not-allowed;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   Icons: 버튼 내 좌/우 배치 아이콘
+   -------------------------------------------------------------------------- */
+.leftIcon, .rightIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+}
+
+.leftIcon svg, .rightIcon svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   Button Sizes: 버튼 크기 규격 정의 (입력 폼 컴포넌트들과 디자인 일관성 유지)
+   -------------------------------------------------------------------------- */
+
+/* Extra Small (xs) */
+.size_xs {
+    height: 30px;
+    padding: 0 10px;
+    font-size: 12px;
+    border-radius: 4px;
+}
+.size_xs .leftIcon { width: 12px; height: 12px; margin-right: 4px; }
+.size_xs .rightIcon { width: 12px; height: 12px; margin-left: 4px; }
+
+/* Small (sm) */
+.size_sm {
+    height: 34px;
+    padding: 0 12px;
+    font-size: 13px;
+    border-radius: 6px;
+}
+.size_sm .leftIcon { width: 14px; height: 14px; margin-right: 6px; }
+.size_sm .rightIcon { width: 14px; height: 14px; margin-left: 6px; }
+
+/* Medium (md) */
+.size_md {
+    height: 42px;
+    padding: 0 18px;
+    font-size: 14px;
+    border-radius: 6px;
+}
+.size_md .leftIcon { width: 16px; height: 16px; margin-right: 6px; }
+.size_md .rightIcon { width: 16px; height: 16px; margin-left: 6px; }
+
+/* Large (lg) */
+.size_lg {
+    height: 50px;
+    padding: 0 24px;
+    font-size: 16px;
+    border-radius: 8px;
+}
+.size_lg .leftIcon { width: 18px; height: 18px; margin-right: 8px; }
+.size_lg .rightIcon { width: 18px; height: 18px; margin-left: 8px; }
+
+/* ==========================================================================
+   Colors - Solid Variant (기본 채우기 형태 버튼 스타일 정의)
+   ========================================================================== */
+
+/* Indigo */
+.solid_indigo {
+    background: var(--color-indigo-primary);
+    color: #ffffff;
+}
+.solid_indigo:hover:not(:disabled) {
+    background: var(--color-indigo-hover);
+    box-shadow: 0 4px 12px rgba(var(--color-indigo-rgb), 0.15);
+}
+.solid_indigo:active:not(:disabled) {
+    background: var(--color-indigo-active);
+}
+
+/* Green */
+.solid_green {
+    background: var(--color-green-primary);
+    color: #ffffff;
+}
+.solid_green:hover:not(:disabled) {
+    background: var(--color-green-hover);
+    box-shadow: 0 4px 12px rgba(var(--color-green-rgb), 0.15);
+}
+.solid_green:active:not(:disabled) {
+    background: var(--color-green-active);
+}
+
+/* Red */
+.solid_red {
+    background: var(--color-red-primary);
+    color: #ffffff;
+}
+.solid_red:hover:not(:disabled) {
+    background: var(--color-red-hover);
+    box-shadow: 0 4px 12px rgba(var(--color-red-rgb), 0.15);
+}
+.solid_red:active:not(:disabled) {
+    background: var(--color-red-active);
+}
+
+/* Slate */
+.solid_slate {
+    background: var(--color-slate-primary);
+    color: #ffffff;
+}
+.solid_slate:hover:not(:disabled) {
+    background: var(--color-slate-hover);
+    box-shadow: 0 4px 12px rgba(var(--color-slate-rgb), 0.15);
+}
+.solid_slate:active:not(:disabled) {
+    background: var(--color-slate-active);
+}
+
+/* Gray (Subtle style button) */
+.solid_gray {
+    background: var(--color-gray-primary);
+    color: var(--color-gray-text);
+    border-color: var(--color-gray-border);
+}
+.solid_gray:hover:not(:disabled) {
+    background: var(--color-gray-hover);
+    color: #1e293b;
+}
+.solid_gray:active:not(:disabled) {
+    background: var(--color-gray-active);
+}
+
+/* Teal */
+.solid_teal {
+    background: var(--color-teal-primary);
+    color: #ffffff;
+}
+.solid_teal:hover:not(:disabled) {
+    background: var(--color-teal-hover);
+    box-shadow: 0 4px 12px rgba(var(--color-teal-rgb), 0.15);
+}
+.solid_teal:active:not(:disabled) {
+    background: var(--color-teal-active);
+}
+
+/* Amber */
+.solid_amber {
+    background: var(--color-amber-primary);
+    color: #ffffff;
+}
+.solid_amber:hover:not(:disabled) {
+    background: var(--color-amber-hover);
+    box-shadow: 0 4px 12px rgba(var(--color-amber-rgb), 0.15);
+}
+.solid_amber:active:not(:disabled) {
+    background: var(--color-amber-active);
+}
+
+/* Blue */
+.solid_blue {
+    background: var(--color-blue-primary);
+    color: #ffffff;
+}
+.solid_blue:hover:not(:disabled) {
+    background: var(--color-blue-hover);
+    box-shadow: 0 4px 12px rgba(var(--color-blue-rgb), 0.15);
+}
+.solid_blue:active:not(:disabled) {
+    background: var(--color-blue-active);
+}
+
+/* Violet */
+.solid_violet {
+    background: var(--color-violet-primary);
+    color: #ffffff;
+}
+.solid_violet:hover:not(:disabled) {
+    background: var(--color-violet-hover);
+    box-shadow: 0 4px 12px rgba(var(--color-violet-rgb), 0.15);
+}
+.solid_violet:active:not(:disabled) {
+    background: var(--color-violet-active);
+}
+
+/* ==========================================================================
+   Colors - Outline Variant (투명 배경, 테두리 형태 버튼 스타일 정의)
+   ========================================================================== */
+.variant_outline {
+    background: transparent;
+}
+
+/* Indigo */
+.outline_indigo {
+    border-color: var(--color-indigo-primary);
+    color: var(--color-indigo-primary);
+}
+.outline_indigo:hover:not(:disabled) {
+    background: rgba(var(--color-indigo-rgb), 0.05);
+}
+.outline_indigo:active:not(:disabled) {
+    background: rgba(var(--color-indigo-rgb), 0.12) !important;
+}
+
+/* Green */
+.outline_green {
+    border-color: var(--color-green-primary);
+    color: var(--color-green-primary);
+}
+.outline_green:hover:not(:disabled) {
+    background: rgba(var(--color-green-rgb), 0.05);
+}
+.outline_green:active:not(:disabled) {
+    background: rgba(var(--color-green-rgb), 0.12) !important;
+}
+
+/* Red */
+.outline_red {
+    border-color: var(--color-red-primary);
+    color: var(--color-red-primary);
+}
+.outline_red:hover:not(:disabled) {
+    background: rgba(var(--color-red-rgb), 0.05);
+}
+.outline_red:active:not(:disabled) {
+    background: rgba(var(--color-red-rgb), 0.12) !important;
+}
+
+/* Slate */
+.outline_slate {
+    border-color: var(--color-slate-primary);
+    color: var(--color-slate-primary);
+}
+.outline_slate:hover:not(:disabled) {
+    background: rgba(var(--color-slate-rgb), 0.05);
+}
+.outline_slate:active:not(:disabled) {
+    background: rgba(var(--color-slate-rgb), 0.12) !important;
+}
+
+/* Gray */
+.outline_gray {
+    border-color: var(--color-gray-border);
+    color: var(--color-gray-text);
+}
+.outline_gray:hover:not(:disabled) {
+    background: #f8fafc;
+    border-color: rgb(var(--color-gray-rgb));
+}
+.outline_gray:active:not(:disabled) {
+    background: var(--color-gray-active) !important;
+}
+
+/* Teal */
+.outline_teal {
+    border-color: var(--color-teal-primary);
+    color: var(--color-teal-primary);
+}
+.outline_teal:hover:not(:disabled) {
+    background: rgba(var(--color-teal-rgb), 0.05);
+}
+.outline_teal:active:not(:disabled) {
+    background: rgba(var(--color-teal-rgb), 0.12) !important;
+}
+
+/* Amber */
+.outline_amber {
+    border-color: var(--color-amber-primary);
+    color: var(--color-amber-primary);
+}
+.outline_amber:hover:not(:disabled) {
+    background: rgba(var(--color-amber-rgb), 0.05);
+}
+.outline_amber:active:not(:disabled) {
+    background: rgba(var(--color-amber-rgb), 0.12) !important;
+}
+
+/* Blue */
+.outline_blue {
+    border-color: var(--color-blue-primary);
+    color: var(--color-blue-primary);
+}
+.outline_blue:hover:not(:disabled) {
+    background: rgba(var(--color-blue-rgb), 0.05);
+}
+.outline_blue:active:not(:disabled) {
+    background: rgba(var(--color-blue-rgb), 0.12) !important;
+}
+
+/* Violet */
+.outline_violet {
+    border-color: var(--color-violet-primary);
+    color: var(--color-violet-primary);
+}
+.outline_violet:hover:not(:disabled) {
+    background: rgba(var(--color-violet-rgb), 0.05);
+}
+.outline_violet:active:not(:disabled) {
+    background: rgba(var(--color-violet-rgb), 0.12) !important;
+}

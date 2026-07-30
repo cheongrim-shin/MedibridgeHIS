@@ -1,0 +1,292 @@
+.detailPanelContainer {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+    padding: 24px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+}
+
+.detailTitle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-shrink: 0;
+}
+
+.patientInfo{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0;
+    gap: 20px;
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin-bottom: 24px;
+    flex-shrink: 0;
+}
+
+.patientInfoRow {
+    align-items: flex-start;
+    gap: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: grid;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.infoCol {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #111316;
+    letter-spacing: -0.2px;
+}
+
+.value {
+    font-size: 16.5px;
+    color: #1e293b;
+    font-weight: 600;
+    width: 100%;
+}
+
+.resultSection {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.medicineTable,
+.injectionTable {
+    --table-scrollbar-size: 6px;
+    width: 100%;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-sizing: border-box;
+    background: #ffffff;
+    /* 1. collapse 대신 separate로 변경하여 radius가 먹히도록 합니다 */
+    border-collapse: separate; 
+    /* 2. 셀 사이의 간격을 0으로 만들어 collapse처럼 보이게 합니다 */
+    border-spacing: 0; 
+    table-layout: fixed;
+    /* 3. 모서리 밖으로 삐져나오는 th 배경색을 잘라냅니다 */
+    overflow: hidden;
+}
+
+.medicineTable th,
+.injectionTable th {
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 700;
+    white-space: nowrap;
+    box-sizing: border-box;
+    font-size: 13.5px;
+    padding: 15px 10px;
+    text-align: center;
+}
+
+.injectionTable th:first-child,
+.injectionTable td:first-child {
+    text-align: left;
+}
+
+
+.injectionTable td:first-child,
+.injectionTable td:first-child {
+    color: #3e3e46;
+    font-weight: 800;
+}
+
+.injectionTable th:first-child,
+.injectionTable td:first-child  {
+    border-top-left-radius: 8px;
+}
+
+.injectionTable th:nth-child(1),
+.injectionTable td:nth-child(1) { 
+    width: 20%; 
+    padding: 14px 10px 14px 10px;
+}
+
+.injectionTable th:nth-child(2),
+.injectionTable td:nth-child(2) { 
+    width: 10%; 
+    padding: 14px 10px 14px 10px;
+}
+
+.injectionTable th:nth-child(3),
+.injectionTable td:nth-child(3) { 
+    width: 10%; 
+    padding: 14px 10px 14px 10px;
+}
+
+.injectionTable th:nth-child(4),
+.injectionTable td:nth-child(4) { 
+    width: 10%; 
+    padding: 14px 10px 14px 10px;
+}
+
+.medicineTable th:first-child,
+.medicineTable td:first-child {
+    text-align: left;
+}
+.medicineTable td:first-child {
+    color: #3e3e46;
+    font-weight: 800;
+}
+
+.medicineTable th:first-child {
+    border-top-left-radius: 8px;
+}
+
+.medicineTable th:last-child {
+    border-top-right-radius: 8px;
+}
+
+.medicineTable th:nth-child(1),
+.medicineTable td:nth-child(1) { 
+    width: 25%; 
+    padding: 14px 0px 14px 10px;
+}
+.medicineTable th:nth-child(2),
+.medicineTable td:nth-child(2) { 
+    width: 21%; 
+    padding: 14px 0px 14px 10px;
+}
+
+.medicineTable th:nth-child(3),
+.medicineTable td:nth-child(3) { 
+    width: 19%; 
+    padding: 14px 0px 14px 10px;
+}
+
+.medicineTable th:nth-child(4),
+.medicineTable td:nth-child(4) { 
+    width: 13%; 
+    padding: 14px 0px 14px 10px;
+}
+
+.medicineTable td,
+.injectionTable td{
+    padding: 14px 10px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-sizing: border-box;
+    font-size: 13.5px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.medicineTable tr:last-child td {
+    border-bottom: none;
+}
+
+.medicineTable tr:last-child td:first-child {
+    border-bottom-left-radius: 8px;
+}
+
+.medicineTable tr:last-child td:last-child {
+    border-bottom-right-radius: 8px;
+}
+
+.completeButton {
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px;
+    background-color: #e63946;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+ .divider {
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    margin: 20px 0;
+    flex-shrink: 0;
+} 
+
+.emptyDetailCard {
+    background: #ffffff;
+    border: 1px dashed #cbd5e1;
+    border-radius: 12px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    height: 100%;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.emptyDetailText {
+    font-size: 14px;
+    color: #64748b;
+    font-weight: 500;
+    line-height: 1.6;
+    max-width: 280px;
+    margin: 0;
+}
+
+.emptyIconDetail {
+    width: 48px;
+    height: 48px;
+    color: #94a3b8;
+}
+
+.otherOrderSection {
+    margin-bottom: 12px;
+}
+
+.sectionToggle {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: none;
+    border: none;
+    padding: 8px 0;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #475569;
+    cursor: pointer;
+}
+
+.sectionToggle:hover {
+    color: #d8284e;
+}
+
+.otherOrderEmpty {
+    font-size: 13px;
+    color: #94a3b8;
+    padding: 8px 0;
+}
+
+.truncateCell {
+    max-width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

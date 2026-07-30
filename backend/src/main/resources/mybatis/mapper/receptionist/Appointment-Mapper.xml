@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ddit.receptionist.mapper.AppointmentMapper">
+
+	<!-- 담당의 조회 -->
+	<select id="selectDoctors" resultType="appointmentDoctorVO">
+		 SELECT m.member_number       		   AS doctorNumber           
+		      , m.member_name                  AS doctorName
+		      , NVL(d.department_code, '진료')  AS deptName
+		   FROM member m
+		  INNER JOIN authority a      ON a.member_number = m.member_number
+		    AND a.permission_name IN ('ROLE_DOCTOR')
+		   LEFT JOIN employee e       ON e.member_number = m.member_number
+		   LEFT JOIN department d     ON e.department_code = d.department_code
+		  ORDER BY d.department_name, m.member_name
+	</select>
+	
+	<!-- 기간예약 조회 -->
+	<select id="selectAppointments" parameterType="appointmentSearchVO" resultType="appointmentVO">
+		SELECT a.appointment_number                                 AS appointmentNumber
+		     , a.member_number                                      AS memberNumber
+		     , m.member_name                                        AS patientName
+		     , m.member_phone_number                                AS phone
+		     , SUBSTR(m.resident_registration_number, 1, 6)         AS birthDate
+		     , a.attending_physician                                AS doctorNumber
+		     , dm.member_name                                       AS doctorName
+		     , TO_CHAR(a.reservation_start_date, 'YYYY-MM-DD')      AS reserveDate
+		     , TO_CHAR(a.reservation_start_date, 'HH24:MI')         AS reserveTime
+		     , TO_CHAR(a.reservation_start_date, 'YYYY-MM-DD"T"HH24:MI:SS') AS startAt
+		     , TO_CHAR(NVL(a.reservation_end_date, a.reservation_start_date + 30/1440)
+		              , 'YYYY-MM-DD"T"HH24:MI:SS')                  AS endAt
+		     , a.reservation_status                                 AS status
+		     , a.symptoms                                           AS symptoms
+		     , NVL(a.color, '#3788d8')                              AS color
+		  FROM appointment a
+		 INNER JOIN member m   ON m.member_number = a.member_number
+		  LEFT  JOIN member dm ON dm.member_number = a.attending_physician
+		 WHERE a.reservation_start_date IS NOT NULL
+		   AND a.reservation_status = '예약확정'
+		   AND a.reservation_start_date >= TO_DATE(#{fromDate}, 'YYYY-MM-DD')
+		   AND a.reservation_start_date &lt;  TO_DATE(#{toDate}, 'YYYY-MM-DD') + 1
+		   <if test="doctorNumber != null and doctorNumber != ''">
+		   AND a.attending_physician = #{doctorNumber}
+		   </if>
+		 ORDER BY a.reservation_start_date
+	</select>
+	
+	<!-- 상세조회 -->
+	<select id="selectAppointmentOne" resultType="appointmentVO">
+		SELECT a.appointment_number                                 AS appointmentNumber
+		     , a.member_number                                      AS memberNumber
+		     , m.member_name                                        AS patientName
+		     , m.member_phone_number                                AS phone
+		     , SUBSTR(m.resident_registration_number, 1, 6)         AS birthDate
+		     , a.attending_physician                                AS doctorNumber
+		     , dm.member_name                                       AS doctorName
+		     , TO_CHAR(a.reservation_start_date, 'YYYY-MM-DD')      AS reserveDate
+		     , TO_CHAR(a.reservation_start_date, 'HH24:MI')         AS reserveTime
+		     , TO_CHAR(a.reservation_start_date, 'YYYY-MM-DD"T"HH24:MI:SS') AS startAt
+		     , TO_CHAR(NVL(a.reservation_end_date, a.reservation_start_date + 30/1440)
+		              , 'YYYY-MM-DD"T"HH24:MI:SS')                  AS endAt
+		     , a.reservation_status                                 AS status
+		     , a.symptoms                                           AS symptoms
+		     , NVL(a.color, '#3788d8')                              AS color
+		  FROM appointment a
+		 INNER JOIN member m   ON m.member_number = a.member_number
+		  LEFT  JOIN member dm ON dm.member_number = a.attending_physician
+		 WHERE a.appointment_number = #{appointmentNumber}
+	</select>
+	
+	<!-- 슬롯 점유 확인 (0 = 예약가능) -->
+	<select id="countSlot" resultType="int">
+        SELECT COUNT(*)
+	      FROM APPOINTMENT
+	     WHERE MEMBER_NUMBER = #{memberNumber}          
+	       AND ATTENDING_PHYSICIAN = #{doctorNumber}   
+	       AND RESERVATION_STATUS = '예약확정'      
+	       AND TRUNC(RESERVATION_START_DATE)
+          		 = TRUNC(TO_DATE(#{reserveAt}, 'YYYY-MM-DD HH24:MI'))    
+	       <if test="excludeNo != null and excludeNo != ''">
+	       AND appointment_number != #{excludeNo}
+	       </if>
+    </select>
+    
+    <!-- 예약 등록 -->
+    <insert id="insertAppointment" parameterType="appointmentCreateVO">
+    	<selectKey keyProperty="appointmentNumber" resultType="string" order="BEFORE">
+    		SELECT 'A' || LPAD(SEQ_APPOINTMENT.NEXTVAL, 4, '0') FROM DUAL
+    	</selectKey>
+    	INSERT INTO appointment (
+		      appointment_number
+		    , member_number
+		    , reservation_start_date
+		    , reservation_end_date
+		    , reservation_status
+		    , attending_physician
+		    , symptoms
+		    , color
+		) VALUES (
+		    #{appointmentNumber}
+		  , #{memberNumber}
+		  , TO_DATE(#{reserveAt}, 'YYYY-MM-DD HH24:MI')
+		  , TO_DATE(#{reserveAt}, 'YYYY-MM-DD HH24:MI') + #{durationMinutes}/1440
+		  , '예약확정'
+		  , #{doctorNumber}
+		  , #{symptoms}
+		  , #{color}
+		)
+    </insert>
+    
+    <!-- 예약 변경 -->
+    <update id="updateAppointment">
+    	UPDATE APPOINTMENT
+           SET RESERVATION_START_DATE = TO_DATE(#{reserveAt}, 'YYYY-MM-DD HH24:MI')
+             , RESERVATION_END_DATE   = TO_DATE(#{reserveAt}, 'YYYY-MM-DD HH24:MI') + #{durationMinutes}/1440
+             , ATTENDING_PHYSICIAN    = #{doctorNumber}
+             , SYMPTOMS               = #{symptoms, jdbcType=VARCHAR}
+         WHERE APPOINTMENT_NUMBER = #{appointmentNumber}
+           AND RESERVATION_STATUS = '예약확정'
+    </update>
+    
+    <!-- 예약 취소 -->
+    <update id="cancelAppointment">
+        UPDATE APPOINTMENT 
+           SET RESERVATION_STATUS = '예약취소'
+         WHERE APPOINTMENT_NUMBER = #{appointmentNumber} 
+           AND RESERVATION_STATUS = '예약확정'
+    </update>
+    
+    <!-- 예약 - 접수 : 확정 상태일 때만 접수완료로 전환 -->
+	<update id="updateAppointmentReceived">
+	    UPDATE APPOINTMENT
+	       SET RESERVATION_STATUS = '접수완료'
+	     WHERE APPOINTMENT_NUMBER = #{appointmentNumber}
+	       AND RESERVATION_STATUS = '예약확정'
+	</update>
+	
+	<!-- 예약일이 지나버린(어제까지) 미처리 예약 일괄 예약취소처리 -->
+	<update id="updateAutoCancelPastAppointments">
+		UPDATE APPOINTMENT
+		   SET RESERVATION_STATUS = '예약취소'
+		 WHERE RESERVATION_STATUS = '예약확정'
+		   AND RESERVATION_START_DATE &lt; TRUNC(SYSDATE)
+	</update>
+
+</mapper>

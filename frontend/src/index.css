@@ -1,0 +1,82 @@
+@font-face {
+  font-family: 'Pretendard Variable';
+  src: url('./assets/fonts/PretendardVariable.woff2') format('woff2-variations');
+  font-weight: 45 920;
+  font-style: normal;
+  font-display: swap;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  display: inline-block;
+}
+
+/* Pretendard Variable 글로벌 기본 폰트 설정 */
+body, button, input, select, textarea, span, div, p, td, th {
+  font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+}
+
+:root {
+  /* Green Theme Colors */
+  --color-green-primary: #059669;
+  --color-green-hover: #047857;
+  --color-green-active: #065f46;
+  --color-green-rgb: 5, 150, 105;
+
+  /* Indigo Theme Colors */
+  --color-indigo-primary: #4f46e5;
+  --color-indigo-hover: #4338ca;
+  --color-indigo-active: #3730a3;
+  --color-indigo-rgb: 79, 70, 229;
+
+  /* Violet Theme Colors */
+  --color-violet-primary: #7c3aed;
+  --color-violet-hover: #6d28d9;
+  --color-violet-active: #5b21b6;
+  --color-violet-rgb: 124, 58, 237;
+
+  /* Red Theme Colors */
+  --color-red-primary: #dc2626;
+  --color-red-hover: #b91c1c;
+  --color-red-active: #991b1b;
+  --color-red-rgb: 220, 38, 38;
+
+  /* Slate Theme Colors */
+  --color-slate-primary: #475569;
+  --color-slate-hover: #334155;
+  --color-slate-active: #1e293b;
+  --color-slate-rgb: 71, 85, 105;
+
+  /* Gray Theme Colors */
+  --color-gray-primary: #f1f5f9;
+  --color-gray-hover: #e2e8f0;
+  --color-gray-active: #cbd5e1;
+  --color-gray-text: #475569;
+  --color-gray-border: #e2e8f0;
+  --color-gray-rgb: 148, 163, 184;
+
+  /* Teal Theme Colors */
+  --color-teal-primary: #0d9488;
+  --color-teal-hover: #0f766e;
+  --color-teal-active: #115e59;
+  --color-teal-rgb: 13, 148, 136;
+
+  /* Amber Theme Colors */
+  --color-amber-primary: #d97706;
+  --color-amber-hover: #b45309;
+  --color-amber-active: #92400e;
+  --color-amber-rgb: 217, 119, 6;
+
+  /* Blue Theme Colors */
+  --color-blue-primary: #1e3a8a;
+  --color-blue-hover: #172554;
+  --color-blue-active: #0f172a;
+  --color-blue-rgb: 30, 58, 138;
+
+  #registerModal { max-width: 760px; }
+}

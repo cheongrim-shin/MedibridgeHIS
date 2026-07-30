@@ -1,0 +1,19 @@
+.container { display: flex; flex-direction: column; gap: 16px; }
+.headerRow { display: flex; align-items: center; gap: 8px; }
+.searchWrapper { flex: 1; }
+
+.titleLink { cursor: pointer; color: #1e293b; }
+.titleLink:hover { text-decoration: underline; color: #4338ca; }
+
+.statusBadge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+.statusWait { background: #fef3c7; color: #b45309; }
+.statusComplete { background: #dcfce7; color: #15803d; }
+
+.deleteBtn {
+    background: none; border: none; color: #dc2626; font-size: 12px;
+    cursor: pointer; padding: 4px 8px;
+}
+.deleteBtn:hover { text-decoration: underline; }
+
+/* QnaManagement.module.css */
+.statusFilterWrapper { flex-shrink: 0; width: 160px; }

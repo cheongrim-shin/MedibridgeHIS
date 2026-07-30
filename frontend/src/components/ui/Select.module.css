@@ -1,0 +1,103 @@
+.selectWrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.select {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    color: #1e293b;
+    background: #ffffff;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 16px 16px;
+}
+
+/* Sizes - Button처럼 직접 셀렉트 요소에 1:1 바인딩 */
+.size_sm {
+    height: 36px;
+    padding: 8px 30px 8px 12px;
+    font-size: 13px;
+    border-radius: 6px;
+}
+
+.size_md {
+    height: 42px;
+    padding: 11px 32px 11px 14px;
+    font-size: 13.5px;
+    border-radius: 6px;
+}
+
+.size_lg {
+    height: 50px;
+    padding: 15px 36px 15px 16px;
+    font-size: 16px;
+    border-radius: 8px;
+}
+
+.color_green:focus:not(:disabled) {
+    border-color: var(--color-green-primary);
+    box-shadow: 0 0 0 3px rgba(var(--color-green-rgb), 0.08);
+}
+.color_indigo:focus:not(:disabled) {
+    border-color: var(--color-indigo-primary);
+    box-shadow: 0 0 0 3px rgba(var(--color-indigo-rgb), 0.08);
+}
+.color_violet:focus:not(:disabled) {
+    border-color: var(--color-violet-primary);
+    box-shadow: 0 0 0 3px rgba(var(--color-violet-rgb), 0.08);
+}
+.color_red:focus:not(:disabled) {
+    border-color: var(--color-red-primary);
+    box-shadow: 0 0 0 3px rgba(var(--color-red-rgb), 0.08);
+}
+.color_slate:focus:not(:disabled) {
+    border-color: var(--color-slate-primary);
+    box-shadow: 0 0 0 3px rgba(var(--color-slate-rgb), 0.08);
+}
+.color_gray:focus:not(:disabled) {
+    border-color: rgb(var(--color-gray-rgb));
+    box-shadow: 0 0 0 3px rgba(var(--color-gray-rgb), 0.08);
+}
+.color_teal:focus:not(:disabled) {
+    border-color: var(--color-teal-primary);
+    box-shadow: 0 0 0 3px rgba(var(--color-teal-rgb), 0.08);
+}
+.color_amber:focus:not(:disabled) {
+    border-color: var(--color-amber-primary);
+    box-shadow: 0 0 0 3px rgba(var(--color-amber-rgb), 0.08);
+}
+.color_blue:focus:not(:disabled) {
+    border-color: var(--color-blue-primary);
+    box-shadow: 0 0 0 3px rgba(var(--color-blue-rgb), 0.08);
+}
+
+.color_none {
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    cursor: default;
+}
+.color_none:focus {
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+/* States */
+.select:disabled {
+    background: #f8fafc !important;
+    border-color: #e2e8f0;
+    color: #64748b !important;
+    cursor: not-allowed;
+}
+
+

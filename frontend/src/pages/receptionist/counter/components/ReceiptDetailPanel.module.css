@@ -1,0 +1,96 @@
+.panel {
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;          /* 추가 */
+    flex-direction: column; /* 추가 */
+    min-height: 100%;       /* 추가 — 수납 폼을 바닥으로 밀기 위해 */
+}
+.state { 
+    padding: 40px 20px; 
+    text-align: center; 
+    color: #64748b; 
+}
+.title { 
+    font-size: 18px; 
+    font-weight: 700; 
+    margin: 0 0 16px; 
+}
+.sub   { 
+    font-size: 13px; 
+    font-weight: 400; 
+    color: #94a3b8; 
+    margin-left: 6px; 
+}
+.group { 
+    border-top: 1px solid #e2e8f0; 
+    padding: 12px 0; 
+}
+.row   { 
+    display: flex; 
+    padding: 4px 0; 
+    font-size: 14px; 
+}
+.label { 
+    flex: 0 0 80px; 
+    color: #64748b; 
+}
+.value { flex: 1; 
+    color: #0f172a; 
+    word-break: break-all; 
+}
+.head { 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    margin-bottom: 16px; 
+}
+.head .title { margin: 0; }
+.badge { 
+    display: inline-block; 
+    margin-left: 8px; 
+    padding: 2px 8px; 
+    border-radius: 10px;
+    background: #e0f2fe; 
+    color: #0369a1; 
+    font-size: 12px; 
+    font-weight: 700; 
+    vertical-align: middle; }
+
+.closeBtn { border: 1px solid #e2e8f0; background: #fff; border-radius: 6px;
+            padding: 4px 12px; font-size: 13px; color: #64748b; cursor: pointer; }
+.closeBtn:hover { background: #f8fafc; color: #334155; }
+.histTitle { 
+    font-size: 13px; 
+    font-weight: 700; 
+    color: #475569; 
+    margin-bottom: 6px; 
+}
+.histEmpty { font-size: 13px; color: #94a3b8; }
+.histRow { 
+    display: grid; 
+    /* 1열:날짜(고정), 2열:의사(유동), 3열:치료(유동), 4열:상태/금액(고정) */
+    grid-template-columns: 85px 1fr 1fr 70px;
+    gap: 8px; 
+    font-size: 13px; 
+    padding: 4px 0;
+    border-bottom: 1px solid #f1f5f9; 
+    align-items: center; 
+}
+.histRow > span { color: #141c25; }
+
+.payTotalRow {
+    border-top: 1px solid #e2e8f0;
+    padding-top: 6px;
+    margin-top: 4px;
+}
+
+/* 수납 내역의 두 번째 자식(금액) 우측 정렬 */
+.payRow > span:first-child,
+.payTotalRow > span:first-child {
+    grid-column: 1 / 4;
+}
+.payTotalRow {
+    border-top: 1px solid #e2e8f0;
+    padding-top: 6px;
+    margin-top: 4px;
+}

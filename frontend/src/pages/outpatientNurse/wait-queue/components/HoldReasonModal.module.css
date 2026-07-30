@@ -1,0 +1,98 @@
+/* 화면 전체를 덮는 반투명 배경 */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+/* 모달 박스 본체 */
+.modalBox {
+    position: relative;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 24px;
+    width: 360px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.modalTitle {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 6px 0;
+}
+
+.modalSubText {
+    font-size: 13px;
+    color: #64748b;
+    margin: 0 0 16px 0;
+}
+
+.reasonList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.reasonItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #1e293b;
+    cursor: pointer;
+}
+
+.customInput {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 13px;
+    box-sizing: border-box;
+    margin-bottom: 16px;
+}
+
+.modalActions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.cancelBtn,
+.confirmBtn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.cancelBtn {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+    margin-right: 10px;
+}
+
+.cancelBtn:hover {
+    background: #f8fafc;
+}
+
+.confirmBtn {
+    background: #2563eb;
+    border: 1px solid #2563eb;
+    color: #ffffff;
+}
+
+.confirmBtn:hover {
+    background: #1d4ed8;
+}

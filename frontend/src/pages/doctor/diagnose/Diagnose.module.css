@@ -1,0 +1,372 @@
+.diagnoseContainer {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 0 28px 24px 28px;
+    box-sizing: border-box;
+}
+
+/* ===== 상단 바 ===== */
+.topBar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.completeButton {
+    padding: 10px 22px;
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.completeButton:hover {
+    background: #1d4ed8;
+}
+
+.completeButtonHeader {
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    margin: 0px 0px 0px 20px;
+}
+
+.completeButtonHeader:hover {
+    background: #1d4ed8;
+}
+
+/* ===== 3분할 레이아웃 ===== */
+.threeColumnRow {
+    display: grid;
+    grid-template-columns: 28% 44% 28%;
+    gap: 16px;
+    flex: 1;
+    min-height: 0;
+    padding: 0px 28px 0px 0px;
+}
+
+.leftColumn,
+.middleColumn,
+.rightColumn {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* ===== 공통: 라벨 ===== */
+.fieldLabel {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #64748b;
+    margin-bottom: 6px;
+}
+
+/* ===== 공통: 탭 ===== */
+.tabRow {
+    display: flex;
+    gap: 20px;
+    border-bottom: 1px solid #e2e8f0;
+    margin: 0px 0 14px 0;
+}
+
+.tab,
+.tabActive {
+    background: none;
+    border: none;
+    padding: 8px 2px 10px 2px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s ease;
+}
+
+.tab {
+    color: #64748b;
+}
+
+.tab:hover {
+    color: #16367c;
+}
+
+.tabActive {
+    color: #16367c;
+    border-bottom: 2px solid #16367c;
+}
+
+/* ===== 좌측: 진료기록/OCS이력 히스토리 ===== */
+.leftColumn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.emptyText {
+    color: #94a3b8;
+    font-size: 13px;
+    text-align: center;
+    padding: 40px 0;
+}
+
+.recordDivider {
+    border: none;
+    border-top: 1px solid #f1f5f9;
+    margin: 14px 0;
+}
+
+.prescriptionItem {
+    padding: 10px 0;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 13px;
+}
+
+.prescriptionItem:last-child {
+    border-bottom: none;
+}
+
+/* ===== 중앙: 헤더(저장할 진료기록 + 신규버튼) ===== */
+.middleHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 10px;
+    margin-bottom: 4px;
+}
+
+.middleHeader > div {
+    flex: 1;
+}
+
+.newRecordButton {
+    flex-shrink: 0;
+    padding: 9px 14px;
+    background: #eff6ff;
+    color: #2563eb;
+    border: 1px solid #bfdbfe;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.15s ease;
+}
+
+.newRecordButton:hover {
+    background: #dbeafe;
+}
+
+/* ===== 중앙: AI 요약 박스 ===== */
+.aiSummaryBox {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+}
+
+.aiSummaryHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.aiSummaryHeader > span {
+    font-size: 13px;
+    font-weight: 800;
+    color: #334155;
+}
+
+.aiSummaryButton {
+    padding: 5px 12px;
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.aiSummaryButton:hover {
+    background: #1d4ed8;
+}
+
+.aiSummaryText {
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: #475569;
+    margin: 0;
+    white-space: pre-line;
+}
+
+.aiApiNotice {
+    font-size: 11px;
+    color: #94a3b8;
+    margin: 4px 0 0 0;
+    text-align: right;
+    line-height: 1.4;
+}
+
+/* ===== 중앙: SOAP 입력 그리드 ===== */
+.soapGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    flex: 1;
+    min-height: 0;
+}
+
+.soapBox {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.soapLabel {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    width: fit-content;
+}
+
+.soapLabel::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.soapS { color: #2563eb; }
+.soapS::before { background: #2563eb; }
+.soapO { color: #dc2626; }
+.soapO::before { background: #dc2626; }
+.soapA { color: #d97706; }
+.soapA::before { background: #d97706; }
+.soapP { color: #16a34a; }
+.soapP::before { background: #16a34a; }
+
+.soapTextarea {
+    flex: 1;
+    min-height: 90px;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: inherit;
+    color: #1e293b;
+    resize: none;
+    box-sizing: border-box;
+}
+
+.soapTextarea::placeholder {
+    color: #94a3b8;
+}
+
+.soapTextarea:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* ===== 우측: OCS/서류발급 컬럼 ===== */
+.rightContent {
+    flex: 1;
+    overflow-y: auto;
+    font-size: 13px;
+    color: #334155;
+}
+
+.patientName {
+    font-size: 23.5px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.patientMeta {
+    margin-left: 8px;
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.documentTabNoPadding {
+  padding: 0 !important;
+}
+
+.treatmentEndCheckbox {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;      /* 다른 라벨들(fieldLabel 등)이 다 굵은 글씨라서 통일 */
+    color: #5a5e6bcb;        /* #444 대신 기존 팔레트의 진한 회색 사용 */
+    cursor: pointer;
+    white-space: nowrap;   /* 글자가 줄바꿈되지 않게 (좁은 공간에 있을 때 깨지는 것 방지) */
+}
+
+/* 체크박스 자체(네모 박스)도 다른 버튼들의 파란색(#2563eb)과 맞춤 */
+.treatmentEndCheckbox input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    accent-color: #5a5e6bcb;   /* 체크됐을 때 색상을 사이트 전체의 메인 파란색으로 통일 */
+    cursor: pointer;
+}
+
+/* 체크박스와 신규 진료기록 버튼을 한 덩어리로 묶는 감싸는 상자 */
+.middleHeader > div.middleHeaderRight {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: none;
+    margin-bottom: 16px;
+}
+
+/* 발표/시연용 샘플 데이터 버튼 줄 - SOAP 칸 바로 위, 오른쪽 정렬 */
+.demoFillRow {
+    display: flex;
+    justify-content: flex-end;
+    margin: 8px 0 4px 0;
+}
+
+.demoFillButton {
+    padding: 4px 10px;
+    background: #fef3c7;
+    color: #b45309;
+    border: 1px dashed #f59e0b;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.demoFillButton:hover {
+    background: #fde68a;
+}

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ddit.patient.mapper.PatientNoticeMapper">
+
+	<!-- 공지사항 목록 조회 -->
+	<select id="selectNoticeList" resultType="ddit.patient.vo.PatientNoticeVO">
+		SELECT *
+		FROM (
+			SELECT ROWNUM AS rn,
+			       A.*
+			FROM (
+				SELECT
+					N.NOTICE_NUMBER    AS noticeNumber,
+					NULL               AS noticeCode,
+					N.NOTICE_TITLE     AS noticeTitle,
+					N.NOTICE_CONTENT   AS noticeContent,
+					N.NOTICE__DATE     AS noticeDate,
+					NVL(N.VIEWS, 0)    AS views,
+					N.NOTICE_CATEGORY  AS noticeCategory,
+					N.NOTICE_AUTHOR    AS employeeCode
+				FROM ADMIN_NOTICE N
+				<where>
+					<if test="keyword != null and keyword != ''">
+						AND (
+							N.NOTICE_TITLE LIKE '%' || #{keyword} || '%'
+							OR DBMS_LOB.INSTR(N.NOTICE_CONTENT, #{keyword}) &gt; 0
+						)
+					</if>
+
+					<if test="category != null and category != ''">
+						AND N.NOTICE_CATEGORY = #{category}
+					</if>
+				</where>
+				ORDER BY N.NOTICE_NUMBER DESC
+			) A
+			WHERE ROWNUM &lt;= #{endRow}
+		)
+		WHERE rn &gt;= #{startRow}
+	</select>
+
+	<!-- 공지사항 전체 개수 조회 -->
+	<select id="selectNoticeCount" resultType="int">
+		SELECT COUNT(*)
+		FROM ADMIN_NOTICE N
+		<where>
+			<if test="keyword != null and keyword != ''">
+				AND (
+					N.NOTICE_TITLE LIKE '%' || #{keyword} || '%'
+					OR DBMS_LOB.INSTR(N.NOTICE_CONTENT, #{keyword}) &gt; 0
+				)
+			</if>
+
+			<if test="category != null and category != ''">
+				AND N.NOTICE_CATEGORY = #{category}
+			</if>
+		</where>
+	</select>
+
+	<!-- 공지사항 상세 조회 -->
+	<select id="selectNoticeDetail" resultType="ddit.patient.vo.PatientNoticeVO">
+		SELECT
+			N.NOTICE_NUMBER    AS noticeNumber,
+			NULL               AS noticeCode,
+			N.NOTICE_TITLE     AS noticeTitle,
+			N.NOTICE_CONTENT   AS noticeContent,
+			N.NOTICE__DATE     AS noticeDate,
+			NVL(N.VIEWS, 0)    AS views,
+			N.NOTICE_CATEGORY  AS noticeCategory,
+			N.NOTICE_AUTHOR    AS employeeCode
+		FROM ADMIN_NOTICE N
+		WHERE N.NOTICE_NUMBER = #{noticeNumber}
+	</select>
+
+	<!-- 공지사항 조회수 증가 -->
+	<update id="updateNoticeViews">
+		UPDATE ADMIN_NOTICE
+		   SET VIEWS = NVL(VIEWS, 0) + 1
+		 WHERE NOTICE_NUMBER = #{noticeNumber}
+	</update>
+
+	<!-- 이전 공지사항 조회 -->
+	<select id="selectPrevNotice" resultType="ddit.patient.vo.PatientNoticeVO">
+		SELECT *
+		FROM (
+			SELECT
+				N.NOTICE_NUMBER    AS noticeNumber,
+				NULL               AS noticeCode,
+				N.NOTICE_TITLE     AS noticeTitle,
+				N.NOTICE_CONTENT   AS noticeContent,
+				N.NOTICE__DATE     AS noticeDate,
+				NVL(N.VIEWS, 0)    AS views,
+				N.NOTICE_CATEGORY  AS noticeCategory,
+				N.NOTICE_AUTHOR    AS employeeCode
+			FROM ADMIN_NOTICE N
+			WHERE N.NOTICE_NUMBER &lt; #{noticeNumber}
+			ORDER BY N.NOTICE_NUMBER DESC
+		)
+		WHERE ROWNUM = 1
+	</select>
+
+	<!-- 다음 공지사항 조회 -->
+	<select id="selectNextNotice" resultType="ddit.patient.vo.PatientNoticeVO">
+		SELECT *
+		FROM (
+			SELECT
+				N.NOTICE_NUMBER    AS noticeNumber,
+				NULL               AS noticeCode,
+				N.NOTICE_TITLE     AS noticeTitle,
+				N.NOTICE_CONTENT   AS noticeContent,
+				N.NOTICE__DATE     AS noticeDate,
+				NVL(N.VIEWS, 0)    AS views,
+				N.NOTICE_CATEGORY  AS noticeCategory,
+				N.NOTICE_AUTHOR    AS employeeCode
+			FROM ADMIN_NOTICE N
+			WHERE N.NOTICE_NUMBER &gt; #{noticeNumber}
+			ORDER BY N.NOTICE_NUMBER ASC
+		)
+		WHERE ROWNUM = 1
+	</select>
+
+</mapper>

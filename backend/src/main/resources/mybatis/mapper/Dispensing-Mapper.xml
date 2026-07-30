@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ddit.pharmacist.mapper.DispensingMapper">
+
+    <!-- 공통: 조제 목록 (대기/이력 공용, statusFilter만 다름) -->
+    <sql id="orderListBase">
+        SELECT
+            dp.MEDICAL_NUMBER                        AS medicalNumber,
+            pm.MEMBER_NAME                           AS patientName,
+            pm.RESIDENT_REGISTRATION_NUMBER          AS residentNumber,
+            dm.MEMBER_NAME                           AS employeeName,
+            dept.DEPARTMENT_NAME                     AS deptName,
+            TO_CHAR(MIN(dp.PRESCRIPTION_DATE), 'YYYY-MM-DD HH24:MI') AS prescriptionDate,
+            TO_CHAR(MAX(dp.DISPENSE_COMPLETED_DATE), 'YYYY-MM-DD HH24:MI') AS dispenseCompletedDate,
+            MAX(dp.PRESCRIPTION_STATUS)              AS prescriptionStatus,
+            (
+                SELECT cm2.CODENAME_1
+                FROM DOCTOR_PRESCRIPTION dp2
+                JOIN MEDICINE m2 ON dp2.MEDICINE_CODE = m2.MEDICINE_CODE
+                JOIN COMMONCODE cm2 ON m2.MEDICINE_NAME = cm2.COMMONCODE_NUMBER AND cm2.COMMONCODE = 'M'
+                WHERE dp2.MEDICAL_NUMBER = dp.MEDICAL_NUMBER AND ROWNUM = 1
+            )
+                || CASE WHEN COUNT(*) > 1 THEN ' 외 ' || (COUNT(*) - 1) || '건' ELSE '' END AS orderName,
+            (
+                SELECT cc2.CODENAME_2
+                FROM DOCTOR_PRESCRIPTION dp3
+                JOIN MEDICINE m3 ON dp3.MEDICINE_CODE = m3.MEDICINE_CODE
+                JOIN COMMONCODE cc2 ON m3.MEDICINE_CATEGORY = cc2.COMMONCODE_NUMBER AND cc2.COMMONCODE = 'C'
+                WHERE dp3.MEDICAL_NUMBER = dp.MEDICAL_NUMBER AND ROWNUM = 1
+            ) AS medicineRoute
+        FROM DOCTOR_PRESCRIPTION dp
+        JOIN RECEPTIONIST_REGISTER rr ON dp.MEDICAL_NUMBER = rr.MEDICAL_NUMBER
+        JOIN MEMBER pm ON rr.MEMBER_NUMBER = pm.MEMBER_NUMBER
+        JOIN MEMBER dm ON rr.DOCTOR_NUMBER = dm.MEMBER_NUMBER
+        LEFT JOIN EMPLOYEE emp ON rr.DOCTOR_NUMBER = emp.MEMBER_NUMBER
+        LEFT JOIN DEPARTMENT dept ON emp.DEPARTMENT_CODE = dept.DEPARTMENT_CODE
+    </sql>
+
+    <!-- 조제 대기 목록 (PRESCRIPTION_STATUS = 'N'(대기)) -->
+    <select id="selectDispensingOrderList" resultType="ddit.pharmacist.vo.DispensingOrderVO">
+        <include refid="orderListBase" />
+        WHERE dp.PRESCRIPTION_STATUS = 'N'
+        GROUP BY
+            dp.MEDICAL_NUMBER
+            , pm.MEMBER_NAME
+            , pm.RESIDENT_REGISTRATION_NUMBER
+            , dm.MEMBER_NAME
+            , dept.DEPARTMENT_NAME
+        ORDER BY MIN(dp.PRESCRIPTION_DATE) ASC
+    </select>
+
+    <!-- 조제 이력 목록 (PRESCRIPTION_STATUS = 'Y(완료)') -->
+    <select id="selectDispensingHistoryList" resultType="ddit.pharmacist.vo.DispensingOrderVO">
+        <include refid="orderListBase" />
+        WHERE dp.PRESCRIPTION_STATUS = 'Y'
+        GROUP BY
+            dp.MEDICAL_NUMBER
+            , pm.MEMBER_NAME
+            , pm.RESIDENT_REGISTRATION_NUMBER
+            , dm.MEMBER_NAME
+            , dept.DEPARTMENT_NAME
+        ORDER BY MIN(dp.PRESCRIPTION_DATE) DESC
+    </select>
+
+    <!-- 공통: 조제 상세 (약품 목록) -->
+    <sql id="orderDetailBase">
+        SELECT
+            dp.MEDICAL_NUMBER            AS medicalNumber,
+            dp.MEDICINE_CODE              AS medicineCode,
+            cm.CODENAME_1                 AS medicineName,
+            cc.CODENAME_1                 AS medicineCategoryName,
+            cc.CODENAME_2                 AS medicineRoute,
+            TO_CHAR(dp.DISPENSE_COMPLETED_DATE, 'YYYY-MM-DD HH24:MI') AS dispenseCompletedDate,
+            m.CURRENT_QUANTITY            AS currentQuantity,
+            m.MIN_QUANTITY                AS minQuantity,
+            dp.TOTAL_QTY                  AS totalQty,
+            dp.FREQUENCY                  AS frequency,
+            dp.NUMBER_OF_DAYS_ADMINISTERED AS numberOfDaysAdministered,
+            dp.PRESCRIPTION_STATUS        AS prescriptionStatus
+        FROM DOCTOR_PRESCRIPTION dp
+        JOIN MEDICINE m ON dp.MEDICINE_CODE = m.MEDICINE_CODE
+        LEFT JOIN COMMONCODE cm ON m.MEDICINE_NAME = cm.COMMONCODE_NUMBER AND cm.COMMONCODE = 'M'
+        LEFT JOIN COMMONCODE cc ON m.MEDICINE_CATEGORY = cc.COMMONCODE_NUMBER AND cc.COMMONCODE = 'C'
+    </sql>
+
+    <!-- 조제 대기 상세 -->
+    <select id="selectDispensingOrderDetail" parameterType="String" resultType="ddit.pharmacist.vo.DispensingDetailVO">
+        <include refid="orderDetailBase" />
+        WHERE dp.MEDICAL_NUMBER = #{medicalNumber}
+            AND dp.PRESCRIPTION_STATUS = 'N'
+        ORDER BY dp.MEDICINE_CODE
+    </select>
+
+    <!-- 조제 이력 상세 -->
+    <select id="selectDispensingHistoryDetail" parameterType="String" resultType="ddit.pharmacist.vo.DispensingDetailVO">
+        <include refid="orderDetailBase" />
+        WHERE dp.MEDICAL_NUMBER = #{medicalNumber}
+            AND dp.PRESCRIPTION_STATUS = 'Y'
+        ORDER BY dp.MEDICINE_CODE
+    </select>
+
+    <!-- 조제 완료 시 재고 차감 -->
+    <!-- 반드시 updateDispenseComplete보다 먼저 호출(PRESCRIPTION_STATUS가 'N'인 동안 조회해야 함) -->
+    <update id="decrementMedicineStock" parameterType="String">
+        UPDATE MEDICINE m
+        SET m.CURRENT_QUANTITY = m.CURRENT_QUANTITY - (
+            SELECT NVL(SUM(dp.TOTAL_QTY), 0)
+            FROM DOCTOR_PRESCRIPTION dp
+            WHERE dp.MEDICAL_NUMBER = #{medicalNumber}
+              AND dp.MEDICINE_CODE = m.MEDICINE_CODE
+              AND dp.PRESCRIPTION_STATUS = 'N'
+        )
+        WHERE m.MEDICINE_CODE IN (
+            SELECT dp2.MEDICINE_CODE
+            FROM DOCTOR_PRESCRIPTION dp2
+            WHERE dp2.MEDICAL_NUMBER = #{medicalNumber}
+              AND dp2.PRESCRIPTION_STATUS = 'N'
+        )
+    </update>
+
+    <!-- 조제 완료 처리 (해당 진료번호의 모든 약품을 한번에 완료 처리, 완료일시 기록) -->
+    <update id="updateDispenseComplete" parameterType="String">
+        UPDATE DOCTOR_PRESCRIPTION
+        SET PRESCRIPTION_STATUS = 'Y', DISPENSE_COMPLETED_DATE = SYSDATE
+        WHERE MEDICAL_NUMBER = #{medicalNumber}
+          AND PRESCRIPTION_STATUS = 'N'
+    </update>
+
+</mapper>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ddit.member.mapper.DepartmentMapper">
+
+    <select id="selectAllDepartments" resultType="ddit.member.vo.DepartmentVO">
+        SELECT
+            DEPARTMENT_CODE AS departmentCode,
+            DEPARTMENT_NAME AS departmentName
+        FROM DEPARTMENT
+        ORDER BY DEPARTMENT_CODE
+    </select>
+
+</mapper>

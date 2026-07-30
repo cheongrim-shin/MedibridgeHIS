@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ddit.receptionist.mapper.PaymentMapper">
+
+	<!-- 마스터 (인서트) PK를 먼저 뽑아 VO에 담음-->
+	<insert id="insertPayment" parameterType="paymentCreateVO">
+		<selectKey keyProperty="paymentNumber" resultType="long" order="BEFORE">
+			SELECT SEQ_PAYMENT_NUMBER.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO payment(
+			    payment_number
+			  , medical_number
+		      , payment_type
+			  , payment_date
+			  , total_amount
+		      , payment_status
+		) VALUES (
+			    #{paymentNumber}
+			  , #{medicalNumber}
+			  , #{paymentType}
+			  , SYSDATE
+			  , #{totalAmount}
+			  , '수납완료'
+		)
+	</insert>
+	
+	<!-- 디테일 인서트1행 -->
+	<insert id="insertPaymentHistory" parameterType="paymentDetailVO">
+		INSERT INTO payment_history (
+		    payment_number
+		    , medical_number
+		    , line_no
+		    , payment_detail_name
+		    , amount
+		) VALUES (
+		      #{paymentNumber}
+		    , #{medicalNumber}
+		    , #{lineNo}
+		    , #{paymentDetailName}
+		    , #{amount}
+		)
+	</insert>
+	
+	<!-- 상세 조회 (상세 패널 "수납 내역" 표시용) -->
+	<select id="selectPaymentHistoryList" resultType="paymentDetailVO">
+	    SELECT PAYMENT_NUMBER, MEDICAL_NUMBER, LINE_NO
+         	 , PAYMENT_DETAIL_NAME, AMOUNT
+	      FROM PAYMENT_HISTORY 
+	     WHERE MEDICAL_NUMBER = #{medicalNumber}
+	     ORDER BY PAYMENT_NUMBER, LINE_NO                   
+	</select>
+		
+	<!-- 접수 상태 -> 수납완료 -->
+	<update id="updateReceiptStatusPaid" parameterType="string">
+		UPDATE receptionist_register
+           SET receipt_status = '수납완료'
+         WHERE medical_number = #{medicalNumber}
+         AND RECEIPT_STATUS = '수납대기'
+	</update>
+	
+	<!-- 진찰료, 물리, 주사, 약 (해석..필요) -->
+	<select id="selectChargeList" resultType="paymentDetailVO">
+	    SELECT c.CODENAME_1                               AS paymentDetailName
+	         , TO_CHAR(NVL(c.CONTRIBUTION, c.UNIT_PRICE)) AS amount
+	      FROM COMMONCODE c
+	     WHERE c.COMMONCODE = 'A'
+	       AND c.COMMONCODE_NUMBER =
+	           ( SELECT CASE WHEN COUNT(*) > 1 
+	           			THEN 'A02' ELSE 'A01' END
+	               FROM RECEPTIONIST_REGISTER rr2
+	              WHERE rr2.MEMBER_NUMBER = ( SELECT MEMBER_NUMBER FROM RECEPTIONIST_REGISTER
+	                                           WHERE MEDICAL_NUMBER = #{medicalNumber} ) )
+	    UNION ALL
+	  
+	    SELECT r.TREATMENT_ITEM_NAME
+	         , TO_CHAR(NVL(c.CONTRIBUTION, c.UNIT_PRICE))
+	      FROM PHYSICALTHERAPIST_RECORDS r
+	      JOIN COMMONCODE c ON c.COMMONCODE = 'P' 
+	       AND c.CODENAME_1 = r.TREATMENT_ITEM_NAME
+	     WHERE r.MEDICAL_NUMBER = #{medicalNumber} 
+	       AND r.TREATMENT_STATUS = '치료완료'
+	       
+	    UNION ALL
+	   
+		SELECT m.MEDICINE_NAME || ' 주사' AS paymentDetailName
+			 , TO_CHAR( NVL(NULLIF(m.CONTRIBUTION, 0), m.UNIT_COST) * TO_NUMBER(NVL(i.DOSAGE, '1')) ) AS amount
+		  FROM OUTPATIENTNURSE_INJECTION i
+		  JOIN MEDICINE m ON m.MEDICINE_CODE = i.MEDICINE_CODE
+		 WHERE i.MEDICAL_NUMBER = #{medicalNumber} 
+		   AND i.INJECTED_YN = 'Y'
+		
+		UNION ALL
+		
+		SELECT m.MEDICINE_NAME || ' (' || p.TOTAL_QTY || '개)' AS paymentDetailName
+		     , TO_CHAR( NVL(m.CONTRIBUTION, m.UNIT_COST) * NVL(p.TOTAL_QTY, 1) ) AS amount
+		  FROM DOCTOR_PRESCRIPTION p
+		  JOIN MEDICINE m ON m.MEDICINE_CODE = p.MEDICINE_CODE
+		 WHERE p.MEDICAL_NUMBER = #{medicalNumber} 
+		   AND p.PRESCRIPTION_STATUS = 'Y'
+	</select>
+
+</mapper>

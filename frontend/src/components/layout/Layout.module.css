@@ -1,0 +1,522 @@
+/* ==========================================================================
+   Layout Module Styles (레이아웃 시스템 통합 스타일)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   LayoutContainer: 전체 화면 레이아웃 컨테이너
+   -------------------------------------------------------------------------- */
+.layoutContainer {
+    display: flex;
+    height: 100vh;
+    min-height: 600px;
+    min-width: 1440px;
+    background: #f8fafc;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #1e293b;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+/* --------------------------------------------------------------------------
+   LayoutBody: 메인 컨텐츠 영역 내부의 실제 데이터 뷰포트
+   -------------------------------------------------------------------------- */
+.contentViewport {
+    flex: 1;
+    padding: 32px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* 패딩이 없는 꽉 찬 레이아웃이 필요한 경우 사용 */
+.noPadding {
+    padding: 0;
+}
+
+/* --------------------------------------------------------------------------
+   LayoutMain: 사이드바를 제외한 우측 메인 콘텐츠 영역 랩퍼
+   -------------------------------------------------------------------------- */
+.mainWrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    min-height: 600px;
+    overflow-y: auto;
+    background: #f8fafc;
+    box-sizing: border-box;
+}
+
+/* --------------------------------------------------------------------------
+   LayoutHeader: 우측 영역 상단 헤더 바
+   -------------------------------------------------------------------------- */
+.mainHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 70px;
+    padding: 0 32px;
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+/* 헤더 왼쪽 구역 (타이틀, 배지 등) */
+.headerLeft {
+    display: flex;
+    flex-direction: column;
+}
+
+/* 헤더 오른쪽 구역 (액션 버튼, 시간 등) */
+.headerRight {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* 헤더 타이틀 영역 */
+.headerTitleArea {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 헤더 타이틀 텍스트 */
+.headerTitleText {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.2;
+}
+
+/* 헤더 타이틀 옆에 표시되는 상태 배지 */
+.headerBadge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 12px;
+    background: #f1f5f9;
+    text-transform: uppercase;
+    border: 1px solid transparent;
+    line-height: 1;
+}
+
+/* 배지 색상 테마별 정의 */
+.badge_green { color: #16a34a; border-color: #16a34a; }
+.badge_indigo { color: #4f46e5; border-color: #4f46e5; }
+.badge_violet { color: #7c3aed; border-color: #7c3aed; }
+.badge_red { color: #dc2626; border-color: #dc2626; }
+.badge_gray { color: #475569; border-color: #475569; }
+.badge_slate { color: #475569; border-color: #475569; }
+.badge_teal { color: #0d9488; border-color: #0d9488; }
+.badge_amber { color: #d97706; border-color: #d97706; }
+.badge_blue { color: #2563eb; border-color: #2563eb; }
+
+/* 헤더 우측 시간 표시 위젯 */
+.timeWidget {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 6px 12px;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+/* 시간 위젯 내 아이콘 */
+.widgetIcon {
+    width: 15px;
+    height: 15px;
+    stroke-width: 2.2;
+}
+
+/* 시간 위젯 아이콘 색상 테마별 정의 */
+.widgetIcon_green { color: #16a34a; }
+.widgetIcon_indigo { color: #4f46e5; }
+.widgetIcon_violet { color: #7c3aed; }
+.widgetIcon_red { color: #dc2626; }
+.widgetIcon_gray { color: #475569; }
+.widgetIcon_slate { color: #475569; }
+.widgetIcon_teal { color: #0d9488; }
+.widgetIcon_amber { color: #d97706; }
+.widgetIcon_blue { color: #2563eb; }
+
+/* 시간 텍스트 (고정폭 폰트 적용으로 글자 흔들림 방지) */
+.timeText {
+    font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------------------
+   LayoutSidebar: 좌측 메뉴 네비게이션 사이드바
+   -------------------------------------------------------------------------- */
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border-right: 1px solid #e2e8f0;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: visible;
+    flex-shrink: 0;
+    box-sizing: border-box;
+}
+
+/* 사이드바 상단 로고 구역 */
+.sidebarHeader {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 16px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    min-height: 70px;
+    box-sizing: border-box;
+    position: relative;
+    transition: padding 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 로고 레이아웃 */
+.logoArea {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow: hidden;
+    max-width: 180px;
+    opacity: 1;
+    flex-shrink: 0;
+    transition: opacity 0.13s ease 0.12s, max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1) 0s;
+}
+
+/* 로고 내 그래픽 아이콘 */
+.logoIcon {
+    width: 24px;
+    height: 24px;
+    color: currentColor;
+    flex-shrink: 0;
+}
+
+/* 로고 내 텍스트 */
+.logoText {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    white-space: nowrap;
+    opacity: 1;
+    flex-shrink: 0;
+}
+
+.logoText span {
+    color: inherit;
+    filter: brightness(0.9);
+}
+
+/* 사이드바가 접혔을 때 로고 영역 숨김 처리 */
+.logoAreaCollapsed {
+    opacity: 0;
+    max-width: 0;
+    pointer-events: none;
+    transition: opacity 0.08s ease 0s, max-width 0.17s cubic-bezier(0.4, 0, 0.2, 1) 0.08s;
+}
+
+/* 접힌 상태의 사이드바 헤더 패딩 */
+.sidebarHeaderCollapsed {
+    padding: 16px 0;
+}
+
+/* 사이드바 펼치기/접기 버튼 (기본형) */
+.toggleBtn {
+    background: #4f46e5;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 22px;
+    border-radius: 4px 0 0 4px;
+    padding: 0;
+    transition: 
+        background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
+        color 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
+        right 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
+        height 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
+        border-radius 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* 사이드바가 접혔을 때의 토글 버튼 스타일 */
+.toggleBtnCollapsed {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: #f1f5f9;
+    color: #64748b;
+    box-shadow: none;
+    position: absolute;
+    right: 22px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.toggleBtnCollapsed:hover {
+    background-color: #e2e8f0;
+    color: #1e293b;
+}
+
+.arrowIcon {
+    width: 14px;
+    height: 14px;
+}
+
+/* 사이드바 내부 네비게이션 메뉴 목록 컨테이너 */
+.menuContainer {
+    flex: 1;
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow-y: auto;
+}
+
+/* 메뉴 항목 랩퍼 */
+.menuWrapper {
+    position: relative;
+}
+
+/* 메뉴 내부 링크 버튼 */
+.menuLink {
+    display: flex;
+    align-items: center;
+    padding: 12px 14px;
+    color: #64748b;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 14.5px;
+    font-weight: 500;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    box-sizing: border-box;
+    height: 48px;
+    overflow: hidden;
+}
+
+.menuLink:hover {
+    background: #f8fafc;
+    color: #1e293b;
+}
+
+/* --------------------------------------------------------------------------
+   Color theme mappings: 최상위 .color_[theme] 자손 선택자 기반 테마별 스타일 지정
+   -------------------------------------------------------------------------- */
+
+/* 1. Indigo Theme */
+.color_indigo .logoIcon { color: #4f46e5; }
+.color_indigo .logoText span { color: #4f46e5; }
+.color_indigo .toggleBtn:not(.toggleBtnCollapsed) { background: #4f46e5; }
+.color_indigo .toggleBtn:not(.toggleBtnCollapsed):hover { background: #3b31d8; }
+.color_indigo .menuLinkActive:not(:hover) { background: #eeebff; }
+.color_indigo .menuLinkActive { color: #4f46e5 !important; font-weight: 600; }
+.color_indigo .menuLinkActive .iconWrapper { color: #4f46e5 !important; }
+
+/* 2. Violet Theme */
+.color_violet .logoIcon { color: #7c3aed; }
+.color_violet .logoText span { color: #7c3aed; }
+.color_violet .toggleBtn:not(.toggleBtnCollapsed) { background: #7c3aed; }
+.color_violet .toggleBtn:not(.toggleBtnCollapsed):hover { background: #6d28d9; }
+.color_violet .menuLinkActive:not(:hover) { background: #f5f3ff; }
+.color_violet .menuLinkActive { color: #7c3aed !important; font-weight: 600; }
+.color_violet .menuLinkActive .iconWrapper { color: #7c3aed !important; }
+
+/* 3. Green Theme (Default) */
+.color_green .logoIcon { color: #0f766e; }
+.color_green .logoText span { color: #0f766e; }
+.color_green .toggleBtn:not(.toggleBtnCollapsed) { background: #0f766e; }
+.color_green .toggleBtn:not(.toggleBtnCollapsed):hover { background: #0d524c; }
+.color_green .menuLinkActive:not(:hover) { background: #ECF9F2; }
+.color_green .menuLinkActive { color: #1B7458 !important; font-weight: 600; }
+.color_green .menuLinkActive .iconWrapper { color: #1B7458 !important; }
+
+/* 4. Red Theme */
+.color_red .logoIcon { color: #dc2626; }
+.color_red .logoText span { color: #dc2626; }
+.color_red .toggleBtn:not(.toggleBtnCollapsed) { background: #dc2626; }
+.color_red .toggleBtn:not(.toggleBtnCollapsed):hover { background: #b91c1c; }
+.color_red .menuLinkActive:not(:hover) { background: #fef2f2; }
+.color_red .menuLinkActive { color: #dc2626 !important; font-weight: 600; }
+.color_red .menuLinkActive .iconWrapper { color: #dc2626 !important; }
+
+/* 5. Gray Theme */
+.color_gray .logoIcon { color: #6b7280; }
+.color_gray .logoText span { color: #6b7280; }
+.color_gray .toggleBtn:not(.toggleBtnCollapsed) { background: #6b7280; }
+.color_gray .toggleBtn:not(.toggleBtnCollapsed):hover { background: #4b5563; }
+.color_gray .toggleBtnCollapsed { background: #f3f4f6; color: #9ca3af; }
+.color_gray .toggleBtnCollapsed:hover { background-color: #e5e7eb; color: #374151; }
+.color_gray .menuLinkActive:not(:hover) { background: #f3f4f6; }
+.color_gray .menuLinkActive { color: #6b7280 !important; font-weight: 600; }
+.color_gray .menuLinkActive .iconWrapper { color: #6b7280 !important; }
+
+/* 6. Slate Theme */
+.color_slate .logoIcon { color: #475569; }
+.color_slate .logoText span { color: #475569; }
+.color_slate .toggleBtn:not(.toggleBtnCollapsed) { background: #475569; }
+.color_slate .toggleBtn:not(.toggleBtnCollapsed):hover { background: #334155; }
+.color_slate .menuLinkActive:not(:hover) { background: #f1f5f9; }
+.color_slate .menuLinkActive { color: #475569 !important; font-weight: 600; }
+.color_slate .menuLinkActive .iconWrapper { color: #475569 !important; }
+
+/* 7. Teal Theme */
+.color_teal .logoIcon { color: #0d9488; }
+.color_teal .logoText span { color: #0d9488; }
+.color_teal .toggleBtn:not(.toggleBtnCollapsed) { background: #0d9488; }
+.color_teal .toggleBtn:not(.toggleBtnCollapsed):hover { background: #0f766e; }
+.color_teal .menuLinkActive:not(:hover) { background: #f0fdfa; }
+.color_teal .menuLinkActive { color: #0d9488 !important; font-weight: 600; }
+.color_teal .menuLinkActive .iconWrapper { color: #0d9488 !important; }
+
+/* 8. Amber Theme */
+.color_amber .logoIcon { color: #d97706; }
+.color_amber .logoText span { color: #d97706; }
+.color_amber .toggleBtn:not(.toggleBtnCollapsed) { background: #d97706; }
+.color_amber .toggleBtn:not(.toggleBtnCollapsed):hover { background: #b45309; }
+.color_amber .menuLinkActive:not(:hover) { background: #fffbeb; }
+.color_amber .menuLinkActive { color: #d97706 !important; font-weight: 600; }
+.color_amber .menuLinkActive .iconWrapper { color: #d97706 !important; }
+
+/* 9. Blue Theme */
+.color_blue .logoIcon { color: #2563eb; }
+.color_blue .logoText span { color: #2563eb; }
+.color_blue .toggleBtn:not(.toggleBtnCollapsed) { background: #2563eb; }
+.color_blue .toggleBtn:not(.toggleBtnCollapsed):hover { background: #1d4ed8; }
+.color_blue .menuLinkActive:not(:hover) { background: #eff6ff; }
+.color_blue .menuLinkActive { color: #2563eb !important; font-weight: 600; }
+.color_blue .menuLinkActive .iconWrapper { color: #2563eb !important; }
+
+/* 접힌 상태의 메뉴 링크 스타일 */
+.menuLinkCollapsed {
+    justify-content: flex-start;
+    padding: 12px 14px;
+}
+
+/* 메뉴 항목 아이콘 감싸는 영역 */
+.iconWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    transition: color 0.2s ease;
+    flex-shrink: 0;
+}
+
+.iconWrapper svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    fill: none;
+}
+
+/* 메뉴 이름 텍스트 라벨 */
+.linkLabel {
+    white-space: nowrap;
+    opacity: 1;
+    max-width: 150px;
+    margin-left: 12px;
+    transition: opacity 0.13s ease 0.12s, max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1) 0s, margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1) 0s;
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1.2;
+}
+
+/* 접힌 상태의 메뉴 이름 텍스트 숨김 처리 */
+.linkLabelCollapsed {
+    opacity: 0;
+    max-width: 0;
+    margin-left: 0;
+    pointer-events: none;
+    transition: opacity 0.08s ease 0s, max-width 0.17s cubic-bezier(0.4, 0, 0.2, 1) 0.08s, margin-left 0.17s cubic-bezier(0.4, 0, 0.2, 1) 0.08s;
+}
+
+/* 사이드바 하단 영역 (로그아웃 버튼 등 배치) */
+.sidebarFooter {
+    padding: 16px 12px;
+    box-sizing: border-box;
+}
+
+/* 로그아웃 버튼 스타일 */
+.logoutBtn {
+    color: #64748b !important;
+}
+
+.logoutBtn:hover {
+    background-color: #fef2f2 !important;
+    color: #9f1239 !important;
+}
+
+.logoutBtn:hover .logoutIcon svg {
+    stroke: #9f1239 !important;
+}
+
+/* 사이드바가 접혔을 때 마우스 오버 시 우측에 뜨는 툴팁 말풍선 */
+.tooltip {
+    position: absolute;
+    left: 80px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #1e293b;
+    color: #ffffff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12.5px;
+    font-weight: 500;
+    white-space: nowrap;
+    z-index: 100;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    pointer-events: none;
+    animation: fadeIn 0.15s ease-out;
+}
+
+/* 툴팁 말풍선 왼쪽 꼬리표 화살표 */
+.tooltipArrow {
+    position: absolute;
+    left: -4px;
+    top: 50%;
+    transform: translateY(-50%) rotate(45deg);
+    width: 8px;
+    height: 8px;
+    background: #1e293b;
+}
+
+/* 툴팁 등장 애니메이션 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50%) translateX(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0);
+    }
+}
+
+/* 접힌 상태에서 메뉴 컨테이너가 숨겨지지 않고 마우스 오버 툴팁이 밖으로 삐져나갈 수 있도록 설정 */
+.menuContainerCollapsed {
+    overflow: visible !important;
+}

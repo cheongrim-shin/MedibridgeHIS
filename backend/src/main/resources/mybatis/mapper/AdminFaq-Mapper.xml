@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ddit.admin.mapper.AdminFaqMapper">
+    <resultMap id="adminFaqResultMap"
+               type="ddit.admin.vo.AdminFaqVO">
+
+        <id property="faqNumber"
+            column="NOTICE_NUMBER"/>
+
+        <result property="faqTitle"
+                column="NOTICE_TITLE"/>
+
+        <result property="faqContent"
+                column="NOTICE_CONTENT"/>
+
+        <result property="faqDate"
+                column="NOTICE__DATE"/>
+
+        <result property="faqAuthor"
+                column="AUTHOR"/>
+
+    </resultMap>
+
+    <!-- FAQ 목록 -->
+    <select id="selectAdminFaqList"
+            resultMap="adminFaqResultMap">
+
+        SELECT
+            NOTICE_NUMBER,
+            NOTICE_TITLE,
+            NOTICE_CONTENT,
+            NOTICE__DATE,
+            AUTHOR
+        FROM (
+            SELECT
+                F.NOTICE_NUMBER,
+                F.NOTICE_TITLE,
+                F.NOTICE_CONTENT,
+                F.NOTICE__DATE,
+                F.AUTHOR,
+                ROW_NUMBER() OVER (
+                    ORDER BY F.NOTICE_NUMBER DESC
+                ) AS RN
+            FROM FAQ F
+            WHERE 1 = 1
+
+            <if test="keyword != null
+                      and keyword != ''">
+                AND (
+                    F.NOTICE_TITLE LIKE
+                        '%' || #{keyword} || '%'
+
+                    OR DBMS_LOB.INSTR(
+                        F.NOTICE_CONTENT,
+                        #{keyword}
+                    ) > 0
+                )
+            </if>
+        )
+        WHERE RN BETWEEN #{startRow} AND #{endRow}
+
+    </select>
+
+    <!-- FAQ 전체 건수 -->
+    <select id="selectAdminFaqCount"
+            resultType="int">
+
+        SELECT COUNT(*)
+        FROM FAQ F
+        WHERE 1 = 1
+
+        <if test="keyword != null
+                  and keyword != ''">
+            AND (
+                F.NOTICE_TITLE LIKE
+                    '%' || #{keyword} || '%'
+
+                OR DBMS_LOB.INSTR(
+                    F.NOTICE_CONTENT,
+                    #{keyword}
+                ) > 0
+            )
+        </if>
+
+    </select>
+
+    <!-- FAQ 상세 -->
+    <select id="selectAdminFaqDetail"
+            resultMap="adminFaqResultMap">
+
+        SELECT
+            NOTICE_NUMBER,
+            NOTICE_TITLE,
+            NOTICE_CONTENT,
+            NOTICE__DATE,
+            AUTHOR
+        FROM FAQ
+        WHERE NOTICE_NUMBER = #{faqNumber}
+
+    </select>
+
+    <!-- FAQ 등록 -->
+    <insert id="insertAdminFaq"
+            parameterType="ddit.admin.vo.AdminFaqVO">
+
+        <selectKey keyProperty="faqNumber"
+                   resultType="int"
+                   order="BEFORE">
+
+            SELECT NVL(
+                       MAX(NOTICE_NUMBER),
+                       0
+                   ) + 1
+            FROM FAQ
+
+        </selectKey>
+
+        INSERT INTO FAQ (
+            NOTICE_NUMBER,
+            NOTICE_TITLE,
+            NOTICE_CONTENT,
+            NOTICE__DATE,
+            AUTHOR
+        )
+        VALUES (
+            #{faqNumber},
+            #{faqTitle},
+            #{faqContent},
+            SYSDATE,
+            #{faqAuthor}
+        )
+
+    </insert>
+
+    <!-- FAQ 수정 -->
+    <update id="updateAdminFaq"
+            parameterType="ddit.admin.vo.AdminFaqVO">
+
+        UPDATE FAQ
+        SET
+            NOTICE_TITLE = #{faqTitle},
+            NOTICE_CONTENT = #{faqContent}
+        WHERE NOTICE_NUMBER = #{faqNumber}
+
+    </update>
+
+    <!-- FAQ 삭제 -->
+    <delete id="deleteAdminFaq">
+
+        DELETE FROM FAQ
+        WHERE NOTICE_NUMBER = #{faqNumber}
+
+    </delete>
+
+</mapper>

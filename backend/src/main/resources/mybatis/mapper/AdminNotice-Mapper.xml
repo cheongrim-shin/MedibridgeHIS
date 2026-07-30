@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ddit.admin.mapper.AdminNoticeMapper">
+
+	<!-- 관리자 공지사항 목록 -->
+	<select id="selectAdminNoticeList"
+			resultType="ddit.admin.vo.AdminNoticeVO">
+
+		SELECT *
+		FROM (
+			SELECT
+				ROWNUM AS rn,
+				A.*
+			FROM (
+				SELECT
+					N.NOTICE_NUMBER
+						AS noticeNumber,
+
+					N.NOTICE_TITLE
+						AS noticeTitle,
+
+					N.NOTICE_CONTENT
+						AS noticeContent,
+
+					N.NOTICE__DATE
+						AS noticeDate,
+
+					NVL(N.VIEWS, 0)
+						AS views,
+
+					N.NOTICE_CATEGORY
+						AS noticeCategory,
+
+					N.NOTICE_AUTHOR
+						AS noticeAuthor
+
+				FROM ADMIN_NOTICE N
+
+				<where>
+					<if test="keyword != null and keyword != ''">
+						AND (
+							N.NOTICE_TITLE
+								LIKE '%' || #{keyword} || '%'
+
+							OR DBMS_LOB.INSTR(
+								N.NOTICE_CONTENT,
+								#{keyword}
+							) &gt; 0
+						)
+					</if>
+
+					<if test="category != null and category != ''">
+						AND N.NOTICE_CATEGORY
+								= #{category}
+					</if>
+				</where>
+
+				ORDER BY N.NOTICE_NUMBER DESC
+			) A
+
+			WHERE ROWNUM &lt;= #{endRow}
+		)
+
+		WHERE rn &gt;= #{startRow}
+	</select>
+
+	<!-- 전체 건수 -->
+	<select id="selectAdminNoticeCount"
+			resultType="int">
+
+		SELECT COUNT(*)
+		FROM ADMIN_NOTICE N
+
+		<where>
+			<if test="keyword != null and keyword != ''">
+				AND (
+					N.NOTICE_TITLE
+						LIKE '%' || #{keyword} || '%'
+
+					OR DBMS_LOB.INSTR(
+						N.NOTICE_CONTENT,
+						#{keyword}
+					) &gt; 0
+				)
+			</if>
+
+			<if test="category != null and category != ''">
+				AND N.NOTICE_CATEGORY
+						= #{category}
+			</if>
+		</where>
+	</select>
+
+	<!-- 상세 조회 -->
+	<select id="selectAdminNoticeDetail"
+			resultType="ddit.admin.vo.AdminNoticeVO">
+
+		SELECT
+			N.NOTICE_NUMBER
+				AS noticeNumber,
+
+			N.NOTICE_TITLE
+				AS noticeTitle,
+
+			N.NOTICE_CONTENT
+				AS noticeContent,
+
+			N.NOTICE__DATE
+				AS noticeDate,
+
+			NVL(N.VIEWS, 0)
+				AS views,
+
+			N.NOTICE_CATEGORY
+				AS noticeCategory,
+
+			N.NOTICE_AUTHOR
+				AS noticeAuthor
+
+		FROM ADMIN_NOTICE N
+
+		WHERE N.NOTICE_NUMBER
+				= #{noticeNumber}
+	</select>
+
+	<!-- 등록 -->
+	<insert id="insertAdminNotice"
+			parameterType="ddit.admin.vo.AdminNoticeVO">
+
+		<selectKey
+				keyProperty="noticeNumber"
+				resultType="java.lang.Integer"
+				order="BEFORE">
+
+			SELECT
+				NVL(MAX(NOTICE_NUMBER), 0) + 1
+
+			FROM ADMIN_NOTICE
+		</selectKey>
+
+		INSERT INTO ADMIN_NOTICE (
+			NOTICE_NUMBER,
+			NOTICE_TITLE,
+			NOTICE_CONTENT,
+			NOTICE__DATE,
+			VIEWS,
+			NOTICE_CATEGORY,
+			NOTICE_AUTHOR
+		)
+		VALUES (
+			#{noticeNumber},
+			#{noticeTitle},
+			#{noticeContent},
+			SYSDATE,
+			0,
+			#{noticeCategory},
+			#{noticeAuthor}
+		)
+	</insert>
+
+	<!-- 수정 -->
+	<update id="updateAdminNotice"
+			parameterType="ddit.admin.vo.AdminNoticeVO">
+
+		UPDATE ADMIN_NOTICE
+
+		SET
+			NOTICE_TITLE
+				= #{noticeTitle},
+
+			NOTICE_CONTENT
+				= #{noticeContent},
+
+			NOTICE_CATEGORY
+				= #{noticeCategory}
+
+		WHERE NOTICE_NUMBER
+				= #{noticeNumber}
+	</update>
+
+	<!-- 삭제 -->
+	<delete id="deleteAdminNotice">
+
+		DELETE
+		FROM ADMIN_NOTICE
+
+		WHERE NOTICE_NUMBER
+				= #{noticeNumber}
+	</delete>
+
+</mapper>

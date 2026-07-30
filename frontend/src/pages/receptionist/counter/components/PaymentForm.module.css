@@ -1,0 +1,102 @@
+/* 수납 폼: 우측 패널 '하단'에 밀착 (margin-top:auto)
+   ※ 하단 밀착이 되려면 부모 .panel 이 flex column + min-height:100% 여야 함
+     (ReceiptDetailPanel.module.css 의 .panel 참고 — 아래 안내) */
+.form {
+    border-top: 1px solid #e2e8f0;
+    margin-top: auto;          /* ★ 패널 하단으로 밀어내림 */
+    padding-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.heading {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.error {
+    color: #dc2626;
+    font-size: 13px;
+    margin: 0;
+}
+
+/* ── 입력 행: 항목명 · 금액 '동일 크기' ── */
+.row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+/* 항목명(첫째)·금액(둘째) 둘 다 같은 비율로 늘어남 */
+.row > *:first-child,
+.row > *:nth-child(2) {
+    flex: 1 1 0;
+    min-width: 0;
+}
+/* 삭제 버튼은 내용 크기만 */
+.row > *:nth-child(3) {
+    flex: 0 0 auto;
+}
+
+/* + 항목 추가 버튼: 왼쪽 정렬(전체폭으로 안 늘어나게) */
+.addWrap {
+    display: flex;
+}
+.addWrap button {
+    padding: 2px 5px;
+    font-size: 10px;
+}
+
+/* ── 항목별 금액 요약 + 합계 (수납 버튼 위) ── */
+.summary {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+.summaryRow {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #334155;
+}
+.summaryRow > span:last-child {
+    font-variant-numeric: tabular-nums;  /* 숫자 자리 정렬 */
+    white-space: nowrap;
+}
+.summaryTotal {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-top: 1px solid #e2e8f0;
+    margin-top: 4px;
+    padding-top: 6px;
+    font-weight: 700;
+    font-size: 15px;
+    color: #0f172a;
+}
+.summaryTotal > span:last-child {
+    white-space: nowrap;   /* ★ '합계 45,000원' 세로로 안 접히게 */
+}
+
+/* ── 결제수단 + 수납 버튼 ── */
+.footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.footer > *:first-child {   /* Select 고정폭 */
+    flex: 0 0 110px;
+}
+.footer > *:last-child {    /* 수납 버튼이 남는 폭 차지 */
+    flex: 1;
+}
+
+/* 입력 행의 두 번째(금액 Input) 내부 텍스트 우측 정렬 */
+.row > *:nth-child(2) input {
+    text-align: right;
+}

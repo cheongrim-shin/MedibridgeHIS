@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ddit.member.mapper.MemberMapper">
+
+    <select id="selectMemberByLoginId" parameterType="String" resultType="ddit.member.vo.MemberVO">
+        SELECT
+            MEMBER_NUMBER                AS memberNumber,
+            MEMBER_ID                    AS memberId,
+            MEMBER_PASSWORD              AS memberPassword,
+            MEMBER_NAME                  AS memberName,
+            MEMBER_PHONE_NUMBER          AS memberPhoneNumber,
+            RESIDENT_REGISTRATION_NUMBER AS residentRegistrationNumber,
+            PRIMARY_ADDRESS              AS primaryAddress,
+            DETAILED_ADDRESS             AS detailedAddress,
+            POSTAL_CODE                  AS postalCode,
+            ACCOUNT_STATUS               AS accountStatus,
+            MEMBER_STATUS                AS memberStatus
+        FROM MEMBER
+        WHERE MEMBER_ID = #{memberId}
+    </select>
+
+    <select id="selectAuthoritiesByMemberNumber" parameterType="String" resultType="String">
+        SELECT PERMISSION_NAME
+        FROM AUTHORITY
+        WHERE MEMBER_NUMBER = #{memberNumber}
+    </select>
+
+    <select id="selectEmployeeByMemberNumber" parameterType="String" resultType="ddit.member.vo.EmployeeVO">
+        SELECT
+            E.MEMBER_NUMBER   AS memberNumber,
+            E.DEPARTMENT_CODE AS departmentCode,
+            E.POSITION_CODE   AS positionCode,
+            D.DEPARTMENT_NAME AS departmentName,
+            P.POSITION_NAME   AS positionName
+        FROM EMPLOYEE E
+        LEFT JOIN DEPARTMENT D ON D.DEPARTMENT_CODE = E.DEPARTMENT_CODE
+        LEFT JOIN POSITION   P ON P.POSITION_CODE   = E.POSITION_CODE
+        WHERE E.MEMBER_NUMBER = #{memberNumber}
+    </select>
+
+    <!-- 회원번호 - 호출 시 시퀀스로 증가 -->
+    <select id="selectNextEmployeeMemberNumberSuffix" resultType="int">
+        SELECT SEQ_MEMBER_M01.NEXTVAL
+        FROM DUAL
+    </select>
+
+    <!-- 직책코드로 권한 조회 - 없으면 null -->
+    <select id="selectDefaultPermissionByPositionCode" parameterType="String" resultType="String">
+        SELECT DEFAULT_PERMISSION_NAME
+        FROM POSITION
+        WHERE POSITION_CODE = #{positionCode}
+    </select>
+
+    <!-- 회원정보 저장(pw: BCrypt 암호값) -->
+    <insert id="insertMember" parameterType="ddit.member.vo.MemberVO">
+        INSERT INTO MEMBER (
+            MEMBER_NUMBER
+            , MEMBER_ID
+            , MEMBER_PASSWORD
+            , MEMBER_NAME
+            , MEMBER_PHONE_NUMBER
+            , ACCOUNT_STATUS
+            , MEMBER_STATUS
+        )
+        VALUES (
+            #{memberNumber}
+            , #{memberId}
+            , #{memberPassword}
+            , #{memberName}
+            , #{memberPhoneNumber}
+            , #{accountStatus}
+            , #{memberStatus}
+        )
+    </insert>
+
+    <!-- 직원 확장정보 저장 - 부서/직책 -->
+    <insert id="insertEmployee" parameterType="ddit.member.vo.EmployeeVO">
+        INSERT INTO EMPLOYEE (
+            MEMBER_NUMBER
+            , DEPARTMENT_CODE
+            , POSITION_CODE
+        )
+        VALUES (
+            #{memberNumber}
+            , #{departmentCode}
+            , #{positionCode}
+        )
+    </insert>
+
+    <!-- 권한 저장 - 한 회원번호에 여러 행 가능 (List 구조) -->
+    <insert id="insertAuthority">
+        INSERT INTO AUTHORITY (
+            MEMBER_NUMBER
+            , PERMISSION_NAME
+        )
+        VALUES (
+            #{memberNumber}
+            , #{permissionName}
+        )
+    </insert>
+
+</mapper>

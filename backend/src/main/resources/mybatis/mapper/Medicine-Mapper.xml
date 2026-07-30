@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ddit.pharmacist.mapper.MedicineMapper">
+
+    <!-- MEDICINE_CODE -->
+    <select id="nextMedicineCode" resultType="String">
+        SELECT 'M' || LPAD(SEQ_MEDICINE_CODE.NEXTVAL, 2, '0') FROM DUAL
+    </select>
+
+    <!-- 약품 단건 조회 -->
+    <select id="readMedicine" parameterType="String" resultType="ddit.pharmacist.vo.MedicineVO">
+        SELECT *
+        FROM MEDICINE
+        WHERE MEDICINE_CODE = #{medicineCode}
+    </select>
+
+    <!-- 재고 부족 약품 목록 조회 -->
+    <select id="lowStockMedicineList" resultType="ddit.pharmacist.vo.MedicineListVO">
+        SELECT
+        m.MEDICINE_CODE,
+        m.ITEM_SEQ,
+        m.MEDICINE_CATEGORY,
+        m.MEDICINE_NAME,
+        m.MANUFACTURER,
+        m.SPECIFICATION,
+        m.INGREDIENT,
+        m.UNIT,
+        m.COVERAGE_YN,
+        m.UNIT_COST,
+        m.INSURANCE_FEE,
+        m.CONTRIBUTION,
+        m.CURRENT_QUANTITY,
+        m.MIN_QUANTITY,
+        cm.CODENAME_1 AS medicineNameText,
+        cc.CODENAME_1 AS medicineCategoryName,
+        cu.CODENAME_1 AS unitName
+        FROM MEDICINE m
+        LEFT JOIN COMMONCODE cm
+        ON m.MEDICINE_NAME = cm.COMMONCODE_NUMBER AND cm.COMMONCODE = 'M'
+        LEFT JOIN COMMONCODE cc
+        ON m.MEDICINE_CATEGORY = cc.COMMONCODE_NUMBER AND cc.COMMONCODE = 'C'
+        LEFT JOIN COMMONCODE cu
+        ON m.UNIT = cu.COMMONCODE_NUMBER AND cu.COMMONCODE = 'U'
+        WHERE m.CURRENT_QUANTITY &lt; m.MIN_QUANTITY <!-- &lt; = < -->
+        ORDER BY m.MEDICINE_CODE
+    </select>
+
+    <!-- 약품 목록 조회 -->
+    <select id="readMedicineList" resultType="ddit.pharmacist.vo.MedicineListVO">
+        SELECT
+            m.MEDICINE_CODE,
+            m.ITEM_SEQ,
+            m.MEDICINE_CATEGORY,
+            m.MEDICINE_NAME,
+            m.MANUFACTURER,
+            m.SPECIFICATION,
+            m.INGREDIENT,
+            m.UNIT,
+            m.COVERAGE_YN,
+            m.UNIT_COST,
+            m.INSURANCE_FEE,
+            m.CONTRIBUTION,
+            m.CURRENT_QUANTITY,
+            m.MIN_QUANTITY,
+            cm.CODENAME_1 AS medicineNameText,
+            cc.CODENAME_1 AS medicineCategoryName,
+            cu.CODENAME_1 AS unitName
+        FROM MEDICINE m
+        LEFT JOIN COMMONCODE cm
+            ON m.MEDICINE_NAME = cm.COMMONCODE_NUMBER AND cm.COMMONCODE = 'M'
+        LEFT JOIN COMMONCODE cc
+            ON m.MEDICINE_CATEGORY = cc.COMMONCODE_NUMBER AND cc.COMMONCODE = 'C'
+        LEFT JOIN COMMONCODE cu
+            ON m.UNIT = cu.COMMONCODE_NUMBER AND cu.COMMONCODE = 'U'
+        ORDER BY m.MEDICINE_CODE
+    </select>
+
+    <!-- 약품 등록 -->
+    <insert id="insertMedicine" parameterType="ddit.pharmacist.vo.MedicineVO">
+        INSERT INTO MEDICINE (
+            MEDICINE_CODE
+            , ITEM_SEQ
+            , MEDICINE_CATEGORY
+            , MEDICINE_NAME
+            , MANUFACTURER
+            , SPECIFICATION
+            , INGREDIENT
+            , UNIT
+            , COVERAGE_YN
+            , UNIT_COST
+            , INSURANCE_FEE
+            , CONTRIBUTION
+            , CURRENT_QUANTITY
+            , MIN_QUANTITY
+        ) VALUES (
+            #{medicineCode}
+            , #{itemSeq}
+            , #{medicineCategory}
+            , #{medicineName}
+            , #{manufacturer}
+            , #{specification}
+            , #{ingredient}
+            , #{unit}
+            , #{coverageYn}
+            , #{unitCost}
+            , #{insuranceFee}
+            , #{contribution}
+            , #{currentQuantity}
+            , #{minQuantity}
+        )
+    </insert>
+
+    <!-- 약품 수정 -->
+    <update id="updateMedicine" parameterType="ddit.pharmacist.vo.MedicineVO">
+        UPDATE MEDICINE SET
+            ITEM_SEQ = #{itemSeq}
+            , MEDICINE_CATEGORY = #{medicineCategory}
+            , MANUFACTURER = #{manufacturer}
+            , SPECIFICATION = #{specification}
+            , INGREDIENT = #{ingredient}
+            , UNIT = #{unit}
+            , COVERAGE_YN = #{coverageYn}
+            , UNIT_COST = #{unitCost}
+            , INSURANCE_FEE = #{insuranceFee}
+            , CONTRIBUTION = #{contribution}
+            , CURRENT_QUANTITY = #{currentQuantity}
+            , MIN_QUANTITY = #{minQuantity}
+        WHERE MEDICINE_CODE = #{medicineCode}
+    </update>
+
+    <!-- 약품 삭제 -->
+    <delete id="deleteMedicine" parameterType="String">
+        DELETE FROM MEDICINE
+        WHERE MEDICINE_CODE = #{medicineCode}
+    </delete>
+
+</mapper>

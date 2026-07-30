@@ -1,0 +1,43 @@
+/* RegisterModal 전용 배치 스타일 (컴포넌트 자체 스타일은 공용이 담당) */
+.error { color: #dc2626; font-size: 13px; margin: 0 0 8px; }
+
+.searchRow { display: flex; gap: 8px; margin-bottom: 12px; }
+.searchRow > :first-child { flex: 1; }          /* 검색 input이 남는 폭 차지 */
+
+.footerRow { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+
+.pickedSummary { padding: 10px 12px; background: #f0fdf4; border-radius: 6px;
+                 font-size: 14px; margin-bottom: 12px; }
+
+.formStack { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+
+/* 2열 그리드 (환자명 | 연락처) */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* 라벨 + 입력칸 세로 묶음 */
+.field { display: flex; flex-direction: column; gap: 4px; }
+.label { font-size: 12px; font-weight: 600; color: #475569; }
+
+/* 연락처 3칸 한 줄 */
+.phoneRow { display: flex; align-items: center; gap: 6px; }
+.phoneRow > input,
+.phoneRow > * { flex: 1; min-width: 0; }        /* 3칸 균등 폭, 넘침 방지 */
+
+
+/* 주민번호 앞6-뒤7 한 줄 */
+.rrnRow { display: flex; align-items: center; gap: 8px; }
+.rrnRow > * { flex: 1; }
+
+/* 가운데 '-' (연락처·주민번호 공용) 폭 고정 */
+.dash { flex: 0 0 auto; color: #94a3b8; }
+
+/* 우편번호 칸 + 찾기 버튼 한 줄 */
+.postRow { display: flex; gap: 8px; align-items: stretch; }   /* stretch: 버튼·입력 높이 통일 */
+.postRow > *:first-child { flex: 1; }
+.postRow > button { height: auto; }
+
+.fieldError { color: #dc2626; font-size: 12px; }
+
+.histBox { border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 10px; margin-bottom: 12px; }
+.histTitle { font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 4px; }
+.histRow { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; padding: 2px 0; color: #334155; }

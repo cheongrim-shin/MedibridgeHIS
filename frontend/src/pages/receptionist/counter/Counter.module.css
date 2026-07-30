@@ -1,0 +1,74 @@
+.emptyStateContainer {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-height: 500px;
+}
+
+.emptyContent {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 280px;
+}
+
+/* 🌟 버튼 너비가 100%로 팽창하지 않고 글자 크기 + 패딩에 맞게 자동 조절되도록 오버라이드 */
+.emptyContent button {
+    width: auto !important;
+}
+
+.emptyIconWrapper {
+    background: #f1f5f9;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin-bottom: 24px;
+    box-sizing: border-box;
+}
+
+
+.emptyMessage {
+    font-size: 16px; /* 🌟 15px에서 16px로 폰트 크기 증량 */
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 24px 0;
+}
+
+
+/* simplified panel layout styles */
+
+.leftPanelContent {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    height: 100%;
+}
+
+.summaryRow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+.summaryCard {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+    padding: 14px 16px; display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.summaryTitle { font-size: 12px; color: #64748b; }
+.summaryValue { font-size: 24px; font-weight: 800; color: #0f172a; }
+.colorAmber { color: #d97706; }
+.colorGreen { color: #15803d; }
+.colorTeal { color:#0d9488; } .colorBlue { color:#2563eb; }
+
+.pageDesc {
+    margin: 0 0 16px;
+    padding: 10px 14px;
+    background: #f0f9ff;
+    border-left: 3px solid #38bdf8;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #475569;
+    line-height: 1.5;
+}

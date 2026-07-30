@@ -1,0 +1,180 @@
+/* ==========================================================================
+   Form Component Styles (Unified Stylesheet)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Form Root Styles
+   -------------------------------------------------------------------------- */
+.form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Form Vertical Spacing (Gap) Variants */
+.gap_none {
+    row-gap: 0px;
+}
+
+.gap_xs {
+    row-gap: 16px;
+}
+
+.gap_sm {
+    row-gap: 20px; /* Adjusted from 16px to 20px per user request */
+}
+
+.gap_md {
+    row-gap: 24px; /* Adjusted from 20px to 24px */
+}
+
+.gap_lg {
+    row-gap: 28px; /* Adjusted from 24px to 28px */
+}
+
+
+/* --------------------------------------------------------------------------
+   2. FormRow Styles
+   -------------------------------------------------------------------------- */
+.row {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Allow children in FormRow to grow equally */
+.row > * {
+    flex: 1;
+    min-width: 0;
+}
+
+/* FormRow Size Variants (Unified horizontal spacing) */
+.row_size_none {
+    padding: 0;
+    column-gap: 0;
+}
+
+.row_size_xs {
+    padding: 0;
+    column-gap: 16px; /* Adjusted from 12px to 16px */
+}
+
+.row_size_sm {
+    padding: 0;
+    column-gap: 20px; /* Adjusted from 16px to 20px */
+}
+
+.row_size_md {
+    padding: 0;
+    column-gap: 24px; /* Adjusted from 20px to 24px */
+}
+
+.row_size_lg {
+    padding: 0;
+    column-gap: 28px; /* Adjusted from 24px to 28px */
+}
+
+/* Styling for button/action group at the end of a form */
+.actionGroup {
+    margin-top: auto;
+    padding-top: 12px;
+    display: flex !important;
+    justify-content: flex-end;
+    column-gap: 12px;
+}
+
+
+/* --------------------------------------------------------------------------
+   3. FormField Styles
+   -------------------------------------------------------------------------- */
+.fieldContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #475569;
+    text-align: left;
+    user-select: none;
+}
+
+/* Required field asterisk indicator */
+.required {
+    color: #dc2626;
+}
+
+.content {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Field validation error message styling */
+.errorMessage {
+    font-size: 11px;
+    color: #dc2626;
+    text-align: left;
+}
+
+/* FormField size variants (Label size and gap spacing) */
+.field_size_xs {
+    gap: 4px;
+}
+.field_size_xs .label {
+    font-size: 11.5px;
+}
+
+.field_size_sm {
+    gap: 6px;
+}
+.field_size_sm .label {
+    font-size: 12.5px;
+}
+
+.field_size_md {
+    gap: 8px;
+}
+.field_size_md .label {
+    font-size: 13.5px;
+}
+
+.field_size_lg {
+    gap: 10px;
+}
+.field_size_lg .label {
+    font-size: 15px;
+}
+
+/* FormField "split" variant (For split input groupings like SSN or phone numbers) */
+.splitGroup {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 8px;
+}
+
+.segment {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.separator {
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 500;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+/* FormField "field-button" variant (For input fields with a trailing action button) */
+.fieldButtonGroup {
+    display: grid;
+    grid-template-columns: 7fr 3fr;
+    width: 100%;
+    gap: 8px;
+}

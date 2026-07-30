@@ -1,0 +1,457 @@
+.container {
+     display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* 1. 상단 요약 카드 영역 */
+.summaryRow {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    flex-shrink: 0;
+}
+
+.summaryCard {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    box-sizing: border-box;
+}
+
+.summaryTitle {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #64748b;
+}
+
+.summaryValue {
+    font-size: 28px;
+    font-weight: 800;
+}
+
+.colorTeal {
+    color: #0d9488;
+}
+
+.colorGreen {
+    color: #059669;
+}
+
+/* 2. 하단 메인 레이아웃 (좌우 2단 분할) */
+.contentRow {
+    display: flex;
+    gap: 24px;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* 목록 흰 카드 (기존 leftColumn 스타일을 여기로 이관) */
+.listCard {
+    flex: 1;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,.03), 0 2px 4px -1px rgba(0,0,0,.02);
+    padding: 16px 24px 24px 24px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* 좌측 대기 환자 목록 카드 */
+.leftColumn {
+    flex: 5.5;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-height: 0;
+    min-width: 0;
+    /* 기존의 배경/보더/그림자/패딩은 .listCard 로 이동 */
+}
+
+/* 우측 제어 및 보류 카드 컨테이너 */
+.rightColumn {
+    flex: 4.5;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-height: 0;
+    min-width: 0;
+    overflow-y: auto;
+}
+
+/* 우측 개별 카드들 */
+.rightCard {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+    padding: 16px 24px 24px 24px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.rightCardBed {
+    flex: 5.5;
+}
+
+.rightCardFlex {
+    flex: 4.5;
+    min-height: 160px; 
+}
+
+/* 3. 내부 요소 스타일 */
+.cardTitleRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+
+.cardTitle {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+/* 필터 행 */
+.filterRow {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-shrink: 0;
+}
+
+.searchInput {
+    flex: 1;
+}
+
+/* 탭 컨테이너 */
+.tabContainer {
+  position: relative;   
+}
+
+.boardBtn {
+    position: absolute;
+    right: 0;
+    top: -8px; 
+}
+
+/* 테이블 영역 */
+.tableContainer {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* 환자 정보 텍스트 */
+.boldText {
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.normalText {
+    font-weight: 600;
+    color: #475569;
+}
+
+.ellipsisText {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.activeRow {
+    background-color: #f0fdfa !important; /* Teal 연하게 행 강조 */
+}
+
+
+/* 실시간 베드 카드 그리드 (callingBoard 구조 모방) */
+.bedBoard {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    max-height: 320px;      /* 약 2줄(=4개) 높이. 넘으면 스크롤 */
+    overflow-y: auto;       /* 세로 스크롤 */
+    padding-right: 4px;
+}
+
+.bedItemCard {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #f8fafc;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 4px;
+    box-sizing: border-box;
+    height: 100px;
+}
+
+.bedItemHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.bedItemName {
+    font-size: 14px;
+    font-weight: 700;
+    color: #334155;
+}
+
+.badgeWrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.statusBadge {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.badgeProgress {
+    background-color: #ccfbf1;
+
+    color: #475569;
+}
+
+.badgeEmpty {
+    background-color: #dde9b3;
+    color: #405c4e;
+}
+
+
+.bedItemContent {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.patientInfoWrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1;
+}
+
+.bedPatientInfoWrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    min-height: 24px;
+    gap: 8px;
+}
+
+.patientTherapyText {
+    font-size: 13px;
+    font-weight: 700;
+    color: #334155;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+}
+
+.patientNameText {
+    color: #0f172a;
+    font-weight: 800;
+}
+
+.therapyNameText {
+    color: #64748b;
+    font-size: 11.5px;
+    font-weight: 500;
+}
+
+.bedTimerText {
+    font-family: monospace;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #0d9488;
+    flex-shrink: 0;
+}
+
+.emptyStateText {
+    font-size: 13px;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.bedItemFooter {
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.bedItemFooter button {
+    height: 24px !important;
+    font-size: 11px !important;
+    padding: 2px 8px !important;
+    border-radius: 4px !important;
+}
+
+.detailName { font-size: 18px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+.detailGrid {
+    display: grid;
+    grid-template-columns: 100px 1fr;   /* 라벨 | 값 */
+    row-gap: 1px;                       /* 줄 간격 넉넉히 */
+    column-gap: 16px;
+    align-items: center;
+}
+.detailLabel { color: #64748b; font-size: 15px; font-weight: 600; }
+.detailValue { color: #0f172a; font-size: 16px; font-weight: 700; word-break: break-all; }
+
+/* [3번] 처방 치료 셀 + 형제 상태 배지 */
+.therapyCell {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;               /* ellipsisText가 줄어들 수 있게 */
+}
+
+/* 1100px 이하: 좌우 2단 → 세로 1단으로 전환 */
+@media (max-width: 1100px) {
+    .container { overflow-y: auto; }       /* 세로로 길어지면 스크롤 */
+    .contentRow { flex-direction: column; }
+    .leftColumn, .rightColumn { flex: none; width: 100%; }
+}
+
+/* 768px 이하: 요약 카드 2열 → 1열 */
+@media (max-width: 768px) {
+    .summaryRow { grid-template-columns: 1fr; }
+}
+
+/* ================================================================
+   [환자 상세 카드 리디자인] — PatientDetailCard.tsx 전용 스타일
+   ================================================================ */
+
+/* 미선택 안내 문구 (기존 인라인 style을 클래스로 승격) */
+.detailEmpty { padding: 24px; text-align: center; color: #94a3b8; font-size: 14px; }
+
+/* ① 헤더 */
+.detailHeader { display: flex;  align-items: center; gap: 12px; margin-bottom: 12px; }
+.detailAvatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: #ccfbf1;                 /* teal-100 — 페이지 포인트색과 동일 계열 */
+    color: #0f766e;                      /* teal-700 */
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; font-weight: 700; flex-shrink: 0;
+}
+.detailHeaderInfo { flex: 1; min-width: 0; }     /* min-width:0 → 긴 이름 말줄임 허용 */
+.detailAge  { font-size: 13px; color: #64748b; font-weight: 400; }
+.detailSub  { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+
+/* 상태 배지 — 대기(teal 연한 배경) / 치료중(green) */
+.statusChipWait, .statusChipActive {
+    flex-shrink: 0; font-size: 12px; font-weight: 600;
+    padding: 4px 10px; border-radius: 999px; white-space: nowrap;
+}
+.statusChipWait   { background: #ccfbf1; color: #0f766e; }
+.statusChipActive { background: #dcfce7; color: #15803d; }
+
+.detailPhone {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ② 속성 칩 줄 */
+.chipRow { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.chip, .chipWarn, .chipActive {
+    font-size: 11px; font-weight: 600; line-height: 1;
+    padding: 4px 8px; border-radius: 999px; white-space: nowrap;
+}
+.chip       { border: 1px solid #e2e8f0; color: #64748b; background: #fff; }
+.chipWarn   { background: #fef3c7; color: #92400e; }   /* 형제 '대기' — 주의 노랑 */
+.chipActive { background: #dcfce7; color: #15803d; }   /* 형제 '치료중' — 초록 */
+
+.chipStat {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 999px;        /* 기존 .chip과 동일 형태 유지 */
+    font-size: 12px;
+    background: #f0fdfa;        
+    color: #0f766e;
+}
+.chipStat b { font-weight: 700; }
+/* [추가] 이 칩부터 오른쪽 끝으로 밀기 */
+.chipStatFirst { margin-left: auto; }
+
+/* ③ 정보 구역 — 위 구분선으로 헤더와 분리 */
+.detailSection { border-top: 1px solid #f1f5f9; padding-top: 12px; margin-bottom: 14px; }
+.detailHint { font-size: 13px; font-weight: 400; color: #94a3b8; } /* 값 옆 보조 텍스트 */
+
+/* 최근 치료 이력 */
+.historySection { border-top: 1px solid #f1f5f9; padding-top: 12px; margin-bottom: 14px; }
+.historyTitle { font-size: 12px; font-weight: 600; color: #64748b; margin: 0 0 8px; }
+.historyEmpty { font-size: 12px; color: #94a3b8; padding: 4px 0; }
+.historyList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 항상 3등분 (1건이어도 칸 폭 동일) */
+    gap: 8px;
+}
+.historyRow {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 12px;
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+    border-radius: 8px;
+    padding: 8px 10px;
+    min-width: 0;              
+}
+.historyDate { color: #64748b; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.historyItem { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #0f172a; }
+.historyStatus { flex-shrink: 0; color: #15803d; font-weight: 600; }
+
+.pageDesc {
+    margin: 0 0 16px;
+    padding: 10px 14px;
+    background: #f0f9ff;
+    border-left: 3px solid #38bdf8;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #475569;
+    line-height: 1.5;
+}

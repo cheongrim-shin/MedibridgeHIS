@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+    "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ddit.admin.mapper.AdminQnaMapper">
+
+    <resultMap id="adminQnaResultMap"
+               type="ddit.admin.vo.AdminQnaVO">
+
+        <id property="qandaNumber"
+            column="QANDA_NUMBER"/>
+
+        <result property="subject"
+                column="SUBJECT"/>
+
+        <result property="categoryCode"
+                column="CATEGORY_CODE"/>
+
+        <result property="inquiryDetails"
+                column="INQUIRY_DETAILS"/>
+
+        <result property="inquirer"
+                column="INQUIRER"/>
+
+        <result property="respondent"
+                column="RESPONDENT"/>
+
+        <result property="responseDetails"
+                column="RESPONSE_DETAILS"/>
+
+        <result property="dateWritten"
+                column="DATE_WRITTEN"/>
+
+        <result property="dateOfResponse"
+                column="DATE_OF_RESPONSE"/>
+
+        <result property="status"
+                column="STATUS"/>
+
+    </resultMap>
+
+    <!-- Q&A 목록 -->
+    <select id="selectAdminQnaList"
+            resultMap="adminQnaResultMap">
+
+        SELECT
+            QANDA_NUMBER,
+            SUBJECT,
+            CATEGORY_CODE,
+            INQUIRY_DETAILS,
+            INQUIRER,
+            RESPONDENT,
+            RESPONSE_DETAILS,
+            DATE_WRITTEN,
+            DATE_OF_RESPONSE,
+            STATUS
+        FROM (
+            SELECT
+                Q.QANDA_NUMBER,
+                Q.SUBJECT,
+                Q.CATEGORY_CODE,
+                Q.INQUIRY_DETAILS,
+                Q.INQUIRER,
+                Q.RESPONDENT,
+                Q.RESPONSE_DETAILS,
+                Q.DATE_WRITTEN,
+                Q.DATE_OF_RESPONSE,
+                Q.STATUS,
+
+                ROW_NUMBER() OVER (
+                    ORDER BY
+                        Q.DATE_WRITTEN DESC,
+                        Q.QANDA_NUMBER DESC
+                ) AS RN
+
+            FROM QNA Q
+
+            WHERE 1 = 1
+
+            <if test="keyword != null
+                      and keyword != ''">
+
+                AND (
+                    Q.SUBJECT LIKE
+                        '%' || #{keyword} || '%'
+
+                    OR Q.INQUIRER LIKE
+                        '%' || #{keyword} || '%'
+
+                    OR Q.CATEGORY_CODE LIKE
+                        '%' || #{keyword} || '%'
+
+                    OR Q.QANDA_NUMBER LIKE
+                        '%' || #{keyword} || '%'
+                )
+
+            </if>
+
+            <if test="status != null
+                      and status != ''">
+
+                AND Q.STATUS = #{status}
+
+            </if>
+        )
+        WHERE RN BETWEEN #{startRow}
+                     AND #{endRow}
+
+    </select>
+
+    <!-- Q&A 전체 건수 -->
+    <select id="selectAdminQnaCount"
+            resultType="int">
+
+        SELECT COUNT(*)
+        FROM QNA Q
+        WHERE 1 = 1
+
+        <if test="keyword != null
+                  and keyword != ''">
+
+            AND (
+                Q.SUBJECT LIKE
+                    '%' || #{keyword} || '%'
+
+                OR Q.INQUIRER LIKE
+                    '%' || #{keyword} || '%'
+
+                OR Q.CATEGORY_CODE LIKE
+                    '%' || #{keyword} || '%'
+
+                OR Q.QANDA_NUMBER LIKE
+                    '%' || #{keyword} || '%'
+            )
+
+        </if>
+
+        <if test="status != null
+                  and status != ''">
+
+            AND Q.STATUS = #{status}
+
+        </if>
+
+    </select>
+
+    <!-- Q&A 상세 -->
+    <select id="selectAdminQnaDetail"
+            resultMap="adminQnaResultMap">
+
+        SELECT
+            QANDA_NUMBER,
+            SUBJECT,
+            CATEGORY_CODE,
+            INQUIRY_DETAILS,
+            INQUIRER,
+            RESPONDENT,
+            RESPONSE_DETAILS,
+            DATE_WRITTEN,
+            DATE_OF_RESPONSE,
+            STATUS
+        FROM QNA
+        WHERE QANDA_NUMBER = #{qandaNumber}
+
+    </select>
+
+    <!-- 관리자 답변 및 상태 변경 -->
+    <update id="updateAdminQnaAnswer"
+            parameterType="ddit.admin.vo.AdminQnaVO">
+
+        UPDATE QNA
+        SET
+            RESPONDENT = #{respondent},
+            RESPONSE_DETAILS = #{responseDetails},
+            DATE_OF_RESPONSE = SYSDATE,
+            STATUS = 'COMPLETE'
+        WHERE QANDA_NUMBER = #{qandaNumber}
+
+    </update>
+
+    <!-- QNA 삭제 -->
+    <delete id="deleteAdminQna">
+        DELETE FROM QNA
+        WHERE QANDA_NUMBER = #{qandaNumber}
+    </delete>
+
+</mapper>
