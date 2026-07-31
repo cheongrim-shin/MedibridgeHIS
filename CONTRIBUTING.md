@@ -12,12 +12,9 @@ Medibridge 병원 정보 시스템(HIS) 리포지토리입니다.
 | 디렉토리/패키지명 | 매칭 객체 (역할군 / 기능) |
 | :--- | :--- |
 | `login` | 로그인 |
-| `blankPage` | 공통 레이아웃 |
 | `receptionist` | 원무 행정 |
 | `outpatientNurse` | 외래 간호사 |
 | `doctor` | 의사 |
-| `radiologyTechnologist` | 방사선사 |
-| `clinicalPathologist` | 임상병리사 |
 | `physicalTherapist` | 물리치료사 |
 | `pharmacist` | 약사 |
 | `admin` | 관리자 |
