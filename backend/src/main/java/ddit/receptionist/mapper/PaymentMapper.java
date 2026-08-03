@@ -17,6 +17,9 @@ public interface PaymentMapper {
 	public List<PaymentDetailVO> selectPaymentHistoryList(String medicalNumber);
 	
 	public int updateReceiptStatusPaid(String medicalNumber);
+
+	/** 수납 가능 상태('수납대기')인지 사전 확인 — 카드 승인 전에 부른다 */
+	public int countPayable(String medicalNumber);
 	
 	public List<PaymentDetailVO> selectChargeList(String medicalNumber);
 	

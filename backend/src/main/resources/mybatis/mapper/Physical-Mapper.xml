@@ -131,7 +131,12 @@
 	                THEN '여' ELSE '남' END                 AS gender          
 	         , doc.MEMBER_NAME                             AS doctorName
 	         , dept.DEPARTMENT_NAME                        AS specialization     
-			 , CAST(NULL AS NUMBER) 					   AS durationMin
+		         <!-- 치료중인 건은 기록된 계획 소요시간을 그대로 쓴다.
+	              대기 건은 아직 시작 전이라 NULL → 자바에서 구분별 평균/기본값으로 채운다. -->
+	         , CASE WHEN r.TREATMENT_START_TIME IS NOT NULL
+	                 AND r.TREATMENT_END_TIME   IS NOT NULL
+	                THEN ROUND((r.TREATMENT_END_TIME - r.TREATMENT_START_TIME) * 24 * 60)
+	                ELSE NULL END                  AS durationMin
 	         , CASE WHEN r.TREATMENT_STATUS = '대기'
 	                THEN ROW_NUMBER() OVER (
 	                       PARTITION BY r.THERAPY_TYPE, r.TREATMENT_STATUS

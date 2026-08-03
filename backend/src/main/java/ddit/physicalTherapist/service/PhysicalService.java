@@ -187,16 +187,19 @@ public class PhysicalService {
     
     //치료 시작: 베드 점유 + 기록 시작을 한 트랜잭션
     @Transactional
-    public void startTherapy(TherapyStartVO req) {	
-    	// 소요시간 방어
-    	int duration = (req.getDurationMin() ==null || req.getDurationMin() <=0) ? 20 : req.getDurationMin();
-    	req.setDurationMin(duration);
-
+    public void startTherapy(TherapyStartVO req) {
     	// 기록 존재, 대기 상태 확인 ============
     	TherapyRecordBriefVO rec = this.physicalMapper.selectRecordBrief(req.getTreatmentNumber());
     	if (rec ==null) {
     		throw new IllegalArgumentException("존재하지 않는 치료기록: " + req.getTreatmentNumber());
     	}
+
+    	// 소요시간 방어 — 기본값은 치료구분에 맞춰야 한다(일반 30분 / 견인 20분).
+    	// rec.getTherapyType()은 DB 한글값이므로 코드로 바꿔서 넘긴다.
+    	int duration = (req.getDurationMin() ==null || req.getDurationMin() <=0)
+    			? defaultDuration(TherapyType.toCode(rec.getTherapyType()))
+    			: req.getDurationMin();
+    	req.setDurationMin(duration);
     	if(!TreatmentStatus.WAIT.dbLabel().equals(rec.getTreatmentStatus())) {
     		throw new IllegalStateException("대기 상태가 아니라 시작할 수 없음(현재: " + rec.getTreatmentStatus());
     	}
@@ -243,7 +246,14 @@ public class PhysicalService {
         int pending = this.physicalMapper.selectPendingOrderCount(rec.getMedicalNumber());
         if (pending == 0) {
             int moved = this.physicalMapper.updateReceiptStatusToPaymentPending(rec.getMedicalNumber());
-            log.info("completeTherapy - 전체 오더 완료, 수납대기 전환 {}행", moved);
+            if (moved == 0) {
+                // 오더는 다 끝났는데 접수가 '진료완료'가 아니라 전환이 안 된 상태.
+                // 이 환자는 수납 화면에 뜨지 않으므로 info로 흘리면 아무도 모른다.
+                log.warn("completeTherapy - 오더는 모두 완료됐으나 수납대기 전환 0행."
+                        + " RECEIPT_STATUS가 '진료완료'가 아닙니다. medicalNumber={}", rec.getMedicalNumber());
+            } else {
+                log.info("completeTherapy - 전체 오더 완료, 수납대기 전환 {}행", moved);
+            }
         } else {
             log.info("completeTherapy - 미완료 오더 {}건 남음, 전환 보류", pending);
         }

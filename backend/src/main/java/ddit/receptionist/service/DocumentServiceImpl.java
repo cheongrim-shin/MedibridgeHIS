@@ -72,7 +72,9 @@ public class DocumentServiceImpl implements DocumentService{
 			throw new IllegalArgumentException("존재하지 않는 서류");
 		if(!"접수".equals(doc.getReceiveState()))
 			throw new IllegalStateException("이미 수납된 서류");
-		int expected = doc.getUnitPrice();
+		Integer fee = doc.getUnitPrice();
+		if (fee == null) throw new IllegalArgumentException("서류 수수료가 설정되지 않았습니다: " + receiveNumber);
+		int expected = fee;
 		
 		// 포트원 단건 조회
 		PortOnePayment pay = portOneClient.getPayment(paymentId);
@@ -102,12 +104,15 @@ public class DocumentServiceImpl implements DocumentService{
 	}
 
 	@Override
+	@Transactional
 	public void payDocumentByCash(Long receiveNumber) {
 		// 1) 서류 확인 (기대금액·상태)
 	    DocumentRowVO doc = this.documentMapper.selectDocumentOne(receiveNumber);
 	    if (doc == null) throw new IllegalArgumentException("존재하지 않는 서류");
 	    if (!"접수".equals(doc.getReceiveState())) throw new IllegalStateException("이미 수납된 서류");
-	    int expected = doc.getUnitPrice();
+	    Integer fee = doc.getUnitPrice();
+	    if (fee == null) throw new IllegalArgumentException("서류 수수료가 설정되지 않았습니다: " + receiveNumber);
+	    int expected = fee;
 
 	    // 2) 매출 적재 (포트원 검증 없음 — 현금은 창구에서 직접 수납)
 	    PaymentCreateVO p = new PaymentCreateVO();
