@@ -79,24 +79,34 @@ public class AppointmentServiceImpl implements AppointmentService{
 	@Override
 	@Transactional
 	public String createAppointment(AppointmentCreateVO req) {
-		// [1] 예약 일시가 실제로 존재하고, 진료 정책에 맞는 시각인지 검증
+		//  예약 일시가 실제로 존재하고, 진료 정책에 맞는 시각인지 검증
 		LocalDateTime reserveAt = parseAndValidateReserveAt(req.getReserveAt());
 
-		// [2] 과거 시각 예약 차단 — 등록에만 적용한다
+		//  과거 시각 예약 차단 — 등록에만 적용한다
 		//     (변경은 이미 지난 예약의 증상 수정 등이 있을 수 있어 별도 판단)
 		if (reserveAt.isBefore(LocalDateTime.now())) {
 			throw new IllegalArgumentException("지난 시각에는 예약할 수 없습니다.");
 		}
 
-		// [3] 슬롯 중복 확인 — 신규이므로 제외할 예약번호가 없다(null)
+		//  슬롯 중복 확인 — 이 의사의 이 시간대가 이미 찼는지 
 		int occupied = this.appointmentMapper.countSlot(
-				req.getMemberNumber(), req.getDoctorNumber(), req.getReserveAt(), null);
+				req.getDoctorNumber(), req.getReserveAt(), req.getDurationMinutes(), null);
 		if (occupied > 0) {
-			throw new IllegalStateException("이미 이 의사에게 예약이 있습니다. 기존 예약을 수정하거나 취소해 주세요.");
+			throw new IllegalStateException("이미 예약된 시간입니다. 다른 시간을 선택해 주세요.");
+		}
+
+		//  같은 환자가 같은 의사에게 같은 날 두 번 잡는 것 방지
+		int sameDay = this.appointmentMapper.countPatientSameDay(
+				req.getMemberNumber(), req.getDoctorNumber(), req.getReserveAt(), null);
+		if (sameDay > 0) {
+			throw new IllegalStateException("이 환자는 같은 날 이 의사에게 이미 예약이 있습니다. 기존 예약을 수정하거나 취소해 주세요.");
 		}
 		try {
 			this.appointmentMapper.insertAppointment(req);
 		} catch (DuplicateKeyException e) {
+			//  현재 APPOINTMENT 에 (담당의, 예약일시) 유니크 제약이 없어 이 블록은 실행되지 않음.
+			//    위 countSlot 조회와 이 INSERT 사이의 틈(두 트랜잭션이 동시에 통과하는 경우)은
+			//    애플리케이션 코드만으로는 막을 수 없고 DB 제약이 있어야 한다.
 			throw new IllegalStateException("방금 다른 직원이 같은 시간을 예약했습니다. 새로고침 후 다시 시도해 주세요.");
 		}
 		return req.getAppointmentNumber();
@@ -109,15 +119,24 @@ public class AppointmentServiceImpl implements AppointmentService{
 			throw new IllegalArgumentException("변경할 예약번호가 없습니다.");
 		}
 		parseAndValidateReserveAt(req.getReserveAt());
+		// 자기 자신은 제외하고, 이 의사의 이 시간대가 이미 찼는지 확인
 		int occupied = this.appointmentMapper.countSlot(
-				req.getMemberNumber(), req.getDoctorNumber(), req.getReserveAt(), req.getAppointmentNumber());
+				req.getDoctorNumber(), req.getReserveAt(), req.getDurationMinutes(),
+				req.getAppointmentNumber());
 		if(occupied > 0) {
 			throw new IllegalStateException("이미 예약된 시간입니다.");
+		}
+		int sameDay = this.appointmentMapper.countPatientSameDay(
+				req.getMemberNumber(), req.getDoctorNumber(), req.getReserveAt(),
+				req.getAppointmentNumber());
+		if (sameDay > 0) {
+			throw new IllegalStateException("이 환자는 같은 날 이 의사에게 이미 예약이 있습니다.");
 		}
 		int rows;
 		try {
 			rows = this.appointmentMapper.updateAppointment(req);
 		} catch (DuplicateKeyException e) {
+			// 등록(createAppointment)과 같은 이유로 현재는 실행되지 않는 블록.
 			throw new IllegalStateException("방금 다른 직원이 같은 시간을 예약했습니다. 새로고침 후 다시 시도해 주세요.");
 		}
 		if (rows == 0) {
