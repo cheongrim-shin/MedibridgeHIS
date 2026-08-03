@@ -68,15 +68,33 @@
 		 WHERE a.appointment_number = #{appointmentNumber}
 	</select>
 	
-	<!-- 슬롯 점유 확인 (0 = 예약가능) -->
+	<!-- 슬롯 점유 확인 (0 = 예약가능)
+	     "이 의사의 이 시간대"가 비었는지만 본다. 환자 조건을 넣으면
+	     다른 환자의 같은 시각 예약을 못 잡으므로 절대 넣지 않는다.
+	     겹침 판정: 기존.시작 < 신규.종료  AND  기존.종료 > 신규.시작 -->
 	<select id="countSlot" resultType="int">
         SELECT COUNT(*)
 	      FROM APPOINTMENT
-	     WHERE MEMBER_NUMBER = #{memberNumber}          
-	       AND ATTENDING_PHYSICIAN = #{doctorNumber}   
-	       AND RESERVATION_STATUS = '예약확정'      
+	     WHERE ATTENDING_PHYSICIAN = #{doctorNumber}
+	       AND RESERVATION_STATUS = '예약확정'
+	       AND RESERVATION_START_DATE
+	             &lt; TO_DATE(#{reserveAt}, 'YYYY-MM-DD HH24:MI') + #{durationMinutes}/1440
+	       AND NVL(RESERVATION_END_DATE, RESERVATION_START_DATE + 30/1440)
+	             &gt; TO_DATE(#{reserveAt}, 'YYYY-MM-DD HH24:MI')
+	       <if test="excludeNo != null and excludeNo != ''">
+	       AND appointment_number != #{excludeNo}
+	       </if>
+    </select>
+
+    <!-- 같은 환자가 같은 의사에게 같은 날 두 번 예약하는 것 방지 (기존 countSlot의 의도) -->
+    <select id="countPatientSameDay" resultType="int">
+        SELECT COUNT(*)
+	      FROM APPOINTMENT
+	     WHERE MEMBER_NUMBER = #{memberNumber}
+	       AND ATTENDING_PHYSICIAN = #{doctorNumber}
+	       AND RESERVATION_STATUS = '예약확정'
 	       AND TRUNC(RESERVATION_START_DATE)
-          		 = TRUNC(TO_DATE(#{reserveAt}, 'YYYY-MM-DD HH24:MI'))    
+	             = TRUNC(TO_DATE(#{reserveAt}, 'YYYY-MM-DD HH24:MI'))
 	       <if test="excludeNo != null and excludeNo != ''">
 	       AND appointment_number != #{excludeNo}
 	       </if>

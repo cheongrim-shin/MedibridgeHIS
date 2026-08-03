@@ -57,6 +57,14 @@
          WHERE medical_number = #{medicalNumber}
          AND RECEIPT_STATUS = '수납대기'
 	</update>
+
+	<!-- 수납 가능 상태인지 사전 확인 (카드 승인 전 호출 → 승인 후 롤백 상황을 줄인다) -->
+	<select id="countPayable" parameterType="string" resultType="int">
+		SELECT COUNT(*)
+		  FROM receptionist_register
+		 WHERE medical_number = #{medicalNumber}
+		   AND receipt_status = '수납대기'
+	</select>
 	
 	<!-- 진찰료, 물리, 주사, 약 (해석..필요) -->
 	<select id="selectChargeList" resultType="paymentDetailVO">

@@ -22,10 +22,16 @@ public interface AppointmentMapper {
 	// 예약 상세
 	public AppointmentVO selectAppointmentOne(String appointmentNumber);
 	
-	//슬롯 점유 확인
-	int countSlot(@Param("memberNumber") String memberNumber,
+	//슬롯 점유 확인 (해당 의사의 해당 시간대에 다른 예약이 겹치는지)
+	int countSlot(@Param("doctorNumber")    String doctorNumber,
+		            @Param("reserveAt")       String reserveAt,
+		            @Param("durationMinutes") int durationMinutes,
+		            @Param("excludeNo")       String excludeNo);
+
+	//같은 환자가 같은 의사에게 같은 날 중복 예약하는지
+	int countPatientSameDay(@Param("memberNumber") String memberNumber,
 		            @Param("doctorNumber") String doctorNumber,
-		            @Param("reserveAt")    String reserveAt,      
+		            @Param("reserveAt")    String reserveAt,
 		            @Param("excludeNo")    String excludeNo);
 	
 	// 예약 등록

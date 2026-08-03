@@ -56,7 +56,7 @@ public class PortOneClient {
             return out;
 
         } catch (RestClientException e) {
-            throw new IllegalStateException("결제 정보를 확인할 수 없습니다. 잠시 후 다시 시도해 주세요.", e);
+            throw new ExternalServiceException("결제 정보를 확인할 수 없습니다. 잠시 후 다시 시도해 주세요.", e);
         }
     }
 }

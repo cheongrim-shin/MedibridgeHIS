@@ -485,12 +485,15 @@ export const AppointmentPage = () => {
                     selectAllow={handleSelectAllow}
                     select={handleSelect}
                     eventClick={handleEventClick}
+                    selectOverlap={false}                       // 이미 예약이 있는 슬롯은 아예 선택 불가
+                                                                // (기본값 true — 안 끄면 남의 예약 위에 겹쳐 잡힌다)
 
                     editable={!!doctorNumber}                   // 드래그 이동 허용
                     eventStartEditable={true}
                     eventDurationEditable={true}
                     eventDrop={handleEventDrop}
                     eventResize={handleEventResize}
+                    eventOverlap={false}                        // 드래그로 다른 예약 위에 올려놓는 것 차단
 
                     /* ── 표시 옵션 ── */
                     nowIndicator={true}                         // 현재 시각 빨간 선

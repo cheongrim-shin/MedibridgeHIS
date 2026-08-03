@@ -1,0 +1,13 @@
+# DB 덤프 — 개인정보 포함, 커밋 금지
+*.sql
+*.dump
+
+# 개인 작업물
+MedibridgeHIS_*.docx
+
+# 루트 레벨 IDE·OS 파일
+# (backend/.gitignore, frontend/.gitignore 는 각 하위 폴더에만 적용됨)
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
