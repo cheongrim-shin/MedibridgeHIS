@@ -41,7 +41,7 @@ public class LmStudioClient {
      * @return 모델이 낸 텍스트
      */
     public String chat(String systemPrompt, String userPrompt) {
-    	log.debug("AI 요정 : model={}, userPrompt={}", model, userPrompt);
+    	log.debug("AI 요청 : model={}, userPrompt={}", model, userPrompt);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -80,8 +80,8 @@ public class LmStudioClient {
 
         } catch (RestClientException e) {
         	long elapsed = System.currentTimeMillis() - startedAt;
-        	log.warn("LM Studio 호출 실패: {}",elapsed, e.getMessage());
-            throw new IllegalStateException("AI 서버에 연결할 수 없습니다. LM Studio 실행 여부를 확인해 주세요.", e);
+        	log.warn("LM Studio 호출 실패: {}ms, {}", elapsed, e.getMessage(), e);
+            throw new ExternalServiceException("AI 서버에 연결할 수 없습니다. LM Studio 실행 여부를 확인해 주세요.", e);
         }       
     }
 }

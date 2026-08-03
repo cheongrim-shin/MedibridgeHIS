@@ -33,6 +33,14 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(body); //409
 	}
 	
+	/** 외부 시스템(LM Studio·포트원) 장애 → 503 (사용자 잘못이 아니므로 409로 내보내지 않는다) */
+    @ExceptionHandler(ExternalServiceException.class)
+    public ResponseEntity<Map<String, Object>> handleExternal(ExternalServiceException e) {
+        log.error("ExternalService : {}", e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(Map.of("message", e.getMessage(), "errorCode", "EXTERNAL_SERVICE_DOWN")); // 503
+    }
+
 	/** 활성 코드 중복 등 "상태 충돌" → 409 */
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<Map<String, Object>> handleConflict(IllegalStateException e) {
